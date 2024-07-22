@@ -13,6 +13,8 @@ import moment from 'moment-timezone';
 // import socket from '../io';
 import { io } from 'socket.io-client'; // Correct import
 import { useSocket } from '../io'; // Correct import
+import { useQuery } from '@tanstack/react-query';
+const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.data);
 
 
 function UserDashboard() {
@@ -29,7 +31,67 @@ function UserDashboard() {
     const [socketData, setSocketData] = useState(null); // State to store data from socket
     const navigate = useNavigate();
     const socket = useSocket()
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('items'));
+    const headers = {
+        Authorization: 'Bearer ' + token,
+    };
 
+
+
+       // Define URLs based on user type
+       const userUrl = user?.userType === 'user' ? 'https://myuniversallanguages.com:9093/api/v1/timetrack/hours' : null;
+       const ownerUrl = (user?.userType === 'owner' || user?.userType === 'admin') ? 'https://myuniversallanguages.com:9093/api/v1/owner/getCompanyemployee' : null;
+       const managerUrl = user?.userType === 'manager' ? 'https://myuniversallanguages.com:9093/api/v1/manager/dashboard' : null;
+   
+       // Use React Query to fetch data
+       const { data: userData, error: userError, isLoading: isUserLoading } = useQuery({
+           queryKey: ['userData', userUrl],
+           queryFn: () => fetcher(userUrl, headers),
+           enabled: !!userUrl // Only fetch if userUrl is defined
+       });
+       
+       const { data: ownerData, error: ownerError, isLoading: isOwnerLoading } = useQuery({
+           queryKey: ['ownerData', ownerUrl],
+           queryFn: () => fetcher(ownerUrl, headers),
+           enabled: !!ownerUrl // Only fetch if ownerUrl is defined
+       });
+       
+       const { data: managerData, error: managerError, isLoading: isManagerLoading } = useQuery({
+           queryKey: ['managerData', managerUrl],
+           queryFn: () => fetcher(managerUrl, headers),
+           enabled: !!managerUrl // Only fetch if managerUrl is defined
+       });
+    
+        // Handle the fetched data
+        const processOwnerData = (data) => {
+            if (data) {
+                const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
+                const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
+                const allUsers = [...onlineUsers, ...offlineUsers];
+                return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
+            }
+            return [];
+        };
+    
+        const processManagerData = (data) => {
+            if (data) {
+                const onlineUsers = data?.onlineUsers?.length > 0 ? data.onlineUsers : [];
+                const offlineUsers = data?.offlineUsers?.length > 0 ? data.offlineUsers : [];
+                const allUsers = [...onlineUsers, ...offlineUsers];
+                return allUsers.filter((f) => f.isArchived === false && f.UserStatus === false);
+            }
+            return [];
+        };
+    
+        // Determine if loading
+        const isLoading = isUserLoading || isOwnerLoading || isManagerLoading;
+    
+        if (userError || ownerError || managerError) {
+            console.error('Error fetching data:', userError || ownerError || managerError);
+            // return <div>Error loading data</div>;
+        }
+    
     const getManagerData = async () => {
         setLoading(true)
         try {
@@ -149,24 +211,43 @@ function UserDashboard() {
 
     }, [socket]);
 
-    useEffect(() => {
-        if (user?.userType === "user") {
-            getUserData()
-        }
-        if (user?.userType === "owner" || user?.userType === "admin") {
-            getOwnerData()
-        }
-        if (user?.userType === "manager") {
-            getManagerData()
-        }
-    }, [])
+    // useEffect(() => {
+    //     if (user?.userType === "user") {
+    //         getUserData()
+    //     }
+    //     if (user?.userType === "owner" || user?.userType === "admin") {
+    //         getOwnerData()
+    //     }
+    //     if (user?.userType === "manager") {
+    //         getManagerData()
+    //     }
+    // }, [])
 
+   // Handle the fetched data
 
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('items'));
-    const headers = {
-        Authorization: 'Bearer ' + token,
-    };
+   useEffect(() => {
+    if (userData) {
+        setData(userData);
+    }
+}, [userData]);
+
+useEffect(() => {
+    if (ownerData) {
+        const onlineUsers = ownerData?.onlineUsers?.length > 0 ? ownerData.onlineUsers : [];
+        const offlineUsers = ownerData?.offlineUsers?.length > 0 ? ownerData.offlineUsers : [];
+        const allUsers = [...onlineUsers, ...offlineUsers];
+        setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
+    }
+}, [ownerData]);
+
+useEffect(() => {
+    if (managerData) {
+        const onlineUsers = managerData?.onlineUsers?.length > 0 ? managerData.onlineUsers : [];
+        const offlineUsers = managerData?.offlineUsers?.length > 0 ? managerData.offlineUsers : [];
+        const allUsers = [...onlineUsers, ...offlineUsers];
+        setData2(allUsers.filter((f) => f.isArchived === false && f.UserStatus === false));
+    }
+}, [managerData]);
 
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
