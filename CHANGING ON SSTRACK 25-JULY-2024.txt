@@ -1,0 +1,8 @@
+SSTRACK
+
+
+Store the data related to totalHours and totalTime for the admin in the cache.
+Store the specific user data in the cache to show it in the report.
+Store the owner’s data in the cache for use in the report.
+Create individual functions to store the admin data in the cache.
+Store the manager’s data in the cache and display only manager-specific data in the report
