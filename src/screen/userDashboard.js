@@ -13,7 +13,7 @@ import moment from 'moment-timezone';
 // import socket from '../io';
 import { io } from 'socket.io-client'; // Correct import
 import { useSocket } from '../io'; // Correct import
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from 'react-query';
 const fetcher = (url, headers) => axios.get(url, { headers }).then((res) => res.data);
 
 
