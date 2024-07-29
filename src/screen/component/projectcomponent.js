@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import archive from "../../images/Archive.webp";
+import deleteIcon from "../../images/DeleteTeam.webp";
 import { useNavigate } from 'react-router-dom';
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import useLoading from '../../hooks/useLoading';
+import { useQuery } from 'react-query';
 
 const Projectcomponent = (props) => {
     // style
@@ -33,7 +36,7 @@ const Projectcomponent = (props) => {
     const [data, setData] = useState({});
     const [users, setUsers] = useState(null);
 
-    const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, payrate, reSendInvitation, allowEmp, setAllowemp } = props
+    const { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, projectName, getData, allowEmp, setAllowemp } = props
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
@@ -41,7 +44,50 @@ const Projectcomponent = (props) => {
     };
 
 
-    const getData = async (fixId) => {
+    const fetchOwnerCompanies = async () => {
+        const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
+        return response.data;  // React Query will handle the response status internally
+    }
+
+
+    const { data: users1, isLoading, isError, refetch } = useQuery({
+        queryKey: ['users', fixId],
+        queryFn: fetchOwnerCompanies,
+        select: (data) => {
+            return data?.employees?.sort((a, b) => {
+                if (a.inviteStatus !== b.inviteStatus) {
+                    return a.inviteStatus ? 1 : -1;
+                }
+                if (a.isArchived !== b.isArchived) {
+                    return a.isArchived ? 1 : -1;
+                }
+                return 0;
+            });
+        },
+        onError: (error) => {
+            console.error("Error fetching data:", error);
+            enqueueSnackbar("Error fetching data", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
+        }
+    });
+
+
+    // Update users state whenever users1 changes
+    useEffect(() => {
+        if (users1) {
+            setUsers(users1);
+        }
+    }, [users1]);
+
+
+
+
+
+
+
+    const getDatas = async (fixId) => {
         setLoading(true);
         try {
             const response = await axios.get(`${apiUrl}/owner/companies`, { headers })
@@ -153,13 +199,13 @@ const Projectcomponent = (props) => {
                 projectId: [fixId]
             }, { headers });
             if (response.status === 200) {
-                // enqueueSnackbar("Settings saved", {
-                //     variant: "success",
-                //     anchorOrigin: {
-                //         vertical: "top",
-                //         horizontal: "right"
-                //     }
-                // });
+                enqueueSnackbar("Settings saved", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
             }
         } catch (err) {
             console.error("Error toggling user:", err);
@@ -196,7 +242,7 @@ const Projectcomponent = (props) => {
     };
 
     useEffect(() => {
-        getData(fixId);
+        getDatas(fixId);
     }, [fixId])
 
     const user = JSON.parse(localStorage.getItem("items"))
@@ -227,28 +273,25 @@ const Projectcomponent = (props) => {
                 projectId: [fixId]
             }, { headers });
             if (response.status === 200) {
-
-
                 // Update allowEmp state
-                setAllowemp((prevAllowEmp) => {
-                    if (isAssign) {
-                        return [...prevAllowEmp, u_ID];
-                    } else {
-                        return prevAllowEmp.filter(id => id !== u_ID);
-                    }
-                });
+                setAllowemp(u_ID);
 
                 // Update users state to reflect the new isAssign status
                 setUsers((prevUsers) => {
                     return prevUsers.map((user) => {
-                        if (user._id === u_ID) {
-                            return {
-                                ...user,
-                                isAssign: isAssign
-                            };
-                        }
-                        return user;
+                        return {
+                            ...user,
+                            isAssign: isAssign
+                        };
                     });
+                });
+
+                enqueueSnackbar("All users assigned successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
                 });
             }
         } catch (err) {
@@ -264,33 +307,31 @@ const Projectcomponent = (props) => {
 
             console.log("projectID:", fixId);
             const response = await axios.post(`${apiUrl}/superAdmin/assignProject`, {
-                userIds: [allowEmp],
+                userIds: allowEmp,
                 isAssign: isAssign,
                 projectId: [fixId]
             }, { headers });
             if (response.status === 200) {
-
-
+                getData();
                 // Update allowEmp state
-                setAllowemp((prevAllowEmp) => {
-                    if (isAssign) {
-                        return [...prevAllowEmp, allowEmp];
-                    } else {
-                        return prevAllowEmp.filter(id => id !== allowEmp);
-                    }
-                });
+                setAllowemp([]);
 
                 // Update users state to reflect the new isAssign status
                 setUsers((prevUsers) => {
                     return prevUsers.map((user) => {
-                        if (user._id === allowEmp) {
-                            return {
-                                ...user,
-                                isAssign: isAssign
-                            };
-                        }
-                        return user;
+                        return {
+                            ...user,
+                            isAssign: isAssign
+                        };
                     });
+                });
+
+                enqueueSnackbar("All users removed successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
                 });
             }
         } catch (err) {
@@ -299,27 +340,85 @@ const Projectcomponent = (props) => {
         // Add your logic here for removing all items
     }
 
+    const handleArchive = async () => {
+        console.log('====================================');
+        console.log(headers);
+        console.log('====================================');
+        try {
+            const response = await axios.patch(`${apiUrl}/superAdmin/archiveProject/${fixId}`, { headers });
+            if (response.status === 200) {
+                enqueueSnackbar("Project archived successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
+                getData(); // Implement any additional logic for archiving the project
+            }
+        } catch (err) {
+            console.error("Error archiving project:", err);
+            enqueueSnackbar("Failed to archive project", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            getData();
+        }
+    };
 
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`${apiUrl}/superAdmin/deleteProject/${fixId}`, { headers });
+            if (response.status === 200) {
+                enqueueSnackbar("Project deleted successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
+                getData();// Implement any additional logic for deleting the project
+            }
+        } catch (err) {
+            console.error("Error deleting project:", err);
+            enqueueSnackbar("Failed to delete project", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            getData();
+        }
+    };
 
 
 
     return (
         <div className="container p-3">
+            <SnackbarProvider />
             {/* Header Right Side */}
             <div className="d-flex justify-content-between align-items-center flex-wrap w-100 mb-2">
-                <div className="font-weight-bold" style={{ fontSize: '16px' }}>Project Name</div>
+                <div className="employeeDetailName1" style={{ fontSize: '24px' }}>{projectName}</div>
                 <div className="d-flex gap-2">
-                    <button style={archiveButtonStyle}>Archive</button>
-                    <button style={deleteButtonStyle}>Delete</button>
+                    <div className="archiveMain mt-3" onClick={handleArchive}>
+                        <p><img className="paueIcon" src={archive} alt="Archive.png" />{isUserArchive ? "Archive" : "Unarchive"}</p>
+                    </div>
+                    <div className="deleteMain mt-3" onClick={handleDelete}>
+                        <p><img className="paueIcon" src={deleteIcon} alt="DeleteTeam.png" />Delete</p>
+                    </div>
                 </div>
             </div>
             {/* Assign Project to Client */}
-            <div className="text-primary" style={{ cursor: 'pointer', fontSize: '12px', }}>Assign Project to Client</div>
+            <div className=" mb-3" style={{ cursor: 'pointer', fontSize: '18px', color: 'black' }}>Assign Project to Client</div>
             {/* Project Member */}
-            <div className="mt-3">Project Member</div>
+            <div className="employeeDetailName1" style={{ fontSize: '24px' }}>Project Member</div>
             <div className="d-flex gap-2">
-                <div className="text-primary" style={{ fontSize: '12px', cursor: 'pointer' }} onClick={addAll}>Add All</div>
-                <div className="text-primary" style={{ fontSize: '12px', cursor: 'pointer' }} onClick={removeAll}>Remove All</div>
+                <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={addAll}>Add All</div>
+                <div className=" mt-3" style={{ fontSize: '18px', cursor: 'pointer', color: 'black' }} onClick={removeAll}>Remove All</div>
             </div>
             {/* toogle buttons */}
             {/* <div style={{ marginTop: 10 }}>
@@ -376,17 +475,17 @@ const Projectcomponent = (props) => {
                             type="checkbox"
                             checked={allowEmp.includes(f._id)}
                         />
-                        {user?.userType !== "manager" && (
-                            <label
-                                style={{
-                                    background: allowEmp.includes(f._id) ? "#5CB85C" : "grey"
-                                }}
-                                className="react-switch-label"
-                                htmlFor={`react-switch-${f._id}`}
-                            >
-                                <span className={`react-switch-button`} />
-                            </label>
-                        )}
+                        {/* {user?.userType !== "manager" && ( */}
+                        <label
+                            style={{
+                                background: allowEmp.includes(f._id) ? "#5CB85C" : "grey"
+                            }}
+                            className="react-switch-label"
+                            htmlFor={`react-switch-${f._id}`}
+                        >
+                            <span className={`react-switch-button`} />
+                        </label>
+                        {/* )} */}
                         <p style={{ margin: "0 0 0 10px", color: "#aaa", fontWeight: "500" }}>{f.name}</p>
                     </div>
                 ))}

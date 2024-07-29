@@ -1,35 +1,39 @@
-import React, { useEffect, useState } from 'react'
-import Skeleton from 'react-loading-skeleton'
+import React, { useEffect, useState } from 'react';
+import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 import useLoading from '../hooks/useLoading';
 import axios from 'axios';
-import { enqueueSnackbar } from 'notistack';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import archiveIcon from "../images/archive.svg";
 import inviteIcon from "../images/invitation.svg";
-import { AiOutlineUser, AiFillCrown, AiFillStar } from 'react-icons/ai'
+import { AiOutlineUser, AiFillCrown, AiFillStar } from 'react-icons/ai';
 import OwnerTeamComponent from '../companyOwner/ownerTeamComponent';
 import line from "../images/Line 3.webp";
 import Projectcomponent from './component/projectcomponent';
+import { useSocket } from '../io';
+import { useQuery, useQueryClient } from 'react-query';
+
+
 
 const Project = () => {
     const [show, setShow] = useState(false);
     const [show2, setShow2] = useState(false);
     const [show3, setShow3] = useState(false);
-    const [email, setEmail] = useState("")
+    const [email, setEmail] = useState("");
     const [deleteType, setDeleteType] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
-    const navigate = useNavigate()
-    const { loading, setLoading, loading2, setLoading2 } = useLoading()
-    const [payrate, setPayrate] = useState(null)
-    const [inviteStatus, setInviteStatus] = useState("")
-    const [isUserArchive, setIsUserArchive] = useState(false)
-    const [isArchived, setIsArchived] = useState(true)
-    const [activeId, setActiveId] = useState(null)
-    const [mainId, setMainId] = useState(null)
+    const navigate = useNavigate();
+    const { loading, setLoading, loading2, setLoading2 } = useLoading();
+    const [payrate, setPayrate] = useState(null);
+    const [inviteStatus, setInviteStatus] = useState("");
+    const [isUserArchive, setIsUserArchive] = useState(false);
+    const [isArchived, setIsArchived] = useState(true);
+    const [activeId, setActiveId] = useState(null);
+    const [mainId, setMainId] = useState(null);
     const [users, setUsers] = useState(null);
-    const [project, setproject] = useState(null)
-    const [allowemp, setAllowemp] = useState([])
-
+    const [project, setproject] = useState(null);
+    const [allowemp, setAllowemp] = useState([]);
+    const [projectName, setProjectName] = useState("");
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
@@ -37,35 +41,25 @@ const Project = () => {
         Authorization: "Bearer " + token,
     };
 
-    const user = JSON.parse(localStorage.getItem("items"))
+    const user = JSON.parse(localStorage.getItem("items"));
 
-    const getData = async () => {
-        setLoading(true)
-        try {
-            setLoading2(true)
-            const response = await axios.get(`${apiUrl}/timeTrack/getProjects`, { headers })
-            if (response.status) {
-                setLoading(false)
-                setLoading2(false)
-                setproject(response?.data?.projects)
+    // Get the query client at the top level
+    const queryClient = useQueryClient();
 
-            }
-        }
-        catch (err) {
-            console.log(err);
-            setLoading(false)
-            setLoading2(false)
-        }
-    }
-    // console.log('=====resposnse====', allowedEmp);
+    const fetchProject = async () => {
+        console.log("me chlaaaaaaaa");
+        const response = await axios.get(`${apiUrl}/timeTrack/getProjects`, { headers });
+        return response.data;  // React Query will handle the response status internally
+    };
+
     const getManagerTeam = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            setLoading2(true)
-            const response = await axios.get(`${apiUrl}/manager/employees`, { headers })
+            setLoading2(true);
+            const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
             if (response.status) {
-                setLoading(false)
-                setLoading2(false)
+                setLoading(false);
+                setLoading2(false);
                 setUsers(() => {
                     const filterCompanies = response?.data?.convertedEmployees?.sort((a, b) => {
                         if (a.inviteStatus !== b.inviteStatus) {
@@ -76,17 +70,15 @@ const Project = () => {
                         }
                         return 0;
                     });
-                    return filterCompanies
-                })
-                // console.log(response);
+                    return filterCompanies;
+                });
             }
-        }
-        catch (err) {
+        } catch (err) {
             console.log(err);
-            setLoading(false)
-            setLoading2(false)
+            setLoading(false);
+            setLoading2(false);
         }
-    }
+    };
 
     useEffect(() => {
         if (project && project.length > 0) {
@@ -97,48 +89,54 @@ const Project = () => {
             setInviteStatus(firstProject?.inviteStatus || false);
             setPayrate(firstProject);
             setSelectedUser(firstProject);
+            setProjectName(firstProject?.name);
             setAllowemp(firstProject?.allowedEmployees || []);
         }
     }, [project]);
 
     useEffect(() => {
-        if (user?.userType === "manager") {
-            getManagerTeam();
+        fetchProject();
+    }, []);
+
+    const { data: project1, isLoading, isError, refetch } = useQuery({
+        queryKey: ['projects'],
+        queryFn: fetchProject,
+        select: (data) => {
+            console.log('projectssss=============', data);
+            return data?.projects;
+        },
+        onError: (error) => {
+            console.log(error);
+            enqueueSnackbar("Error fetching data", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" }
+            });
         }
-        else {
-            getData();
+    });
+
+    useEffect(() => {
+        if (project1) {
+            setproject(project1);
+            console.log('====================================');
+            console.log('setprooject');
+            console.log('====================================');
         }
-    }, [])
+    }, [project1]);
 
-
-
-
-
-
-
-
-    //change to add user
     const handleSendInvitation = async () => {
         if (email !== "") {
-            setShow3(false)
+            setShow3(false);
             try {
-                const res = await axios.post(`${apiUrl}/superAdmin/email`, {
-                    toEmail: email,
-                    company: user.company,
+                const res = await axios.post(`${apiUrl}/superAdmin/addProject`, {
+                    name: email,
+                    description: "just test project",
                 }, {
                     headers: headers,
-                })
+                });
                 if (res.status) {
-                    enqueueSnackbar(res.data.message, {
-                        variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
-                    getData()
+                    queryClient.invalidateQueries('projects');  // Invalidate the 'projects' query
                 }
-                // console.log("invitationEmail RESPONSE =====>", res);
+                console.log("addproject RESPONSE =====>", res);
             } catch (error) {
                 enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
                     variant: "error",
@@ -146,72 +144,62 @@ const Project = () => {
                         vertical: "top",
                         horizontal: "right"
                     }
-                })
+                });
                 console.log("catch error =====>", error);
+                queryClient.invalidateQueries('projects');  // Invalidate the 'projects' query even if there's an error
             }
-        }
-        else {
-            enqueueSnackbar("Email address is required", {
+        } else {
+            enqueueSnackbar("Project name is required", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
                     horizontal: "right"
                 }
-            })
+            });
         }
-    }
-
-
-
-
+    };
 
     return (
         <div>
+            <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
                     <div>
                         <h5>Projects</h5>
                     </div>
-                    {/* <div className="headerTop">
-                        <h6>All times are UTC {formattedOffset}</h6>
-                        <img src={setting} alt="setting.png" style={{ cursor: "pointer" }} onClick={() => navigate("/account")} />
-                    </div> */}
                 </div>
                 <div className="mainwrapper">
                     <div className="ownerTeamContainer">
                         <div className="d-flex gap-3">
                             <div style={{ width: "350px" }}>
-                                {user?.userType !== "manager" && (
-                                    <>
-                                        {/* <p className="addUserButton" onClick={() => navigate('/company-owner-user')}>+ Create Project</p> */}
-                                        <div style={{
-                                            marginTop: "20px",
-                                            display: "flex",
-                                            width: '350px',
-                                            justifyContent: "space-between"
-                                        }}>
-                                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="New Project Name..." style={{
-                                                fontSize: "18px",
-                                                padding: "6px 10px",
-                                                width: "100%",
-                                                border: "1px solid #cacaca",
-                                                outline: "none",
-                                                borderTopLeftRadius: '5px',
-                                                borderBottomLeftRadius: '5px',
-                                            }} />
-                                            <button style={{
-                                                backgroundColor: "#7acb59",
-                                                borderTopRightRadius: "4px",
-                                                borderBottomRightRadius: "4px",
-                                                padding: "10px 25px",
-                                                color: "white",
-                                                border: "none",
-                                            }} onClick={handleSendInvitation}>
-                                                Create
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
+                                <>
+                                    <div style={{
+                                        marginTop: "20px",
+                                        display: "flex",
+                                        width: '350px',
+                                        justifyContent: "space-between"
+                                    }}>
+                                        <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="New Project Name..." style={{
+                                            fontSize: "18px",
+                                            padding: "6px 10px",
+                                            width: "100%",
+                                            border: "1px solid #cacaca",
+                                            outline: "none",
+                                            borderTopLeftRadius: '5px',
+                                            borderBottomLeftRadius: '5px',
+                                        }} />
+                                        <button style={{
+                                            backgroundColor: "#7acb59",
+                                            borderTopRightRadius: "4px",
+                                            borderBottomRightRadius: "4px",
+                                            padding: "10px 25px",
+                                            color: "white",
+                                            border: "none",
+                                        }} onClick={handleSendInvitation}>
+                                            Create
+                                        </button>
+                                    </div>
+                                </>
 
                                 <div className="companyFont">
                                     <p style={{
@@ -239,13 +227,14 @@ const Project = () => {
                                     {project?.map((e, i) => {
                                         return (
                                             <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {
-                                                setMainId(e._id)
-                                                setActiveId(e._id)
-                                                setIsUserArchive(e?.isArchived ? false : true)
-                                                setInviteStatus(false)
-                                                setPayrate(e)
-                                                setSelectedUser(e)
-                                                setAllowemp(e?.allowedEmployees)
+                                                setMainId(e._id);
+                                                setActiveId(e._id);
+                                                setIsUserArchive(e?.isArchived ? false : true);
+                                                setInviteStatus(false);
+                                                setPayrate(e);
+                                                setSelectedUser(e);
+                                                setAllowemp(e?.allowedEmployees);
+                                                setProjectName(e?.name);
                                             }}>
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: '100%' }}>
                                                     <div style={{ display: "flex", alignItems: "center" }}>
@@ -278,22 +267,22 @@ const Project = () => {
                                                         </div>
                                                     ) : null}
                                                 </div>
-                                                {
-                                                    e?.userType === "owner" ? <div>
+                                                {e?.userType === "owner" ? (
+                                                    <div>
                                                         <AiFillStar color="#e7c741" size={20} />
-                                                    </div> :
-                                                        e?.userType === "admin" ? <div>
-                                                            <AiFillStar color="#28659C" size={20} />
-                                                        </div>
-                                                            :
-                                                            e?.userType === "manager" && (
-                                                                <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                                                    <AiOutlineUser color="white" size={20} />
-                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
-                                                                </div>
-                                                            )}
+                                                    </div>
+                                                ) : e?.userType === "admin" ? (
+                                                    <div>
+                                                        <AiFillStar color="#28659C" size={20} />
+                                                    </div>
+                                                ) : e?.userType === "manager" && (
+                                                    <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                        <AiOutlineUser color="white" size={20} />
+                                                        <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )
+                                        );
                                     })}
                                 </div>
                             </div>
@@ -301,7 +290,6 @@ const Project = () => {
                                 <img src={line} style={{ height: '100%' }} />
                             </div>
                             <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "" : "", alignItems: mainId === null ? "" : "" }}>
-                                {/* {console.log("emp=====", allowemp)} */}
                                 <Projectcomponent
                                     fixId={mainId}
                                     archived_unarchived_users={() => setShow2(true)}
@@ -317,6 +305,8 @@ const Project = () => {
                                     selectedUser={selectedUser}
                                     allowEmp={allowemp}
                                     setAllowemp={setAllowemp}
+                                    projectName={projectName}
+                                    getData={refetch}
                                 />
                             </div>
                         </div>
@@ -324,7 +314,7 @@ const Project = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Project
+export default Project;

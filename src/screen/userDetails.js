@@ -29,6 +29,10 @@ import perc_100 from "../images/FullGreen.svg"
 import { ImCross } from "react-icons/im";
 import edit from '../images/EditTimeZone.webp';
 import moment from "moment-timezone";
+import { useQuery } from 'react-query';
+import { useSocket } from '../io'; // Correct import
+
+
 
 function UserDetails() {
 
@@ -59,7 +63,7 @@ function UserDetails() {
     const [showOfflineTime, setShowOfflineTime] = useState(false)
     const [showDeleteButton, setShowDeleteButton] = useState(false)
     const [showEditButton, setShowEditButton] = useState(false)
-
+    // const [fetchData, UseFetchData] = useState([])
     const [timeEntries, setTimeEntries] = useState([]);
 
     const [totalPercentageByDay, setTotalPercentageByDay] = useState(null)
@@ -77,6 +81,9 @@ function UserDetails() {
     const [startTime, setStartTime] = useState(null)
     const [endTime, setEndTime] = useState(null)
     const [deleteActivity, setDeleteActivity] = useState(false)
+    const socket = useSocket()
+
+
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
@@ -88,8 +95,246 @@ function UserDetails() {
     const apiUrl2 = "https://ss-track.vercel.app/api/v1/owner";
     const userId = params.id;
 
+
+    const fetchScreenshots = async (userId, formattedDate, headers) => {
+        const response = await axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers });
+        return response.data;
+    };
+
+    const fetchActivities = async (userId, formattedDate, headers) => {
+        const response = await axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers });
+        return response.data;
+    };
+
+    const fetchHours = async (userId, formattedDate, headers) => {
+        const response = await axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers });
+        return response.data;
+    };
+
+    const fetchTimeTrack = async (formattedDate, headers) => {
+        const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
+        return response.data;
+    };
+
+
+    const useFetchScreenshots = (userId, formattedDate, headers) => {
+        return useQuery(
+            'screenshots',
+            () => fetchScreenshots(userId, formattedDate, headers),
+            {
+                enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+            }
+        );
+    };
+
+    useEffect(() => {
+        if (!socket) {
+            console.error('Socket instance is null or undefined');
+            return;
+        }
+
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+        });
+
+        const handleUpdateData = () => {
+            // console.log('Received updateData event');
+            fetchData();
+        };
+
+        socket.on('new-ss', handleUpdateData);
+
+        return () => {
+            socket.off('new-ss', handleUpdateData);
+        };
+    }, [socket]);
+    //   const useFetchActivities = (userId, formattedDate, headers) => {
+    //     return useQuery(
+    //       'activities',
+    //       () => fetchActivities(userId, formattedDate, headers),
+    //       {
+    //         enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //       }
+    //     );
+    //   };
+
+    //   const useFetchHours = (userId, formattedDate, headers) => {
+    //     return useQuery(
+    //       'hours',
+    //       () => fetchHours(userId, formattedDate, headers),
+    //       {
+    //         enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //       }
+    //     );
+    //   };
+
+    //   const useFetchTimeTrack = (formattedDate, headers) => {
+    //     return useQuery(
+    //       'timeTrack',
+    //       () => fetchTimeTrack(formattedDate, headers),
+    //       {
+    //         enabled: !(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager"),
+    //       }
+    //     );
+    //   };
+    // const { data: screenshotsData, error: screenshotsError } = useQuery(
+    //     'screenshots',
+    //     () => fetchScreenshots(userId, formattedDate, headers),
+    //     {
+    //         enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    // );
+
+    // const { data: activitiesData, error: activitiesError } = useQuery(
+    //     'activities',
+    //     () => fetchActivities(userId, formattedDate, headers),
+    //     {
+    //         enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    // );
+
+    // const { data: hoursData, error: hoursError } = useQuery(
+    //     'hours',
+    //     () => fetchHours(userId, formattedDate, headers),
+    //     {
+    //         enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    // );
+
+    // const { data: timeTrackData, error: timeTrackError } = useQuery(
+    //     'timeTrack',
+    //     () => fetchTimeTrack(formattedDate, headers),
+    //     {
+    //         enabled: !(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager"),
+    //     }
+    // )
+
+    const { data: screenshotsData, error: screenshotsError } = useQuery(
+        'screenshots',
+        () => fetchScreenshots(userId, formattedDate, headers),
+        {
+            enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+        }
+    );
+
+    const { data: activitiesData, error: activitiesError } = useQuery(
+        'activities',
+        () => fetchActivities(userId, formattedDate, headers),
+        {
+            enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+        }
+    );
+
+    const { data: hoursData, error: hoursError } = useQuery(
+        'hours',
+        () => fetchHours(userId, formattedDate, headers),
+        {
+            enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+        }
+    );
+
+    const { data: timeTrackData, error: timeTrackError } = useQuery(
+        'timeTrack',
+        () => fetchTimeTrack(formattedDate, headers),
+        {
+            enabled: !(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager"),
+        }
+    );
+
+    // const UseFetchData = () => {
+    //     setLoading(true);
+
+    // const { data: screenshotsData, error: screenshotsError } = useQuery(
+    //     'screenshots',
+    //     () => fetchScreenshots(userId, formattedDate, headers),
+    //     {
+    //       enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    //   );
+
+    //   const { data: activitiesData, error: activitiesError } = useQuery(
+    //     'activities',
+    //     () => fetchActivities(userId, formattedDate, headers),
+    //     {
+    //       enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    //   );
+
+    //   const { data: hoursData, error: hoursError } = useQuery(
+    //     'hours',
+    //     () => fetchHours(userId, formattedDate, headers),
+    //     {
+    //       enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+    //     }
+    //   );
+
+    //   const { data: timeTrackData, error: timeTrackError } = useQuery(
+    //     'timeTrack',
+    //     () => fetchTimeTrack(formattedDate, headers),
+    //     {
+    //       enabled: !(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager"),
+    //     }
+    //   );
+
+    //   if (screenshotsData && activitiesData && hoursData) {
+    //     setData(hoursData.data);
+    //     setTotalActivityByDay(activitiesData.data);
+    //     setTimeEntryId(hoursData.data.TimeTrackingId);
+    //     setTimeTrackingId(hoursData.data.TimeTrackingId);
+    //     setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+    //     setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+    //   } else if (timeTrackData) {
+    //     setData(timeTrackData.data);
+    //     setTimeEntryId(timeTrackData.data.TimeTrackingId);
+    //     setTimeTrackingId(timeTrackData.data.TimeTrackingId);
+    //     setTimeEntries(timeTrackData.data.groupedScreenshots || []);
+    //     setTrimActivity({ ...trimActivity, totalHours: timeTrackData.data.totalHours.daily });
+    //   }
+    // }
+    const UseFetchData = () => {
+
+
+        // rest of your code
+    };
+
+    useEffect(() => {
+
+        if (screenshotsData && activitiesData && hoursData) {
+            setData(hoursData.data);
+            setTotalActivityByDay(activitiesData.data);
+            setTimeEntryId(hoursData.data.TimeTrackingId);
+            setTimeTrackingId(hoursData.data.TimeTrackingId);
+            setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+            setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+        } else if (timeTrackData) {
+            setData(timeTrackData.data);
+            setTimeEntryId(timeTrackData.data.TimeTrackingId);
+            setTimeTrackingId(timeTrackData.data.TimeTrackingId);
+            setTimeEntries(timeTrackData.data.groupedScreenshots || []);
+            setTrimActivity({ ...trimActivity, totalHours: timeTrackData.data.totalHours.daily });
+        }
+
+    })
+    // useEffect(() => {
+    //     if(activitiesData){
+    //         UseFetchData(activitiesData)
+    //     }
+    // })
+
+    // useEffect(() => {
+    //     if(timeTrackData){
+    //         UseFetchData(timeTrackData)
+    //     }
+    // })
+
+    // useEffect(() => {
+    //     if(hoursData){
+    //         UseFetchData(hoursData)
+    //     }
+    // })
+
     const fetchData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
                 const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
@@ -125,7 +370,95 @@ function UserDetails() {
             setLoading(false);
         }
     };
+    // import { useQuery, useQueryClient } from 'react-query';
+    // const queryClient = useQueryClient();
 
+    // const fetchData = async () => {
+
+    //   const { data, error, isLoading } = useQuery(
+    //     'fetchData', // key
+    //     async () => {
+    //       if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
+    //         const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
+    //           axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
+    //           axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
+    //           axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
+    //         ]);
+
+    //         const screenshotsData = screenshotsResponse.data;
+    //         const activitiesData = activitiesResponse.data;
+    //         const hoursData = hoursResponse.data;
+
+    //         return {
+    //           hoursData: hoursData.data,
+    //           totalActivityByDay: activitiesData.data,
+    //           timeEntryId: hoursData.data.TimeTrackingId,
+    //           timeTrackingId: hoursData.data.TimeTrackingId,
+    //           timeEntries: screenshotsData.data.groupedScreenshots || [],
+    //           trimActivity: { ...trimActivity, totalHours: hoursData.data.totalHours.daily }
+    //         };
+    //       } else {
+    //         const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
+    //         if (response.data) {
+    //           return {
+    //             data: response.data.data,
+    //             timeEntryId: response.data.data.TimeTrackingId,
+    //             timeTrackingId: response.data.data.TimeTrackingId,
+    //             timeEntries: response?.data?.data?.groupedScreenshots || [],
+    //             trimActivity: { ...trimActivity, totalHours: response?.data?.data?.totalHours.daily }
+    //           };
+    //         }
+    //       }
+    //     },
+    //     {
+    //       enabled: true, // default: true
+    //       staleTime: 60000, // 1 minute
+    //     }
+    //   );
+
+    //   if (isLoading) {
+    //     setLoading(true);
+    //   } else {
+    //     setLoading(false);
+    //   }
+
+    //   if (error) {
+    //     console.log(error);
+    //   }
+
+    //   if (data) {
+    //     setData(data.hoursData);
+    //     setTotalActivityByDay(data.totalActivityByDay);
+    //     setTimeEntryId(data.timeEntryId);
+    //     setTimeTrackingId(data.timeTrackingId);
+    //     setTimeEntries(data.timeEntries);
+    //     setTrimActivity(data.trimActivity);
+    //   }
+    // };
+
+    // const UseFetchData = () => {
+    //     setLoading(true);
+
+    //     const { data: screenshotsData, error: screenshotsError } = useFetchScreenshots(userId, formattedDate, headers);
+    //     const { data: activitiesData, error: activitiesError } = useFetchActivities(userId, formattedDate, headers);
+    //     const { data: hoursData, error: hoursError } = useFetchHours(userId, formattedDate, headers);
+    //     const { data: timeTrackData, error: timeTrackError } = useFetchTimeTrack(formattedDate, headers);
+
+    //     if (screenshotsData && activitiesData && hoursData) {
+    //       setData(hoursData.data);
+    //       setTotalActivityByDay(activitiesData.data);
+    //       setTimeEntryId(hoursData.data.TimeTrackingId);
+    //       setTimeTrackingId(hoursData.data.TimeTrackingId);
+    //       setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+    //       setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+    //     } else if (timeTrackData) {
+    //       setData(timeTrackData.data);
+    //       setTimeEntryId(timeTrackData.data.TimeTrackingId);
+    //       setTimeTrackingId(timeTrackData.data.TimeTrackingId);
+    //       setTimeEntries(timeTrackData.data.groupedScreenshots || []);
+    //       setTrimActivity({ ...trimActivity, totalHours: timeTrackData.data.totalHours.daily });
+    //     }
+    //   };
 
     const calculateTimeDifference = (start, end) => {
         const parseTime = (timeStr) => {
@@ -184,7 +517,7 @@ function UserDetails() {
 
 
     useEffect(() => {
-        fetchData();
+        UseFetchData();
     }, [formattedDate]);
 
     const navigate = useNavigate("")
@@ -384,6 +717,138 @@ function UserDetails() {
         return matchingEntry ? "#A8C96A" : '#EFF9EC';
     };
 
+    const fetchUser = async (activeMonth, headers) => {
+        const response = await axios.get(`${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`, { headers });
+        return response.data;
+    };
+
+    const fetchOwner = async (activeMonth, headers, paramsId) => {
+        const response = await axios.get(`${apiUrl}/superAdmin/hoursbyday/${params.id}?date=${activeMonth}`, { headers });
+        return response.data;
+    };
+
+
+
+    const { data: userData, error: userError } = useQuery(
+        'screenshots',
+        () => fetchUser(activeMonth, headers),
+        {
+            enabled: items?.userType === "user",
+        }
+    );
+
+    const { data: ownerData, error: ownerError } = useQuery(
+        'activities',
+        () => fetchOwner(),
+        {
+            enabled: items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager",
+        }
+    );
+    const fetchTotalHours = async ({ queryKey }) => {
+        const [url, params] = queryKey;
+        const response = await axios.get(url, { params, headers });
+        return response.data.data.totalHoursByDay;
+    };
+
+    const useTotalHours = (params) => {
+        const apiUrl = items?.userType === "user" ? `${apiUrl}/timetrack/hoursbyday` : `${apiUrl}/superAdmin/hoursbyday/${params.id}`;
+        const queryKey = [apiUrl, { date: activeMonth }];
+
+        const { data: totalHours, error, isLoading } = useQuery(
+            queryKey,
+            fetchTotalHours,
+            {
+                staleTime: 10000, // 10 seconds
+            }
+        );
+
+        return totalHours;
+    };
+    
+    // useEffect(() => {
+    //     if (totalHours) {
+    //         const currentDate = new Date();
+    //         const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    //         const currentYear = currentDate.getFullYear();
+    //         const maxHours = 6;
+    //         let percentagesByDay = [];
+    //         const processMonth = (totalHours, month, year) => {
+    //             const filteredHours = totalHours.filter(th => {
+    //                 const dateParts = th.date.split('-').map(part => part);
+    //                 return "0" + dateParts[1] === month && dateParts[2] === year;
+    //             });
+
+    //             console.log(`filteredHoursss for ${month}-${year}`, filteredHours);
+
+    //             filteredHours.forEach(th => {
+    //                 const timeMatches = th.totalHours.match(/(\d+)h\s*(\d*)m/);
+    //                 let totalMinutes = 0;
+
+    //                 if (timeMatches) {
+    //                     const hours = parseInt(timeMatches[1], 10) || 0;
+    //                     const minutes = parseInt(timeMatches[2], 10) || 0;
+    //                     totalMinutes = hours * 60 + minutes;
+    //                 }
+
+    //                 const totalHoursDecimal = totalMinutes / 60;
+    //                 const widthPercentage = (totalMinutes / (maxHours * 60)) * 100;
+    //                 const widthPercentageExact = (totalHoursDecimal / maxHours) * 100;
+
+    //                 percentagesByDay.push({
+    //                     date: th.date,
+    //                     totalMinutes: totalMinutes,
+    //                     percentage: Math.min(widthPercentage, 100),
+    //                     percentageExact: Math.min(widthPercentageExact, 100),
+    //                 });
+    //             });
+    //         };
+    //         let isFirstMonthProcessed = false;
+    //         for (let year = currentDate.getFullYear(); year >= 2022; year--) {
+    //             for (let month = 12; month >= 1; month--) {
+    //                 processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
+
+    //                 // Break out of the loop after processing the first month
+    //                 if (month === 1 && !isFirstMonthProcessed) {
+    //                     isFirstMonthProcessed = true;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         console.log({ percentagesByDay });
+    //         setTotalPercentageByDay(percentagesByDay);
+    //     }
+    // })
+    const getUserHoursByDay = async ({ apiUrl, activeMonth, headers }) => {
+        const response = await axios.get(`${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`, { headers });
+        return response.data.data.totalHoursByDay;
+    };
+
+    const useGetUserHoursByDay = (apiUrl, activeMonth, headers) => {
+        return useQuery(
+            ['getUserHoursByDay', apiUrl, activeMonth],
+            () => getUserHoursByDay({ apiUrl, activeMonth, headers }),
+            {
+                enabled: items?.userType === "user",
+            }
+        );
+    };
+
+    const getSuperAdminHoursByDay = async ({ apiUrl, activeMonth, id, headers }) => {
+        const response = await axios.get(`${apiUrl}/superAdmin/hoursbyday/${id}?date=${activeMonth}`, { headers });
+        return response.data.data.totalHoursByDay;
+    };
+
+    const useGetSuperAdminHoursByDay = (apiUrl, activeMonth, id, headers) => {
+        return useQuery(
+            ['getSuperAdminHoursByDay', apiUrl, activeMonth, id],
+            () => getSuperAdminHoursByDay({ apiUrl, activeMonth, id, headers }),
+            {
+                enabled: items?.userType === "superAdmin",
+            }
+        );
+    };
+
+
     async function getAllDays() {
         console.log(params);
         try {
@@ -445,6 +910,151 @@ function UserDetails() {
         }
     }
 
+    // const fetchAllDays = async (params, apiUrl, activeMonth, headers) => {
+    //     try {
+    //       const response = await axios.get(
+    //         items?.userType === "user"
+    //           ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
+    //           : `${apiUrl}/superAdmin/hoursbyday/${params.id}?date=${activeMonth}`,
+    //         { headers }
+    //       );
+    //       return response.data;
+    //     } catch (error) {
+    //       console.log(error);
+    //       throw error;
+    //     }
+    //   };
+      
+    //   const { data: allDaysData, error: allDaysError, isLoading: allDaysLoading } = useQuery(
+    //     'allDays',
+    //     () => fetchAllDays(params, apiUrl, activeMonth, headers),
+    //     {
+    //       enabled: !!params && !!apiUrl && !!activeMonth && !!headers,
+    //     }
+    //   );
+      
+    //   if (allDaysData) {
+    //     const totalHours = allDaysData.data.totalHoursByDay;
+    //     console.log("totalHours of active month", allDaysData);
+    //     const currentDate = new Date();
+    //     const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    //     const currentYear = currentDate.getFullYear();
+    //     const maxHours = 6;
+    //     let percentagesByDay = [];
+    //     const processMonth = (totalHours, month, year) => {
+    //         const filteredHours = totalHours.filter(th => {
+    //             const dateParts = th.date.split('-').map(part => part);
+    //             return "0" + dateParts[1] === month && dateParts[2] === year;
+    //         });
+
+    //         console.log(`filteredHoursss for ${month}-${year}`, filteredHours);
+
+    //         filteredHours.forEach(th => {
+    //             const timeMatches = th.totalHours.match(/(\d+)h\s*(\d*)m/);
+    //             let totalMinutes = 0;
+
+    //             if (timeMatches) {
+    //                 const hours = parseInt(timeMatches[1], 10) || 0;
+    //                 const minutes = parseInt(timeMatches[2], 10) || 0;
+    //                 totalMinutes = hours * 60 + minutes;
+    //             }
+
+    //             const totalHoursDecimal = totalMinutes / 60;
+    //             const widthPercentage = (totalMinutes / (maxHours * 60)) * 100;
+    //             const widthPercentageExact = (totalHoursDecimal / maxHours) * 100;
+
+    //             percentagesByDay.push({
+    //                 date: th.date,
+    //                 totalMinutes: totalMinutes,
+    //                 percentage: Math.min(widthPercentage, 100),
+    //                 percentageExact: Math.min(widthPercentageExact, 100),
+    //             });
+    //         });
+    //     };
+    //     let isFirstMonthProcessed = false;
+    //     for (let year = currentDate.getFullYear(); year >= 2022; year--) {
+    //         for (let month = 12; month >= 1; month--) {
+    //             processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
+
+    //             // Break out of the loop after processing the first month
+    //             if (month === 1 && !isFirstMonthProcessed) {
+    //                 isFirstMonthProcessed = true;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     console.log({ percentagesByDay });
+    //     setTotalPercentageByDay(percentagesByDay);
+    //   }
+      
+    const getAllDaysData = async ({ apiUrl, activeMonth, headers, params }) => {
+        try {
+          const response = await axios.get(items?.userType === "user" ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}` : `${apiUrl}/superAdmin/hoursbyday/${params.id}?date=${activeMonth}`, { headers });
+          const totalHours = response.data.data.totalHoursByDay;
+
+          const currentDate = new Date();
+          const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+          const currentYear = currentDate.getFullYear();
+          const maxHours = 6;
+          let percentagesByDay = [];
+
+          const processMonth = (totalHours, month, year) => {
+            const filteredHours = totalHours.filter(th => {
+              const dateParts = th.date.split('-').map(part => part);
+              return "0" + dateParts[1] === month && dateParts[2] === year;
+            });
+
+            filteredHours.forEach(th => {
+              const timeMatches = th.totalHours.match(/(\d+)h\s*(\d*)m/);
+              let totalMinutes = 0;
+
+              if (timeMatches) {
+                const hours = parseInt(timeMatches[1], 10) || 0;
+                const minutes = parseInt(timeMatches[2], 10) || 0;
+                totalMinutes = hours * 60 + minutes;
+              }
+
+              const totalHoursDecimal = totalMinutes / 60;
+              const widthPercentage = (totalMinutes / (maxHours * 60)) * 100;
+              const widthPercentageExact = (totalHoursDecimal / maxHours) * 100;
+
+              percentagesByDay.push({
+                date: th.date,
+                totalMinutes: totalMinutes,
+                percentage: Math.min(widthPercentage, 100),
+                percentageExact: Math.min(widthPercentageExact, 100),
+              });
+            });
+          };
+
+          let isFirstMonthProcessed = false;
+          for (let year = currentDate.getFullYear(); year >= 2022; year--) {
+            for (let month = 12; month >= 1; month--) {
+              processMonth(totalHours, month.toString().padStart(2, '0'), year.toString());
+
+              // Break out of the loop after processing the first month
+              if (month === 1 && !isFirstMonthProcessed) {
+                isFirstMonthProcessed = true;
+                break;
+              }
+            }
+          }
+
+          return percentagesByDay;
+        } catch (error) {
+          throw error;
+        }
+      };
+    // const useGetAllDays = (apiUrl, activeMonth, headers, params) => {
+    //     return useQuery(
+    //       ['getAllDays', apiUrl, activeMonth, params],
+    //       () => getAllDaysData({ apiUrl, activeMonth, headers, params }),
+    //       {
+    //         enabled: true,
+    //       }
+    //     );
+    //   };
+
     useEffect(() => {
         getAllDays()
     }, [activeMonth]);
@@ -470,7 +1080,7 @@ function UserDetails() {
                     }
                 })
             }
-            fetchData()
+            UseFetchData()
         } catch (error) {
             console.log(error);
             enqueueSnackbar("network error", {
@@ -516,7 +1126,7 @@ function UserDetails() {
                         horizontal: "right"
                     }
                 })
-                fetchData()
+                UseFetchData()
                 console.log(response);
             }
         } catch (error) {
@@ -565,7 +1175,7 @@ function UserDetails() {
                             horizontal: "right"
                         }
                     })
-                    fetchData()
+                    UseFetchData()
                     console.log(response);
                 }
             } catch (error) {
@@ -587,7 +1197,7 @@ function UserDetails() {
                             horizontal: "right"
                         }
                     })
-                    fetchData()
+                    UseFetchData()
                     console.log(response);
                 }
             } catch (error) {
