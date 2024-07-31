@@ -40,20 +40,17 @@ function UserHeader() {
     useEffect(() => {
         if (socket) {
           socket.on('role_update', (data) => {
-            if (data.userId === user._id) {
+            if (data.userId === user._id && data.itemId === item._id) {
               const updatedUser = { ...user, userType: data.role };
               setUser(updatedUser);
               localStorage.setItem('items', JSON.stringify(updatedUser));
       
-              // Replace token if item._id matches
-              if (data.itemId === item._id) {
-                const token = localStorage.getItem('token');
-                const tokenParts = token.split(' ');
-                const newToken = `${tokenParts[0]} userType="${data.role}" ${tokenParts[2]}`;
-                localStorage.setItem('token', newToken);
-                // Update the token in real-time
-                socket.emit('update_token', newToken);
-              }
+              const token = localStorage.getItem('token');
+              const tokenParts = token.split(' ');
+              const newToken = `${tokenParts[0]} userType="${data.role}" ${tokenParts[2]}`;
+              localStorage.setItem('token', newToken);
+              // Update the token in real-time
+              socket.emit('update_token', newToken);
       
               // Update the role in the header
               axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
