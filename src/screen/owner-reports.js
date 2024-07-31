@@ -79,7 +79,7 @@ function OwnerReport() {
 
   const { data: weeklyReportData } = useQuery(
     getQueryKey('yearly'),
-    () => fetchWeeklyReports(dateFilter?.thisWeek ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
+    () => getWeeklyReports(dateFilter?.thisWeek ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
     {
       enabled: dateFilter?.thisWeek || dateFilter?.lastWeek,
       staleTime: 60000, // 1 minute
@@ -88,7 +88,7 @@ function OwnerReport() {
 
   const { data: dailyReportData } = useQuery(
     getQueryKey('yearly'),
-    () => fetchDailyReports(dateFilter?.today ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
+    () => getDailyReports(dateFilter?.today ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
     {
       enabled: dateFilter?.today || dateFilter?.yesterday,
       staleTime: 60000, // 1 minute
@@ -111,7 +111,7 @@ function OwnerReport() {
 
   const { data: monthlyReportData } = useQuery(
     getQueryKey('monthly'),
-    () => fetchMonthlyreports(dateFilter?.thisMonth ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
+    () => getMonthlyReports(dateFilter?.thisMonth ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
     {
       enabled: dateFilter?.thisMonth || dateFilter?.lastMonth,
       staleTime: 60000, // 1 minute
@@ -458,31 +458,32 @@ function OwnerReport() {
     setLoading(false);
   };
 
-  const fetchYearlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
-    let response;
+    const fetchYearlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
+      let response;
 
-    if (userType === 'admin' || userType === 'owner') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      if (userType === 'admin' || userType === 'owner') {
+        if (employeeId) {
+          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+        } else {
+          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+        }
+      } else if (userType === 'manager') {
+        if (employeeId) {
+          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+        } else {
+          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
+        }
       } else {
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
       }
-    } else if (userType === 'manager') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-      } else {
-        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
-      }
-    } else {
-      response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
-    }
 
-    if (response.status === 200) {
-      return response.data.data;
-    } else {
-      throw new Error('Failed to fetch reports');
-    }
-  };
+      if (response.status === 200) {
+        return response.data.data;
+      } else {
+        throw new Error('Failed to fetch reports');
+      }
+    };
+    
 
   const getYearlyReports = async (type) => {
     setLoading(true);
@@ -521,31 +522,31 @@ function OwnerReport() {
     getEmployess()
   }, [])
 
-  // useEffect(() => {
-  //   dateFilter?.today === true ? getDailyReports("this") :
-  //     dateFilter?.yesterday === true ? getDailyReports("previous") :
-  //       dateFilter?.thisWeek === true ? getWeeklyReports("this") :
-  //         dateFilter?.lastWeek === true ? getWeeklyReports("previous") :
-  //           dateFilter?.thisMonth === true ? getMonthlyReports("this") :
-  //             dateFilter?.lastMonth === true ? getMonthlyReports("previous") :
-  //               dateFilter?.thisYear === true ? getYearlyReports("this") :
-  //                 dateFilter?.lastYear === true ? getYearlyReports("previous") :
-  //                   getReports()
-  // }, [employeeId, managerId, userType])
   useEffect(() => {
-    if (dateFilter?.today || dateFilter?.yesterday) {
-      // Trigger daily reports query
-    } else if (dateFilter?.thisWeek || dateFilter?.lastWeek) {
-      // Trigger weekly reports query
-    } else if (dateFilter?.thisMonth || dateFilter?.lastMonth) {
-      refetch()
-      // Trigger monthly reports query
-    } else if (dateFilter?.thisYear || dateFilter?.lastYear) {
-      refetch();
-    } else {
-      // Trigger generic reports query
-    }
-  }, [dateFilter, employeeId, managerId, userType]);
+    dateFilter?.today === true ? getDailyReports("this") :
+      dateFilter?.yesterday === true ? getDailyReports("previous") :
+        dateFilter?.thisWeek === true ? getWeeklyReports("this") :
+          dateFilter?.lastWeek === true ? getWeeklyReports("previous") :
+            dateFilter?.thisMonth === true ? getMonthlyReports("this") :
+              dateFilter?.lastMonth === true ? getMonthlyReports("previous") :
+                dateFilter?.thisYear === true ? fetchYearlyReports("this") :
+                  dateFilter?.lastYear === true ? fetchYearlyReports("previous") :
+                    getReports()
+  }, [employeeId, managerId, userType])
+  // useEffect(() => {
+  //   if (dateFilter?.today || dateFilter?.yesterday) {
+  //     // Trigger daily reports query
+  //   } else if (dateFilter?.thisWeek || dateFilter?.lastWeek) {
+  //     // Trigger weekly reports query
+  //   } else if (dateFilter?.thisMonth || dateFilter?.lastMonth) {
+  //     refetch()
+  //     // Trigger monthly reports query
+  //   } else if (dateFilter?.thisYear || dateFilter?.lastYear) {
+  //     refetch();
+  //   } else {
+  //     // Trigger generic reports query
+  //   }
+  // }, [dateFilter, employeeId, managerId, userType]);
 
   const user = users?.map(user => ({ label: user.email, value: user.email, id: user._id }))
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
@@ -781,7 +782,7 @@ function OwnerReport() {
             {console.log("reportData:", reportData)}
             {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
 
-            {(userType === "admin" || userType === "owner") && reportData && reportData.allUsers ? (
+            {(userType === "admin" || userType === "owner" || userType === 'user') && reportData && reportData.allUsers ? (
               reportData.allUsers.map((data, index) => (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="asadMehmoodDiv" key={index}>

@@ -71,7 +71,7 @@ function OwnerTeamComponent(props) {
             socket.on('user_archive', () => {
                 console.log('Received user archived reload event');
                 // Reload the page
-                window.location.reload();
+                // window.location.reload();
             });
 
             socket.on('user_unarchive', handleUserUnarchive);

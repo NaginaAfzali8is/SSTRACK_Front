@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import UserDashboardSection from "../../screen/component/userDashboardsection";
 import { useDispatch } from "react-redux";
 import { setLogout } from "../../store/timelineSlice";
+import { io } from 'socket.io-client'; // Correct import
+import { useSocket } from '../../io'; // Correct import
+
 
 function UserHeader() {
 
@@ -14,6 +17,9 @@ function UserHeader() {
     const [showContent, setShowContent] = useState(false);
     const navigate = useNavigate("");
     const dispatch = useDispatch()
+    const socket = useSocket()
+
+
 
     const logoutDivRef = useRef(null);
 
@@ -28,6 +34,35 @@ function UserHeader() {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
+
+    const [item, setItem] = useState(JSON.parse(localStorage.getItem('item')));
+
+    useEffect(() => {
+        if (socket) {
+          socket.on('role_update', (data) => {
+            if (data.userId === user._id) {
+              const updatedUser = { ...user, userType: data.role };
+              setUser(updatedUser);
+              localStorage.setItem('items', JSON.stringify(updatedUser));
+      
+              // Replace token if item._id matches
+              if (data.itemId === item._id) {
+                const token = localStorage.getItem('token');
+                const tokenParts = token.split(' ');
+                const newToken = `${tokenParts[0]} userType="${data.role}" ${tokenParts[2]}`;
+                localStorage.setItem('token', newToken);
+                // Update the token in real-time
+                socket.emit('update_token', newToken);
+              }
+      
+              // Update the role in the header
+              axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+            }
+            console.log('Role update socket', data)
+          });
+        }
+      }, [socket, user, item]);
+      
 
     function logOut() {
         localStorage.removeItem("items");
@@ -73,10 +108,10 @@ function UserHeader() {
                         {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon"></span>
                         </button> */}
-                        </div>
+                    </div>
                     <div ref={logoutDivRef}>
                         <div className="d-flex amButton" role="search">
-                            <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({user?.userType})</p>
+                            <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({user?.userType})</p>    
                             <button onClick={() => setShowContent(!showContent)} className="userName">
                                 {capitalizedWord + wordsAfterSpace}
                             </button>
