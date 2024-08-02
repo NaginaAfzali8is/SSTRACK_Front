@@ -300,13 +300,13 @@ function OwnerTeam() {
             });
 
         },
-        onError: (error) => {
-            console.error("Error fetching manager team:", error);
-            enqueueSnackbar("Error fetching manager team", {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" }
-            });
-        }
+        // onError: (error) => {
+        //     console.error("Error fetching manager team:", error);
+        //     enqueueSnackbar("Error fetching manager team", {
+        //         variant: "error",
+        //         anchorOrigin: { vertical: "top", horizontal: "right" }
+        //     });
+        // }
     });
     // Update users state whenever users1 changes
     useEffect(() => {
