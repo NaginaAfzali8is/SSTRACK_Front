@@ -50,6 +50,32 @@ function OwnerHeader() {
         }
     }
 
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('role_update', (data) => {
+                if (data.user_id === items._id) {
+                    console.log('Role update received:', data);
+                    updateRole(data.new_role);
+                }
+            });
+        }
+
+        // Don't forget to clean up when the component unmounts
+        return () => {
+            if (socket) {
+                socket.off('role_update');
+            }
+        };
+    }, [socket, items]);
+
+    const updateRole = (newRole) => {
+        localStorage.setItem('items', JSON.stringify({ ...items, userType: newRole }));
+        items.userType = newRole;
+    };
+
+
+
     return (
         <section>
             <nav className="container navbar navbar-expand-lg navbar-dark">
@@ -73,7 +99,7 @@ function OwnerHeader() {
                     </ul>
                    
                 </div> */}
-                    <div className="d-flex amButton" role="search">
+                    <div className="d-flex amButton" role="s    earch">
                         <p>{items?.name.charAt(0).toUpperCase() + items?.name.slice(1)} ({items?.userType})</p>
                         <button onClick={() => setShowContent(!showContent)} className="userName">{items?.name.charAt(0).toUpperCase()}</button>
                     </div>

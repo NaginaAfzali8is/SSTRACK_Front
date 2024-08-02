@@ -50,42 +50,43 @@ function Profile() {
         }));
     };
 
+    
     async function updateData() {
         setLoading(true)
         try {
-            const response = await axios.patch(`${apiUrl}/signin/users/Update`, {
-                ...model
-            }, {
-                headers: headers
-            })
-            if (response.data) {
-                console.log(response);
-                setLoading(false)
-                enqueueSnackbar("profile updated successfully", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                })
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("items", JSON.stringify(response.data.user));
-                setTimeout(() => {
-                    navigate("/account")
-                }, 1000);
-            }
-        } catch (error) {
+          const response = await axios.patch(`${apiUrl}/signin/users/Update`, {
+            ...model
+          }, {
+            headers: headers
+          })
+          if (response.data) {
+            console.log(response);
             setLoading(false)
-            enqueueSnackbar("Network error", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
-                }
+            enqueueSnackbar("profile updated successfully", {
+              variant: "success",
+              anchorOrigin: {
+                vertical: "top",
+                horizontal: "right"
+              }
             })
-            console.log(error);
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("items", JSON.stringify(response.data.user));
+            setTimeout(() => {
+              navigate("/account")
+            }, 1000);
+          }
+        } catch (error) {
+          setLoading(false)
+          enqueueSnackbar("Network error", {
+            variant: "error",
+            anchorOrigin: { 
+              vertical: "top",
+              horizontal: "right"
+            }
+          })
+          console.log(error);
         }
-    }
+      }
 
     function goBack() {
         navigate("/account")

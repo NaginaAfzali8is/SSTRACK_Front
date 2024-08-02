@@ -68,11 +68,11 @@ function OwnerTeamComponent(props) {
         if (socket) {
             console.log('Socket connection established:', socket.connected);
 
-            socket.on('user_archive', () => {
-                console.log('Received user archived reload event');
-                // Reload the page
-                // window.location.reload();
-            });
+            // socket.on('user_archive', () => {
+            //     console.log('Received user archived reload event');
+            //     // Reload the page
+            //     // window.location.reload();
+            // });
 
             socket.on('user_unarchive', handleUserUnarchive);
             //   socket.on('role_update', handleRoleUpdate);

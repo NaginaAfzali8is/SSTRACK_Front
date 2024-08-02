@@ -99,7 +99,7 @@ function OwnerTeam() {
     //         setIsUserArchived(data.isArchived);
     //       }
     //     };
-      
+
     //     const handleUserUnarchive = (data) => {
     //       console.log('User unarchived event received:', data);
     //       setUsers((prevUsers) =>
@@ -111,31 +111,31 @@ function OwnerTeam() {
     //         setIsUserArchived(false);
     //       }
     //     };
-      
+
     //     // const handleRoleUpdate = (data) => {
     //     //   console.log('Role updated event received:', data);
     //     //   setRole(data.role);
     //     // };
-      
+
     //     if (socket) {
     //       console.log('Socket connection established:', socket.connected);
-      
+
     //       socket.on('user_archive', handleUserArchive);
     //       socket.on('user_unarchive', handleUserUnarchive);
     //     //   socket.on('role_update', handleRoleUpdate);
-      
+
     //       // Emit user_archive event to socket when user is archived
     //       const archiveUser = (userId) => {
     //         socket.emit('user_archive', userId);
     //         handleUserArchive({ userId });
     //       };
-      
+
     //       // Emit user_unarchive event to socket when user is unarchived
     //       const unarchiveUser = (userId) => {
     //         socket.emit('user_unarchive', userId);
     //         handleUserUnarchive({ userId });
     //       };
-      
+
     //       return () => {
     //         console.log('Socket connection closed:', socket.connected);
     //         socket.off('user_archive', handleUserArchive);
@@ -146,51 +146,51 @@ function OwnerTeam() {
     //   }, [socket, mainId, setUsers]);
     useEffect(() => {
         if (socket) {
-          console.log('Socket connection established:', socket.connected);
-          socket.on('user_archive', (userId) => {
-            console.log(`Received user archived update event: ${userId}`);
-            // Update the archive icon in real-time
-            const user = users.find((user) => user._id === userId);
-            if (user) {
-              user.isArchived = true;
-              setUsers([...users]);
-            }
-          });
-      
-          socket.on('user_unarchive', (userId) => {
-            console.log(`Received user unarchived update event: ${userId}`);
-            // Update the archive icon in real-time
-            const user = users.find((user) => user._id === userId);
-            if (user) {
-              user.isArchived = false;
-              setUsers([...users]);
-            }
-          });
+            console.log('Socket connection established:', socket.connected);
+            socket.on('user_archive', (userId) => {
+                console.log(`Received user archived update event: ${userId}`);
+                // Update the archive icon in real-time
+                const user = users.find((user) => user._id === userId);
+                if (user) {
+                    user.isArchived = true;
+                    setUsers([...users]);
+                }
+            });
+
+            socket.on('user_unarchive', (userId) => {
+                console.log(`Received user unarchived update event: ${userId}`);
+                // Update the archive icon in real-time
+                const user = users.find((user) => user._id === userId);
+                if (user) {
+                    user.isArchived = false;
+                    setUsers([...users]);
+                }
+            });
         }
-      }, [socket, users, setUsers]);
-      
-      // When you archive a user on this device
-      const archiveUser = (userId) => {
+    }, [socket, users, setUsers]);
+
+    // When you archive a user on this device
+    const archiveUser = (userId) => {
         socket.emit('user_archive', userId);
         // Update the local state
         const user = users.find((user) => user._id === userId);
         if (user) {
-          user.isArchived = true;
-          setUsers([...users]);
+            user.isArchived = true;
+            setUsers([...users]);
         }
-      };
-      
-      // When you unarchive a user on this device
-      const unarchiveUser = (userId) => {
+    };
+
+    // When you unarchive a user on this device
+    const unarchiveUser = (userId) => {
         socket.emit('user_unarchive', userId);
         // Update the local state
         const user = users.find((user) => user._id === userId);
         if (user) {
-          user.isArchived = false;
-          setUsers([...users]);
+            user.isArchived = false;
+            setUsers([...users]);
         }
-      };
-    
+    };
+
     const { data: users1, isLoading, isError, refetch } = useQuery({
         queryKey: ['ownerCompanies'],
         queryFn: fetchOwnerCompanies,
@@ -450,7 +450,7 @@ function OwnerTeam() {
 
     const isAdmin = user?.userType === "admin";
     const isOwner = user?.userType === "owner";
-    
+
     const combinedData = users1?.length ? users1 : managerTeam;
 
 
@@ -652,7 +652,7 @@ function OwnerTeam() {
                                             </div>
                                         )
                                     })}
-                                    
+
                                 </div>
                             </div>
                             <div>

@@ -1,0 +1,9 @@
+
+profile_update socket:
+
+Update timeline with the help of socket > (Admin Role) (45mins)
+Update dashboard with the help of socket > (Admin role) (40mins)
+Update dashboard with the help of socket > (Manager Role) (35mins)
+Update timeline with the help of socket > (Manager Role) (25mins)
+Update dashboard with the help of socket > (User Role) (30mins)
+Update timeline with the help of socket > (User Role) (20mins)

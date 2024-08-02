@@ -202,8 +202,27 @@ function UserDashboard() {
             });
         };
 
+        const handleProfileUpdate = (data) => {
+            console.log("Profile update received from socket:", data);
+            setData2(prevData => {
+                const updatedData = prevData.map(user => {
+                    if (user.userId === data.user_id) {
+                        return {
+                            ...user,
+                            name: data.name
+                        };
+                    }
+                    return user;
+                });
+                console.log("Updated data:", updatedData);
+                return updatedData;
+            });
+        };
+    
         socket.on('new-ss', handleNewSS);
+        socket.on('profile_update', handleProfileUpdate);
 
+        
         return () => {
             socket.off('new-ss', handleNewSS);
         };
