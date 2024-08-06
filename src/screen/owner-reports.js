@@ -25,6 +25,10 @@ import SelectBox from "../companyOwner/ownerComponent/selectBox";
 import makeAnimated from 'react-select/animated';
 import axios from "axios";
 import { useQuery } from 'react-query';
+import crossButton from "../images/cross.webp";
+import { FaPlus, FaMinus } from 'react-icons/fa';
+
+
 
 function OwnerReport() {
   const items = JSON.parse(localStorage.getItem('items'));
@@ -48,6 +52,39 @@ function OwnerReport() {
       setExpandedEmployee(employee); // Expand if not expanded
     }
   };
+
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
+  // const handleSelectUsers = (e) => { setSelectedUsers(e); const userIds = e.map(user => user.id); setEmployeeId(userIds);
+  // }
+  const handleSelectUsers = (selectedUsers) => {
+    setSelectedUsers(selectedUsers);
+    const userIds = selectedUsers.map((user) => user.id);
+    setEmployeeId(userIds);
+  }
+  //   const filteredUsers = reportData?.allUsers?.filter((user) =>
+  //   user.employee.toLowerCase().includes(searchText.toLowerCase())
+  // );
+  // const handleSelectUsers = (selectedOptions) => {
+  //   const selectedUserIds = selectedOptions.map(option => option.id);
+  //   setSelectedUsers(selectedUserIds);
+
+  //   // Calculate total hours of selected users
+  //   const totalHours = reportData?.allUsers?.reduce((acc, user) => {
+  //     if (selectedUserIds.includes(user.id)) {
+  //       return acc + user.totalHours;
+  //     } else {
+  //       return acc;
+  //     }
+  //   }, 0);
+
+  // Update reportData state with total hours of selected users
+
+  //   setReportData({
+  // //     ...reportData,
+  // //     totalHours: totalHours,
+  // //   });
+  // // }
 
   const [dateFilter, setDateFilter] = useState({
     today: false,
@@ -458,32 +495,32 @@ function OwnerReport() {
     setLoading(false);
   };
 
-    const fetchYearlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
-      let response;
+  const fetchYearlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
+    let response;
 
-      if (userType === 'admin' || userType === 'owner') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-        } else {
-          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
-        }
-      } else if (userType === 'manager') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-        } else {
-          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
-        }
+    if (userType === 'admin' || userType === 'owner') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
       } else {
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
       }
+    } else if (userType === 'manager') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      } else {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
+      }
+    } else {
+      response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
+    }
 
-      if (response.status === 200) {
-        return response.data.data;
-      } else {
-        throw new Error('Failed to fetch reports');
-      }
-    };
-    
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to fetch reports');
+    }
+  };
+
 
   const getYearlyReports = async (type) => {
     setLoading(true);
@@ -548,7 +585,7 @@ function OwnerReport() {
   //   }
   // }, [dateFilter, employeeId, managerId, userType]);
 
-  const user = users?.map(user => ({ label: user.email, value: user.email, id: user._id }))
+  const user = users?.map(user => ({ label: user.name, value: user.email, id: user._id }))
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
@@ -717,36 +754,34 @@ function OwnerReport() {
             </div>
             <div className="crossButtonDiv">
               <SelectBox
-                onChange={(e) => {
-                  setEmployeeId(e.id)
-                }}
+                onChange={(e) => handleSelectUsers(e)}
                 options={user}
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
-                isMulti={false}
+                isMulti={true}
               />
+              {console.log("User detials", user)}
             </div>
-
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}
               {/* <SelectBox
-                classNamePrefix="Select projects"
-                defaultValue="Select projects"
-                isDisabled={isDisabled}
-                isClearable={isClearable}
-                isRtl={isRtl}
-                isSearchable={isSearchable}
-                options={colourOptions}
-                optionHeight={40}
-                optionPadding={10}
-              /> */}
+                  classNamePrefix="Select projects"
+                  defaultValue="Select projects"
+                  isDisabled={isDisabled}
+                  isClearable={isClearable}
+                  isRtl={isRtl}
+                  isSearchable={isSearchable}
+                  options={colourOptions}
+                  optionHeight={40}
+                  optionPadding={10}
+                /> */}
               {/* <SelectBox
-                defaultValue="Select projects"
-                isSearchable={true}
-                optionHeight={40}
-                optionPadding={10}
-              /> */}
+                  defaultValue="Select projects"
+                  isSearchable={true}
+                  optionHeight={40}
+                  optionPadding={10}
+                /> */}
             </div>
             <div className="summaryButton">
               <button className="activeButton">Show Reports</button>
@@ -787,7 +822,14 @@ function OwnerReport() {
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="asadMehmoodDiv" key={index}>
                     <div onClick={() => handleExpand(data?.employee)}>
-                      <p><img src={addButton} alt="Add" /><span>{data?.employee}</span></p>
+                      <p>
+                        {/* <FaPlus /> Add */}
+                        <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
+                          {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
+                          {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
+                          <span>{data?.employee}</span>
+                        </p>
+                      </p>
                     </div>
                     <div className="durationDiv">
                       <p>{data?.Duration}</p>
@@ -816,17 +858,18 @@ function OwnerReport() {
                         ))}
                     </div>
                   )}
-
                 </div>
               ))
             ) : (
               userType === "owner" && reportData ? (
                 <div className="asadMehmoodDiv">
                   <div onClick={() => handleExpand(reportData?.employee)}>
-                    <p>            <img
-                      src={expandedEmployee === user?.employee ? addButton : ""}
-                      alt="Toggle"
-                    /><span>{reportData?.employee}</span></p>
+                    <p>
+                      <img
+                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
+                        alt="Toggle"
+                      />
+                      <span>{reportData?.employee}</span></p>
                   </div>
                   <div className="durationDiv">
                     <p>{reportData?.Duration}</p>
@@ -876,17 +919,16 @@ function OwnerReport() {
                     ) : (
                       <div>No data available for the manager</div>
                     )}
-
                   </>
                 ) : (
                   <>
                     {/* <div className="container">
-                      {reportData && reportData.allUsers ? (
-                        reportData.allUsers.map(renderEmployeeData)
-                      ) : (
-                        <div>No data available</div>
-                      )}
-                    </div> */}
+                        {reportData && reportData.allUsers ? (
+                          reportData.allUsers.map(renderEmployeeData)
+                        ) : (
+                          <div>No data available</div>
+                        )}
+                      </div> */}
                   </>
                 )
               )

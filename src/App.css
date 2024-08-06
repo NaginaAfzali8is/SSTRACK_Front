@@ -6089,3 +6089,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 /* payment */
+
+.crossButton {
+  border: 5px solid black !important;
+  width: 20px;
+  /* adjust the width and height to your liking */
+  height: 20px;
+  cursor: pointer;
+  /* change the cursor shape on hover */
+  transition: transform 0.2s;
+  /* add a transition effect */
+}

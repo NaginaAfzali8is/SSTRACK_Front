@@ -35,7 +35,9 @@ const Project = () => {
     const [allowemp, setAllowemp] = useState([]);
     const [projectName, setProjectName] = useState("");
 
-    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    // const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+
     const token = localStorage.getItem('token');
     const headers = {
         Authorization: "Bearer " + token,
@@ -48,7 +50,8 @@ const Project = () => {
 
     const fetchProject = async () => {
         console.log("me chlaaaaaaaa");
-        const response = await axios.get(`${apiUrl}/timeTrack/getProjects`, { headers });
+        const response = await axios.get(`${apiUrl}/superAdmin/getProjects`, { headers });
+        // const response = await axios.get(`http://localhost:9093/api/v1/superAdmin/getProjects`, { headers });
         return response.data;  // React Query will handle the response status internally
     };
 
@@ -124,6 +127,7 @@ const Project = () => {
     }, [project1]);
 
     const handleSendInvitation = async () => {
+        setEmail('')
         if (email !== "") {
             setShow3(false);
             try {
@@ -134,7 +138,14 @@ const Project = () => {
                     headers: headers,
                 });
                 if (res.status) {
-                    queryClient.invalidateQueries('projects');  // Invalidate the 'projects' query
+                    queryClient.invalidateQueries('projects');
+                    enqueueSnackbar("Added successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    });
                 }
                 console.log("addproject RESPONSE =====>", res);
             } catch (error) {
@@ -149,7 +160,7 @@ const Project = () => {
                 queryClient.invalidateQueries('projects');  // Invalidate the 'projects' query even if there's an error
             }
         } else {
-            enqueueSnackbar("Project name is required", {
+            enqueueSnackbar("PLease Enter Project Name", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
@@ -187,7 +198,13 @@ const Project = () => {
                                             outline: "none",
                                             borderTopLeftRadius: '5px',
                                             borderBottomLeftRadius: '5px',
-                                        }} />
+                                        }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleSendInvitation();
+                                                }
+                                            }}
+                                        />
                                         <button style={{
                                             backgroundColor: "#7acb59",
                                             borderTopRightRadius: "4px",
@@ -229,6 +246,7 @@ const Project = () => {
                                             <div className={`adminTeamEmployess ${activeId === e._id ? "activeEmploy" : ""} align-items-center`} onClick={() => {
                                                 setMainId(e._id);
                                                 setActiveId(e._id);
+                                                setIsArchived(e.isArchived)
                                                 setIsUserArchive(e?.isArchived ? false : true);
                                                 setInviteStatus(false);
                                                 setPayrate(e);
@@ -241,7 +259,7 @@ const Project = () => {
                                                         <div className="groupContentMainImg">
                                                             <p>{i + 1}</p>
                                                         </div>
-                                                        <p className="groupContent">{e?.name}</p>
+                                                        <p className="groupContent" style={{ color: e?.isArchived ? 'grey' : 'inherit' }}>{e?.name}</p>
                                                     </div>
                                                     {e?.inviteStatus === true ? (
                                                         <div style={{
@@ -263,7 +281,9 @@ const Project = () => {
                                                             fontSize: "12px",
                                                             lineHeight: 1.4,
                                                         }}>
-                                                            <img width={30} src={archiveIcon} />
+                                                            <img width={30} src={archiveIcon}
+                                                                style={{ filter: "grayscale(100%) brightness(100%) contrast(100%)" }}
+                                                            />
                                                         </div>
                                                     ) : null}
                                                 </div>
