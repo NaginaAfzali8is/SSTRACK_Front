@@ -79,6 +79,20 @@ function SignIn() {
     setModel(prevModel => ({ ...prevModel, [key]: val }));
   };
 
+  useEffect(() => {
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
+    const password = params.get("password");
+
+    // If both email and password are present in the URL, set them and trigger login
+    if (email && password) {
+      setModel({ email, password });
+      handleLogin();
+    }
+  }, []);
+
+  
   return (
     <div>
       <SnackbarProvider />
