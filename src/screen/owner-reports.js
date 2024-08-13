@@ -61,6 +61,74 @@ function OwnerReport() {
     setSelectedUsers(selectedUsers);
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
+  
+    // Calculate total hours of selected users
+    const totalHours = selectedUsers.reduce((acc, user) => {
+      const hours = acc.hours + Math.floor(user.totalHours);
+      const minutes = acc.minutes + (user.totalHours % 1) * 60;
+      return { hours, minutes: minutes % 60 };
+    }, { hours: 0, minutes: 0 });
+  
+    // Parse existing totalHours value
+    const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
+  
+    // Calculate new total hours
+    const newHours = existingHours + totalHours.hours;
+    const newMinutes = existingMinutes + totalHours.minutes;
+  
+    debugger
+    // Update reportData state with total hours of selected users
+    setReportData({
+      ...reportData,
+      totalHours: selectedUsers.reduce((acc, user) => {
+        let totalUserHours = 0;
+        if (user.projects && Array.isArray(user.projects)) {
+          totalUserHours = user.projects.reduce((acc, project) => acc + project.projectHours, 0);
+        }
+        totalUserHours += user.duration;
+        return acc + totalUserHours;
+      }, 0) > 0
+        ? `${Math.floor(totalHours / 60)}h ${totalHours % 60}m`
+        : '0h 0m',
+      totalActivity: selectedUsers.reduce((acc, user) => {
+        let totalUserActivity = 0;
+        if (user.projects && Array.isArray(user.projects)) {
+          totalUserActivity = user.projects.reduce((acc, project) => acc + project.projectActivity, 0);
+        }
+        totalUserActivity += user.activity;
+        return acc + totalUserActivity;
+      }, 0) > 0
+        ? `${Math.floor(totalActivity / selectedUsers.length)}`
+        : '0',
+      allUsers: selectedUsers.map((user) => {
+        let totalProjectHours = 0; // Initialize to 0
+        let totalProjectActivity = 0; // Initialize to 0
+        let projects = [];
+    
+        if (user.projects && Array.isArray(user.projects)) {
+          user.projects.forEach((project) => {
+            totalProjectHours += project.projectHours;
+            totalProjectActivity += project.projectActivity;
+            projects.push({
+              projectname: project.projectname,
+              projectHours: `${Math.floor(project.projectHours)}h ${(project.projectHours % 1) * 60}m`,
+              projectActivity: Math.floor(project.projectActivity),
+            });
+          });
+        }
+    
+        totalProjectHours += user.duration;
+        totalProjectActivity += user.activity;
+    
+        return {
+          employee: user.label, // Display the employee name
+          Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
+          Activity: user.projects && Array.isArray(user.projects) ? Math.floor(totalProjectActivity / user.projects.length) : 0, // Display activity
+          projects: projects, // Return the projects array
+        };
+      }),
+    });
+    console.log('Set Report Data', setReportData)
   }
   //   const filteredUsers = reportData?.allUsers?.filter((user) =>
   //   user.employee.toLowerCase().includes(searchText.toLowerCase())
@@ -585,7 +653,30 @@ function OwnerReport() {
   //   }
   // }, [dateFilter, employeeId, managerId, userType]);
 
-  const user = users?.map(user => ({ label: user.name, value: user.email, id: user._id }))
+  // const user = users?.map(user => ({ label: user.name, value: user.email, id: user._id , duration: user.Duration}))
+  const user = users?.map(user => {
+    const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
+    const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
+  
+    const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
+    const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
+  
+    return {
+      label: user.name,
+      value: user.email,
+      id: user._id,
+      duration: userDuration + totalProjectHours,
+      activity: userActivity + totalProjectActivity,
+      projects: user.projects?.map(project => ({
+        projectname: project.projectname,
+        projectHours: `${Math.floor(project.projectHours || 0)}h ${(project.projectHours || 0) % 1 * 60}m`,
+        projectActivity: Math.floor(project.projectActivity || 0),
+      })),
+    };
+  });
+  
+  console.log("main agya users ho main",users);
+{console.log("User showing...", user)}
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
@@ -831,6 +922,7 @@ function OwnerReport() {
                         </p>
                       </p>
                     </div>
+                    {console.log('Report Data selectUsers', reportData)}
                     <div className="durationDiv">
                       <p>{data?.Duration}</p>
                       <p>{Math.floor(data?.Activity)} %</p>
@@ -913,7 +1005,6 @@ function OwnerReport() {
                               ))}
                             </div>
                           )}
-
                         </div>
                       ))
                     ) : (
