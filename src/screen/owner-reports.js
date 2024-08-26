@@ -61,22 +61,23 @@ function OwnerReport() {
     setSelectedUsers(selectedUsers);
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
-
+  
     // Calculate total hours of selected users
     const totalHours = selectedUsers.reduce((acc, user) => {
       const hours = acc.hours + Math.floor(user.totalHours);
       const minutes = acc.minutes + (user.totalHours % 1) * 60;
       return { hours, minutes: minutes % 60 };
     }, { hours: 0, minutes: 0 });
-
+  
     // Parse existing totalHours value
     const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
-
+  
     // Calculate new total hours
     const newHours = existingHours + totalHours.hours;
     const newMinutes = existingMinutes + totalHours.minutes;
-
-    const totalActivty = 0;
+  
+    const totalActivtiy = 0;
+    
     debugger
     // Update reportData state with total hours of selected users
     setReportData({
@@ -105,7 +106,7 @@ function OwnerReport() {
         let totalProjectHours = 0; // Initialize to 0
         let totalProjectActivity = 0; // Initialize to 0
         let projects = [];
-
+    
         if (user.projects && Array.isArray(user.projects)) {
           user.projects.forEach((project) => {
             totalProjectHours += project.projectHours;
@@ -117,10 +118,10 @@ function OwnerReport() {
             });
           });
         }
-
+    
         totalProjectHours += user.duration;
         totalProjectActivity += user.activity;
-
+    
         return {
           employee: user.label, // Display the employee name
           Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
@@ -658,10 +659,10 @@ function OwnerReport() {
   const user = users?.map(user => {
     const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
     const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
-
+  
     const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
     const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
-
+  
     return {
       label: user.name,
       value: user.email,
@@ -675,9 +676,9 @@ function OwnerReport() {
       })),
     };
   });
-
-  console.log("main agya users ho main", users);
-  { console.log("User showing...", user) }
+  
+  console.log("main agya users ho main",users);
+{console.log("User showing...", user)}
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
@@ -955,54 +956,31 @@ function OwnerReport() {
               ))
             ) : (
               userType === "owner" && reportData ? (
-                <>
-                  {reportData ? (
-                    reportData.allUsers.map((data, index) => (
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="asadMehmoodDiv" key={index}>
-                          <div onClick={() => handleExpand(data?.employee)}>
-                            <p>
-                              {/* <FaPlus /> Add */}
-                              <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                                {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                                {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
-                                <span>{data?.employee}</span>
-                              </p>
-                            </p>
-                          </div>
-                          <div className="durationDiv">
-                            <p>{data?.Duration}</p>
-                            <p>{Math.floor(data?.Activity)} %</p>
-                          </div>
+                <div className="asadMehmoodDiv">
+                  <div onClick={() => handleExpand(reportData?.employee)}>
+                    <p>
+                      <img
+                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
+                        alt="Toggle"
+                      />
+                      <span>{reportData?.employee}</span></p>
+                  </div>
+                  <div className="durationDiv">
+                    <p>{reportData?.Duration}</p>
+                    <p>{Math.floor(reportData?.Activity)} %</p>
+                  </div>
+                  {expandedEmployee === reportData?.employee && (
+                    <div className="expandedDetails">
+                      {reportData?.projects?.map((project, projectIndex) => (
+                        <div key={projectIndex} className="projectDetails">
+                          <p>Project Name: {project.projectname || 'No project name'}</p>
+                          <p>Duration: {project.hours || 'No duration'}</p>
+                          <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
                         </div>
-                        {expandedEmployee === data?.employee && (
-                          <div className="expandedDetails">
-                            {data?.projects
-                              ?.filter((project, index, projectsArray) => {
-
-                                if (projectsArray.length > 1) {
-                                  return project.projectname !== null;
-                                }
-                                return true;
-                              })
-                              ?.map((project, projectIndex) => (
-                                <div key={projectIndex} className="asadMehmoodkabhaiDiv">
-
-                                  <p >{project?.projectname || 'No project name'}</p>
-                                  <div className="durationDiv">
-                                    <p>{project.hours || 'No duration'}</p>
-                                    <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div>No data available for the manager</div>
+                      ))}
+                    </div>
                   )}
-                </>
+                </div>
               ) : (
                 userType === 'manager' ? (
                   <>
@@ -1011,14 +989,7 @@ function OwnerReport() {
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <div className="asadMehmoodDiv" key={index}>
                             <div onClick={() => handleExpand(data?.employee)}>
-                              <p>
-                                {/* <FaPlus /> Add */}
-                                <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                                  {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                                  {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
-                                  <span>{data?.employee}</span>
-                                </p>
-                              </p>
+                              <p><img src={addButton} alt="Add" /><span>{data?.employee}</span></p>
                             </div>
                             <div className="durationDiv">
                               <p>{data?.Duration}</p>
@@ -1027,24 +998,13 @@ function OwnerReport() {
                           </div>
                           {expandedEmployee === data?.employee && (
                             <div className="expandedDetails">
-                              {data?.projects
-                                ?.filter((project, index, projectsArray) => {
-
-                                  if (projectsArray.length > 1) {
-                                    return project.projectname !== null;
-                                  }
-                                  return true;
-                                })
-                                ?.map((project, projectIndex) => (
-                                  <div key={projectIndex} className="asadMehmoodkabhaiDiv">
-
-                                    <p >{project?.projectname || 'No project name'}</p>
-                                    <div className="durationDiv">
-                                      <p>{project.hours || 'No duration'}</p>
-                                      <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                    </div>
-                                  </div>
-                                ))}
+                              {data?.projects?.map((project, projectIndex) => (
+                                <div key={projectIndex} className="projectDetails">
+                                  <p>Project Name: {project.projectname || 'No project name'}</p>
+                                  <p>Duration: {project.hours || 'No duration'}</p>
+                                  <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>

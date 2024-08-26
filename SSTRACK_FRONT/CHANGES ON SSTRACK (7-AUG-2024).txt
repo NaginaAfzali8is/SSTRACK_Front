@@ -1,7 +1,0 @@
-report section
-
-
-Retrieve the total hours for search filter > Manager (45mins)
-Retrieve the total hours for search filter > admin (35mins)
-Retrieve the total hours for search filter > Owner (30mins)
-
