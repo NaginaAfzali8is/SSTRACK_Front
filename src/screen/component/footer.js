@@ -28,10 +28,9 @@ function Footer({ scrollToSection }) {
                     <Col xs={12} md={2} className="text-right mb-3 mb-md-0">
                         <p className="mb-0 d-flex justify-content-end align-items-center footerLink" style={{ fontSize: "16px", textDecoration: "none" }}>
                             <IoMdMail color="#fff" size={20} style={{ marginRight: '3px' }} />
-                            <a href="mailto:info@sstrack.io" className="text-white"  style={{ textDecoration: "none" }}>info@sstrack.io</a>
+                            <a href="mailto:info@sstrack.io" className="text-white" style={{ textDecoration: "none" }}>info@sstrack.io</a>
                         </p>
                     </Col>
-
                 </Row>
             </Container>
         </footer>

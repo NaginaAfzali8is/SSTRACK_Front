@@ -479,7 +479,7 @@ function Home() {
         {/* <button onClick={() => navigate('/signup')} className="btn signUpButton1 align-items-center text-center" type="submit">Sign up Now</button> */}
         <br />
         <br />
-        <section className="thirdSection d-flex">
+        <section className="thirdSection d-flex" id='section1'>
           <div className="container mt-3">
             <p className="millionHours">
               Over million hours tracked each month <br />
@@ -964,7 +964,7 @@ function Home() {
                 </p>
                 <br />
 
-                <button type="button" className="pricingButton" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
+                <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
                 </button>
               </div>
@@ -1059,7 +1059,7 @@ function Home() {
                 <p className="activtiyUrl text-center">
                 </p>
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }} onClick={() => handleUpgradeClick(2)}>Upgrade</button>
+                  <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }} onClick={() => handleUpgradeClick(2)}>Upgrade</button>
                 </div>
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
               </div>

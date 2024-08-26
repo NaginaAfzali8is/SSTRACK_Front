@@ -249,6 +249,14 @@
   transition: 0.5s;
 }
 
+.pricingButton1:hover {
+  background-color: #1d5b8a !important;
+  transition: 0.5s;
+}
+/* .pricingButton2:hover {
+  background-color: #ccd3d4 !important;
+  transition: 0.5s;
+} */
 .signUpButton1:hover {
   /* font-size: 18px;
   font-weight: 600 !important;
@@ -5853,7 +5861,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 
-.pricingButton {
+.pricingButton, .pricingButton1, .pricingButton2 {
   color: #fff;
   font-size: 18px;
   font-weight: 600;
@@ -5862,6 +5870,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding: 8px 10px;
   border-radius: 5.52px
 }
+
 
 
 

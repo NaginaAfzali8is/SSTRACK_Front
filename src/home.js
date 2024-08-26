@@ -465,7 +465,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="deanDiv container" id="section1">
+      <section className="deanDiv container" id="section1" ref={section1Ref}>
         <div>
           <img className="deanBanner" src={banner} />
         </div>
@@ -834,7 +834,7 @@ function Home() {
       </div>
 
       {/* contact form */}
-      <section ref={section2Ref} id="section2" className="contact-us-container">
+      <section ref={section1Ref} id="section1" className="contact-us-container">
         <div className="lightGreen">
           <div className="formFullDiv">
             <div className="firstFormPart">
