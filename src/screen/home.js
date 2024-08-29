@@ -1074,138 +1074,149 @@ function Home() {
 
         {/* ------------------- CONTACT FORM SECTION -------------- */}
 
-        <div className="container justify-content-center align-items-center" id="section2">
-          <div className='row justify-content-center align-items-center'>
-            <div className="card d-flex pt-3" style={{ width: '40rem', padding: '20px' }}>
-              <div className="firstFormPart">
-                <h3 className="contactUs">Contact us</h3>
-                <p className="query">For any questions or feedback please feel free to contact us using
-                  the form below, or email us at <span>
-                    <a href="mailto:info@sstrack.io" style={{ color: "#7ACB59", margin: "17px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a></span></p>
-              </div>
-              <div className="fullForm">
-                <div>
-                  <p className="firstNameHead">Full Name</p>
-                  <p><input value={fullName} type="text" className="firstName" placeholder="Enter Your Full Name" onChange={(t) => setfullName(t.target.value)} /></p>
-                </div>
-                <div>
-                  <p className="firstNameHead">Email Address</p>
-                  <p><input value={email} type="text" className="firstName" placeholder="Enter Your Email Address" onChange={(t) => setemail(t.target.value)} /></p>
-                </div>
-                <div>
-                  <p className="firstNameHead">Phone Number</p>
-                  <p><input value={phoneNumber} type="email" className="firstName" placeholder="Enter Your Phone Number" onChange={(t) => setphoneNumber(t.target.value)} /></p>
-                </div>
-                <div>
-                  <p className="firstNameHead">Company Name</p>
-                  <p><input value={companyName} type="text" className="firstName" placeholder="Enter Your Company Name" onChange={(t) => setcompanyName(t.target.value)} /></p>
-                </div>
-                <div>
-                  <p className="firstNameHead">Message</p>
-                  {/* <textarea
-                  id="exampleTextarea"
-                  className="form-control"
-                  rows="5"
-                  col='50'
-                  value={text}
-                  onChange={handleChange}
-                  placeholder="Type your text here..."
-                /> */}
-                  <p><textarea value={message} style={{
-                    width: "205%",
-                    backgroundColor: "whitesmoke",
-                    padding: "15px",
-                    border: "#EAFAF3",
-                    borderRadius: "10px",
-                    outline: "none",
-                    resize: "none", // Prevent resizing
-                    overflow: 'hidden'
-                  }} rows="4" cols="10" type="text" placeholder="Enter Your Message" onChange={(t) => setmessage(t.target.value)} /></p>
-                </div>
+        <section ref={section2Ref} id="section2" className="contact-us-container">
+        <div className="lightGreen">
+          <div className="formFullDiv">
+            <div className="firstFormPart">
+              <h3 className="contactUs">Contact us</h3>
+              <p className="query">For any questions or feedback please feel free to contact us using
+                the form below, or email us at <span style={{ color: "#7ACB59" }}> <a href="mailto:info@sstrack.io" style={{ color: "#7ACB59", margin: "17px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a></span></p>
+            </div>
+            <div className="fullForm">
+              <div>
+                <p className="firstNameHead">Full Name</p>
+                <p><input value={fullName} type="text" className="firstName" placeholder="Enter Your Full Name" onChange={(t) => setfullName(t.target.value)} /></p>
               </div>
               <div>
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading} type="submit" className={loading ? "disabledAccountButton" : "accountButton1"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Send"}</button>
-                {/* <button className="btn formButton btn-success" onClick={handleSubmit}>Send</button> */}
+                <p className="firstNameHead">Email Address</p>
+                <p><input value={email} type="text" className="firstName" placeholder="Enter Your Email Address" onChange={(t) => setemail(t.target.value)} /></p>
+              </div>
+              <div>
+                <p className="firstNameHead">Phone Number</p>
+                <p><input value={phoneNumber} type="email" className="firstName" placeholder="Enter Your Phone Number" onChange={(t) => setphoneNumber(t.target.value)} /></p>
+              </div>
+              <div>
+                <p className="firstNameHead">Company Name</p>
+                <p><input value={companyName} type="text" className="firstName" placeholder="Enter Your Company Name" onChange={(t) => setcompanyName(t.target.value)} /></p>
+              </div>
+              <div>
+                <p className="firstNameHead">Message</p>
+                <p><textarea value={message} style={{
+                  width: "225%",
+                  backgroundColor: "whitesmoke",
+                  padding: "15px",
+                  border: "#EAFAF3",
+                  borderRadius: "10px",
+                  outline: "none",
+                  resize: "none", // Prevent resizing
+                  overflow: 'hidden'
+                }} rows="4" cols="80" type="text" placeholder="Enter Your Message" onChange={(t) => setmessage(t.target.value)} /></p>
               </div>
             </div>
-
-            <div className="card d-flex" style={{ width: '40rem', backgroundColor: '#0E4772' }}>
-              <div className="card-body">
-                {/* <div className="firstFormPart"> */}
-                <h3 className="contactUs text-white fs-2 py-2">For Help & support</h3>
-                {/* </div> */}
-
-                <div style={{ display: "flex", alignItems: 'center' }}>
-                  <div style={{
-                    backgroundColor: "white",
-                    width: "40px",
-                    height: "40px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "100%",
-                    margin: "10px 20px 0 0"
-                  }}>
-                    <br />
-                    <IoMdMail color="#09A144" size={20} />
-                  </div>
-                  <p style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
-                    <a href="mailto:info@sstrack.io" className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a>
-                  </p>
-                  <br />
-                </div>
-                <br />
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{
-                    backgroundColor: "white",
-                    width: "40px",
-                    height: "40px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "100%",
-                    margin: "10px 20px 0 0"
-                  }}>
-                    <BsTelephonePlusFill color="#09A144" size={20} />
-                  </div>
-                  <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>+1 647-930-0988
-                  </p>
-                </div>
-                <br />
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{
-                    backgroundColor: "white",
-                    width: "40px",
-                    height: "40px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "100%",
-                    margin: "10px 20px 0 0"
-                  }}>
-                    <MdLocationOn color="#09A144" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
-                      4370 Steels Ave W #204 Woodbridge, <br /> ON L4L 4Y4, Canada.
-                    </p>
-                  </div>
-                </div>
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <img width="100%" style={{ padding: '0px' }} src={employeeMonitor} alt="" />
-              </div>
+            <div>
+              <button
+                onClick={handleSubmit}
+                disabled={loading} type="submit" className={loading ? "disabledAccountButton" : "accountButton1"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Send"}</button>
+              {/* <button className="btn formButton btn-success" onClick={handleSubmit}>Send</button> */}
             </div>
           </div>
-
         </div>
+        {/* contact form */}
+
+        <div className="publicRelation">
+          <div className="halfPart">
+            <div style={{ display: "flex", alignItems: "center", margin: "0 0 10px 0" }}>
+              {/* <div style={{
+                backgroundColor: "white",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "100%",
+                margin: "0 20px 0 0"
+              }}>
+                <FaQuestion color="#09A144" size={20} />
+              </div> */}
+              <h2 style={{ margin: "0" }}>For Help & Support</h2>
+            </div>
+            <br />
+            {/* <div style={{ display: "flex", alignItems: "center", margin: "0 0 10px 0" }}>
+              <div style={{
+                backgroundColor: "white",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "100%",
+                margin: "0 20px 0 0"
+              }}>
+                <BsTelephonePlusFill color="#09A144" size={20} />
+              </div>
+              <p style={{ margin: "0", fontWeight: '600' }}>+1 647-699-4687</p>
+            </div> */}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{
+                backgroundColor: "white",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "100%",
+                margin: "10px 20px 0 0"
+              }}>
+                <IoMdMail color="#09A144" size={20} />
+              </div>
+              <p style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
+                <a href="mailto:info@sstrack.io" className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a>
+              </p>
+              <br />
+            </div>
+            <br />
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{
+                backgroundColor: "white",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "100%",
+                margin: "10px 20px 0 0"
+              }}>
+                <BsTelephonePlusFill color="#09A144" size={20} />
+              </div>
+              <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
+                <a href={`tel:+16479300988`} style={{ textDecoration: "none", color: "inherit" }}>+1 647-930-0988</a>
+              </p>
+            </div>
+            <br />
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{
+                backgroundColor: "white",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "100%",
+                margin: "10px 20px 0 0"
+              }}>
+                <MdLocationOn color="#09A144" size={20} />
+              </div>
+              <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
+                4370 Steels Ave W #204 Woodbridge, <br /> ON L4L 4Y4, Canada.
+              </p>
+            </div>
+          </div>
+          <div>
+            <img width="100%" src={employeeMonitor} alt="" />
+          </div>
+        </div>
+      </section>
+
 
         <section className="eightSection" style={{ marginTop: '4%' }}>
           <div className="container">
