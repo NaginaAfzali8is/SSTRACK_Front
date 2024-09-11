@@ -107,9 +107,16 @@ function UserDashboardSection(params) {
                     <div className={location.pathname === "/reports" ? "active-tab" : "ownerSectionUser"}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/reports')}>Reports</p>
                     </div>
-                    <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"}>
+                    {(items?.userType !== "user") && (
+                        <>
+                            <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"}>
+                                <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
+                            </div>
+                        </>
+                    )}
+                    {/* <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
-                    </div>
+                    </div> */}
                 </div>
                 <div>
                     <div className="ownerSectionCompany d-flex align-items-center cursor-none">

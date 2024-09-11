@@ -14,6 +14,7 @@ const adminSlice = createSlice({
             return {
                 ...state,
                 activeTab: payload
+                
             }
         },
 
@@ -51,6 +52,16 @@ const adminSlice = createSlice({
                 }),
             }
         },
+
+        acceptInvitation: (state, { payload }) => {
+            const userId = payload.userId;
+            const userIndex = state.employess.findIndex((user) => user._id === userId);
+            if (userIndex !== -1) {
+              state.employess[userIndex].hasAcceptedInvitation = true;
+            }
+            return state;
+          },
+          
 
         setEmployessSetting: (state, { payload }) => {
             return {
@@ -510,7 +521,8 @@ export const { getEmployess,
     setAllUserSetting8,
 
     setIds,
-    setEmployessSettings
+    setEmployessSettings,
+    
 } = adminSlice.actions
 
 export default adminSlice.reducer

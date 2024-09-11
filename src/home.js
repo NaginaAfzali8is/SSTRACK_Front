@@ -325,11 +325,11 @@ function Home() {
           </div>
         </section>
 
-        <section className='secondSection'>
+        <section className='secondSection' id="section1" ref={section1Ref}>
           <div className="container">
 
             <div>
-              <p className='ethical'>Monitor employee hours and screen captures online.</p>
+              <p className='ethical' id="section1" ref={section1Ref}>Monitor employee hours and screen captures online.</p>
               <p className='employee'>Discover how much time and money your remote or office team dedicates to each task.</p>
             </div>
             <div className='cardSection'>
@@ -362,7 +362,7 @@ function Home() {
 
       </div>
 
-      <section className="thirdSection">
+      <section className="thirdSection" >
         <div className="container">
           <p className="millionHours">
             Over million hours tracked each month <br />
@@ -465,7 +465,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="deanDiv container" id="section1" ref={section1Ref}>
+      <section className="deanDiv container">
         <div>
           <img className="deanBanner" src={banner} />
         </div>

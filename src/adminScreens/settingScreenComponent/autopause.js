@@ -108,8 +108,6 @@ function AutoPause() {
             </>
         );
     }
-
-
     return (
         <div>
             <SnackbarProvider />

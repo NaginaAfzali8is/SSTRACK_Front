@@ -465,31 +465,43 @@ const Projectcomponent = (props) => {
                     </div>
                 ))}
             </div> */}
-            <div style={{ marginTop: 10 }}>
-                {users?.filter(f => !f.isArchived).map((f) => (
-                    <div key={f._id} style={{ display: "flex", marginBottom: 10 }}>
-                        <input
-                            onChange={() => handleToggleUser(f._id)}
-                            className="react-switch-checkbox"
-                            id={`react-switch-${f._id}`}
-                            type="checkbox"
-                            checked={allowEmp.includes(f._id)}
-                        />
-                        {/* {user?.userType !== "manager" && ( */}
-                        <label
-                            style={{
-                                background: allowEmp.includes(f._id) ? "#5CB85C" : "grey"
-                            }}
-                            className="react-switch-label"
-                            htmlFor={`react-switch-${f._id}`}
-                        >
-                            <span className={`react-switch-button`} />
-                        </label>
-                        {/* )} */}
-                        <p style={{ margin: "0 0 0 10px", color: "#aaa", fontWeight: "500" }}>{f.name}</p>
-                    </div>
-                ))}
-            </div>
+            {users ? (
+                <div style={{ marginTop: 10 }}>
+                    {users.filter(f => !f.isArchived && f.name).length > 0 ? (
+                        users.filter(f => !f.isArchived && f.name).map((f) => (
+                            <div key={f._id} style={{ display: "flex", marginBottom: 10 }}>
+                                <input
+                                    onChange={() => handleToggleUser(f._id)}
+                                    className="react-switch-checkbox"
+                                    id={`react-switch-${f._id}`}
+                                    type="checkbox"
+                                    checked={allowEmp.includes(f._id)}
+                                />
+                                <label
+                                    style={{
+                                        background: allowEmp.includes(f._id) ? "#5CB85C" : "grey"
+                                    }}
+                                    className="react-switch-label"
+                                    htmlFor={`react-switch-${f._id}`}
+                                >
+                                    <span className={`react-switch-button`} />
+                                </label>
+                                <p style={{ margin: "0 0 0 10px", color: "#aaa", fontWeight: "500" }}>{f.name}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No users with a name available...</p>
+                    )}
+                    {/* <p style={{ fontSize: 18, fontWeight: 500 }}>
+                        Total Users: {users.filter(f => !f.isArchived && f.name).length}
+                    </p> */}
+                </div>
+            ) : (
+                <div>
+                    {/* <p>No users available or data is being fetched...</p>
+                    <p>Total Users: 0</p> */}
+                </div>
+            )}
         </div>
     );
 };

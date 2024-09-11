@@ -48,7 +48,8 @@ export default function AppRouter() {
 
             <Route path="/download" element={<Download />} />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-            <Route path="/payment" element={<Payment />} />
+            {/* <Route path="/payment" element={<Payment />} /> */}
+            <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
             <Route path="/" element={<Home />} />

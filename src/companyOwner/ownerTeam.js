@@ -20,6 +20,9 @@ import { AiOutlineUser, AiFillCrown, AiFillStar } from 'react-icons/ai'
 import archiveIcon from "../images/archive.svg";
 import inviteIcon from "../images/invitation.svg";
 import { useQuery } from 'react-query';
+import { CircleSpinnerOverlay, FerrisWheelSpinner } from 'react-spinner-overlay'
+import { setLogout } from "../store/timelineSlice";
+import { useDispatch } from "react-redux";
 
 import { useSocket } from '../io'; // Correct import
 
@@ -28,6 +31,9 @@ const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 function OwnerTeam() {
 
+
+    const [isTypingEmail, setIsTypingEmail] = useState(false);
+    const [isValidEmail, setIsValidEmail] = useState(false);
     const [show, setShow] = useState(false);
     const [show2, setShow2] = useState(false);
     const [show3, setShow3] = useState(false);
@@ -43,6 +49,7 @@ function OwnerTeam() {
     const [activeId, setActiveId] = useState(null)
     const socket = useSocket()
     const [mainId, setMainId] = useState(null)
+    const [loadingInvite, setLoadingInvite] = useState(false);
     const [users, setUsers] = useState(null);
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
@@ -55,9 +62,16 @@ function OwnerTeam() {
         const response = await axios.get(`${apiUrl}/owner/companies`, { headers });
         return response.data;  // React Query will handle the response status internally
     }
+    const dispatch = useDispatch();
 
-
-
+    // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
+    //     const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
+    //     return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
+    // }
+    function getAssignedUsersCount(users, assignedUsers, currentUserId) {
+        const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
+        return assignedUsersList.length;
+    }
     // const getData = async () => {
     //     setLoading(true)
     //     try {
@@ -144,6 +158,24 @@ function OwnerTeam() {
     //       };
     //     }
     //   }, [socket, mainId, setUsers]);
+    function logOut() {
+        localStorage.clear();
+        localStorage.removeItem("cachedData");
+        dispatch(setLogout());
+        navigate('/');
+        window.location.reload();
+
+        // Broadcast the logout event to other windows or tabs
+        localStorage.setItem('logout', 'true');
+        window.dispatchEvent(new Event('storage'));
+    }
+    useEffect(() => {
+        window.addEventListener('storage', () => {
+            if (localStorage.getItem('logOut') === 'true') {
+                logOut();
+            }
+        });
+    }, []);
     useEffect(() => {
         if (socket) {
             console.log('Socket connection established:', socket.connected);
@@ -155,6 +187,12 @@ function OwnerTeam() {
                     user.isArchived = true;
                     setUsers([...users]);
                 }
+
+                const currentUser = JSON.parse(localStorage.getItem("items"));
+                if (currentUser && currentUser._id === userId) {
+                    logOut();
+                }
+                // logOut();
             });
 
             socket.on('user_unarchive', (userId) => {
@@ -165,6 +203,11 @@ function OwnerTeam() {
                     user.isArchived = false;
                     setUsers([...users]);
                 }
+                const currentUser = JSON.parse(localStorage.getItem("items"));
+                if (currentUser && currentUser._id === userId) {
+                    logOut();
+                }
+                // logOut();
             });
         }
     }, [socket, users, setUsers]);
@@ -178,6 +221,7 @@ function OwnerTeam() {
             user.isArchived = true;
             setUsers([...users]);
         }
+
     };
 
     // When you unarchive a user on this device
@@ -279,27 +323,33 @@ function OwnerTeam() {
     //     }
     // }
 
+    // const fetchManagerTeam = async () => {
+    //     const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
+    //     return response.data;  // React Query will handle the response status internally
+    // };
+
     const fetchManagerTeam = async () => {
+        const headers = {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        };
         const response = await axios.get(`${apiUrl}/manager/employees`, { headers });
         return response.data;  // React Query will handle the response status internally
     };
 
     // Integrate React Query for fetching manager team
-    const { data: managerTeam, isLoading: isManagerLoading, isError: isManagerError, refetch: refetchManager } = useQuery({
+    const { data: managerUsers, isLoading: isManagerLoading, isError: isManagerError, refetch: refetchManager } = useQuery({
         queryKey: ['managerTeam'],  // Query key
         queryFn: fetchManagerTeam,  // Fetching function
         select: (data) => {
-            return data?.convertedEmployees?.sort((a, b) => {
+            return data?.convertedEmployees?.filter((user) => !user.isArchived).sort((a, b) => {
                 if (a.inviteStatus !== b.inviteStatus) {
                     return a.inviteStatus ? 1 : -1;
                 }
-                if (a.isArchived !== b.isArchived) {
-                    return a.isArchived ? 1 : -1;
-                }
                 return 0;
             });
-
         },
+        enabled: user?.userType === "manager", // Add this line
         // onError: (error) => {
         //     console.error("Error fetching manager team:", error);
         //     enqueueSnackbar("Error fetching manager team", {
@@ -308,21 +358,58 @@ function OwnerTeam() {
         //     });
         // }
     });
-    // Update users state whenever users1 changes
-    useEffect(() => {
-        if (managerTeam) {
-            setUsers(managerTeam);
-        }
-    }, [managerTeam]);
 
     useEffect(() => {
-        if (user?.userType === "manager") {
-            fetchManagerTeam();
+        if (managerUsers) {
+            setUsers(managerUsers);
         }
-        else {
-            fetchOwnerCompanies();
-        }
-    }, [])
+    }, [managerUsers, user]);
+
+    // useEffect(() => {
+    //     if (user?.userType === "manager") {
+    //         fetchManagerTeam();
+    //     }
+    //     else if (user?.userType !== "manager") {
+    //         // fetchManagerTeam();
+    //         fetchOwnerCompanies();
+    //     }
+    //     else {
+    //         fetchOwnerCompanies();
+    //     }
+    // }, [])
+    // useEffect(() => {
+    //     if (user?.userType === "manager" && managerTeam) {
+    //         setUsers(managerTeam);
+    //     } else if (user?.userType !== "manager" && managerTeam) {
+    //         setUsers(ownerCompanies);
+    //     }
+    // }, [managerTeam, ownerCompanies, user])
+
+    // useEffect(() => {
+    //     let cancelManagerFetch = false;
+    //     let cancelOwnerFetch = false;
+
+    //     if (user?.userType === "manager") {
+    //         cancelOwnerFetch = true;
+    //         fetchManagerTeam().then((data) => {
+    //             if (!cancelManagerFetch) {
+    //                 setUsers(data);
+    //             }
+    //         });
+    //     } else {
+    //         cancelManagerFetch = true;
+    //         fetchOwnerCompanies().then((data) => {
+    //             if (!cancelOwnerFetch) {
+    //                 setUsers(data);
+    //             }
+    //         });
+    //     }
+
+    //     return () => {
+    //         cancelManagerFetch = true;
+    //         cancelOwnerFetch = true;
+    //     };
+    // }, [user]);
 
 
 
@@ -344,7 +431,6 @@ function OwnerTeam() {
                         user._id === mainId ? { ...user, isArchived: !user.isArchived } : user
                     )
                 );
-
                 // Update the selected user state
                 setSelectedUser((prevUser) => ({
                     ...prevUser,
@@ -353,6 +439,11 @@ function OwnerTeam() {
 
                 // Update the archive state
                 setIsUserArchive(!isUserArchive);
+
+
+                if (user?._id === selectedUser?._id) {
+                    logOut(); // Call logOut() if the archived user is the current user
+                }
 
                 enqueueSnackbar(res.data.message, {
                     variant: "success",
@@ -406,8 +497,10 @@ function OwnerTeam() {
     }
 
     const handleSendInvitation = async () => {
-        if (email !== "") {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (email !== "" && emailRegex.test(email)) {
             setShow3(false)
+            setLoading(true); // Set loading state to true
             try {
                 const res = await axios.post(`${apiUrl}/superAdmin/email`, {
                     toEmail: email,
@@ -424,8 +517,10 @@ function OwnerTeam() {
                         }
                     })
                     fetchOwnerCompanies()
+                    setEmail("") // Reset the email input field
                 }
                 console.log("invitationEmail RESPONSE =====>", res);
+
             } catch (error) {
                 enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
                     variant: "error",
@@ -435,10 +530,14 @@ function OwnerTeam() {
                     }
                 })
                 console.log("catch error =====>", error);
+                setEmail("") // Reset the email input field in case of error
+            }
+            finally {
+                setLoading(false); // Set loading state to false
             }
         }
         else {
-            enqueueSnackbar("Email address is required", {
+            enqueueSnackbar("Please enter a valid email address", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
@@ -451,7 +550,6 @@ function OwnerTeam() {
     const isAdmin = user?.userType === "admin";
     const isOwner = user?.userType === "owner";
 
-    const combinedData = users1?.length ? users1 : managerTeam;
 
 
     return (
@@ -546,7 +644,13 @@ function OwnerTeam() {
                                             width: '350px',
                                             justifyContent: "space-between"
                                         }}>
-                                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="Add user by email" style={{
+                                            <input value={email} onChange={(e) => {
+                                                const emailValue = e.target.value;
+                                                setEmail(emailValue);
+                                                setIsTypingEmail(!!emailValue); // Set isTypingEmail to true if the input field is not empty
+                                                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                                                setIsValidEmail(emailRegex.test(emailValue)); // Set isValidEmail to true if the email address is valid
+                                            }} type="email" placeholder="Add user by email" style={{
                                                 fontSize: "18px",
                                                 padding: "6px 10px",
                                                 width: "100%",
@@ -562,13 +666,22 @@ function OwnerTeam() {
                                                 padding: "10px 25px",
                                                 color: "white",
                                                 border: "none",
-                                            }} onClick={handleSendInvitation}>
-                                                INVITE
+                                            }} onClick={handleSendInvitation}
+                                                disabled={loading || !isValidEmail}
+                                            // disabled={loading || isArchiving}
+                                            // disabled={loading || !isTypingEmail}
+                                            // disabled={loadingInvite} // Disable the button while loading
+                                            >
+                                                {/* <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "INVITE" */}
+                                                {loading && isValidEmail ? (
+                                                    <FerrisWheelSpinner loading={loading} size={23} color="#fff" />
+                                                ) : (
+                                                    "INVITE"
+                                                )}
                                             </button>
                                         </div>
                                     </>
                                 )}
-
                                 <div className="companyFont">
                                     <p style={{
                                         margin: 0,
@@ -646,7 +759,10 @@ function OwnerTeam() {
                                                             e?.userType === "manager" && (
                                                                 <div style={{ backgroundColor: "#5CB85C", width: 80, padding: "5px 10px", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                                                     <AiOutlineUser color="white" size={20} />
-                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p>
+                                                                    {/* <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p> */}
+                                                                    <p style={{ margin: 0, fontWeight: "600", color: "white" }}>
+                                                                        {getAssignedUsersCount(users, e.assignedUsers, e._id)}
+                                                                    </p>
                                                                 </div>
                                                             )}
                                             </div>
@@ -670,6 +786,7 @@ function OwnerTeam() {
                                     handleSendInvitation={handleSendInvitation}
                                     payrate={payrate}
                                     users={users}
+                                    // users={users.filter((u) => !u.isArchived)} // Filter out archived users
                                     setUsers={setUsers}
                                     selectedUser={selectedUser}
                                 />

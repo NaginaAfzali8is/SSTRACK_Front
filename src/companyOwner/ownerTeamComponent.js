@@ -16,17 +16,19 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import UserSettings from "./owner-setting-components/userEffectiveSettings";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from '../io'; // Correct import
-
+import { setLogout } from "../store/timelineSlice";
+import { useDispatch } from "react-redux";
 
 function OwnerTeamComponent(props) {
 
     const socket = useSocket()
 
+
     const { loading, setLoading } = useLoading()
     const [viewTimeline, setViewTimeline] = useState(false)
     const [role, setRole] = useState("")
     const [data, setData] = useState({});
-    let { fixId, archived_unarchived_users, isUserArchive, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
+    let { fixId, archived_unarchived_users, deleteUser, isUserArchive, inviteStatus, handleSendInvitation, payrate, reSendInvitation, users, setUsers, selectedUser } = props
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem('token');
     const headers = {
@@ -34,6 +36,7 @@ function OwnerTeamComponent(props) {
     };
 
     const [isUserArchived, setIsUserArchived] = useState(false);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const handleUserArchive = (data) => {
@@ -43,6 +46,10 @@ function OwnerTeamComponent(props) {
                     user._id === data.userId ? { ...user, isArchived: true } : user
                 )
             );
+            if (data.userId === user._id) {
+                // Log the user out
+                logOut();
+            }
         };
 
         const handleReload = () => {
@@ -50,13 +57,37 @@ function OwnerTeamComponent(props) {
             getData();
         };
 
+        function logOut() {
+            localStorage.removeItem("items");
+            localStorage.removeItem("token");
+            localStorage.removeItem("cachedData");
+            dispatch(setLogout());
+            navigate('/');
+            window.location.reload();
+        }
+        // const logOut = () => {
+        //     if (isUserArchived) {
+        //       localStorage.removeItem('token');
+        //       localStorage.removeItem('items');
+        //       localStorage.removeItem('cachedData');
+        //       dispatch(setLogout());
+        //       navigate('/');
+        //       window.location.reload();
+        //     }
+        //   };
         const handleUserUnarchive = (data) => {
             console.log('User unarchived event received:', data);
             setUsers((prevUsers) =>
                 prevUsers.map((user) =>
                     user._id === data.userId ? { ...user, isArchived: false } : user
                 )
+
             );
+
+            if (data.userId === user._id) {
+                // Log the user out
+                logOut();
+            }
         };
 
         const handleRoleUpdate = (data) => {
@@ -85,7 +116,11 @@ function OwnerTeamComponent(props) {
                 }
             });
             socket.on('user_archived', handleReload);
-
+            socket.on('user_archived', (data) => { // Add this line
+                if (data.userId === user._id) {
+                    logOut();
+                }
+            });
             return () => {
                 console.log('Socket connection closed:', socket.connected);
                 socket.off('user_archive', handleUserArchive);
@@ -107,19 +142,19 @@ function OwnerTeamComponent(props) {
 
     const changeRole = (userId, newRole) => {
         updateRole(userId, newRole);
-      };
-      
-      const updateRole = (userId, newRole) => {
+    };
+
+    const updateRole = (userId, newRole) => {
         // Update the role of the user in the local state
         const userIndex = users.findIndex((user) => user._id === userId);
         if (userIndex !== -1) {
-          const updatedUser = { ...users[userIndex], role: newRole };
-          setUsers([...users.slice(0, userIndex), updatedUser, ...users.slice(userIndex + 1)]);
+            const updatedUser = { ...users[userIndex], role: newRole };
+            setUsers([...users.slice(0, userIndex), updatedUser, ...users.slice(userIndex + 1)]);
         }
-      
+
         // Emit the role_update event to other devices
         socket.emit('role_update', { userId, role: newRole });
-      };
+    };
     //     // When archiving a user, emit an event to the server
     // const handleArchive = (userId) => {
     //     handleArchiveUser(userId);
@@ -241,7 +276,6 @@ function OwnerTeamComponent(props) {
     console.log(user)
     console.log(data)
     const userType = 'owner'; // This should come from your authentication logic
-    const deleteUser = () => console.log('Delete user function called'); // Replace with your actual delete logic
 
 
     return (

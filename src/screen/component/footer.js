@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col } from 'react-bootstrap';
+import {Navbar, Container, Row, Col } from 'react-bootstrap';
 import footerLogo from '../../images/FooterLogo.png';
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoMdMail } from 'react-icons/io';
@@ -13,7 +13,9 @@ function Footer({ scrollToSection }) {
             <Container fluid>
                 <Row className="align-items-center justify-content-center">
                     <Col xs={12} md={2} className="align-items-center justify-content-center text-md-left mb-3 mb-md-0">
-                        <img width={70} src={footerLogo} alt="FooterLogo.png" className="align-items-center footerImg" />
+                        <Navbar.Brand onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>  
+                            <img width={70} src={footerLogo} alt="FooterLogo.png" className="align-items-center footerImg" />
+                        </Navbar.Brand>
                     </Col>
                     <Col xs={12} md={8} className="d-flex justify-content-center justify-content-md-center mb-3 mb-md-0">
                         <div className="footerLinks d-flex flex-wrap justify-content-center text-center">

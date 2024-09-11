@@ -380,7 +380,7 @@ function Home() {
       <div className="homeSection">
         <br />
         <br />
-        <p className='ethical'>Monitor employee hours and screen captures online.</p>
+        <p className='ethical' id="section1" ref={section1Ref}>Monitor employee hours and screen captures online.</p>
         <p className='employee'>Discover how much time and money your remote or office team dedicates to each task.</p>
 
         <div clasName="container" style={{ padding: '20px 20px' }}>
@@ -434,7 +434,7 @@ function Home() {
                 <h5 className="card-title text-center fw-bold fs-4" style={{ color: '#FFF' }}>Access it online</h5>
                 <br />
                 <br />
-                <p className="card-text text-center" style={{ color: '#FFF' }}>The tracked time, screenshots and activity are all sent to the web for the employee.</p>
+                <p className="card-text text-center" style={{ color: '#FFF', paddingTop: '20%' }}>The tracked time, screenshots and activity are all sent to the web for the employee.</p>
 
               </div>
             </div>
@@ -462,7 +462,7 @@ function Home() {
                 <h5 className="card-title text-center fw-bold fs-4" style={{ color: '#FFF' }}>Get insights</h5>
                 <br />
                 <br />
-                <p className="card-text text-center" style={{ color: '#FFF' }}>Get a clear picture of time and money spent on each task, project or client. best option</p>
+                <p className="card-text text-center" style={{ color: '#FFF', paddingTop: '20%' }}>Get a clear picture of time and money spent on each task, project or client. best option</p>
 
               </div>
             </div>
@@ -479,7 +479,7 @@ function Home() {
         {/* <button onClick={() => navigate('/signup')} className="btn signUpButton1 align-items-center text-center" type="submit">Sign up Now</button> */}
         <br />
         <br />
-        <section className="thirdSection d-flex" id='section1'>
+        <section className="thirdSection d-flex" id="section1" ref={section1Ref}>
           <div className="container mt-3">
             <p className="millionHours">
               Over million hours tracked each month <br />
@@ -950,7 +950,7 @@ function Home() {
                 <p className="text-center text-red">
                   Limited Time Offer
                 </p>
-                <p className="card-text text-center" style={{ marginTop: "40%" }}>
+                <p className="card-text text-center" style={{ marginTop: "37%" }}>
                   Time Tracking
                   SSTrack
                   up to <b>3</b> screenshots per hour
@@ -963,10 +963,16 @@ function Home() {
                   App & URL Tracking
                 </p>
                 <br />
+                <div className="mt-auto">
+                  <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}
 
-                <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
+                    onClick={() => handleUpgradeClick(1)}>Current Plan</button>
+                </div>
+
+                {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
-                </button>
+                </button> */}
+                <br />
               </div>
             </div>
 
@@ -1010,7 +1016,9 @@ function Home() {
                 <br />
 
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }} onClick={() => handleUpgradeClick(1)}>Upgrade</button>
+                  <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}
+
+                    onClick={() => handleUpgradeClick(1)}>Upgrade</button>
                 </div>
 
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
@@ -1069,153 +1077,144 @@ function Home() {
         </div>
         <br />
         <br />
+
         {/* ------------------- END PRICING SECTION ------------------------- */}
 
 
         {/* ------------------- CONTACT FORM SECTION -------------- */}
 
-        <section ref={section2Ref} id="section2" className="contact-us-container">
-        <div className="lightGreen">
-          <div className="formFullDiv">
-            <div className="firstFormPart">
-              <h3 className="contactUs">Contact us</h3>
-              <p className="query">For any questions or feedback please feel free to contact us using
-                the form below, or email us at <span style={{ color: "#7ACB59" }}> <a href="mailto:info@sstrack.io" style={{ color: "#7ACB59", margin: "17px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a></span></p>
+        <div className="container justify-content-center align-items-center" id="section2">
+          <div className='row justify-content-center align-items-center'>
+            <div className="card d-flex pt-3" style={{ width: '40rem', padding: '20px' }}>
+              <div className="firstFormPart">
+                <h3 className="contactUs">Contact us</h3>
+                <p className="query">For any questions or feedback please feel free to contact us using
+                  the form below, or email us at <span>
+                    <a href="mailto:info@sstrack.io" style={{ color: "#7ACB59", margin: "17px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a></span></p>
+              </div>
+              <div className="fullForm">
+                <div>
+                  <p className="firstNameHead">Full Name</p>
+                  <p><input value={fullName} type="text" className="firstName" placeholder="Enter Your Full Name" onChange={(t) => setfullName(t.target.value)} /></p>
+                </div>
+                <div>
+                  <p className="firstNameHead">Email Address</p>
+                  <p><input value={email} type="text" className="firstName" placeholder="Enter Your Email Address" onChange={(t) => setemail(t.target.value)} /></p>
+                </div>
+                <div>
+                  <p className="firstNameHead">Phone Number</p>
+                  <p><input value={phoneNumber} type="email" className="firstName" placeholder="Enter Your Phone Number" onChange={(t) => setphoneNumber(t.target.value)} /></p>
+                </div>
+                <div>
+                  <p className="firstNameHead">Company Name</p>
+                  <p><input value={companyName} type="text" className="firstName" placeholder="Enter Your Company Name" onChange={(t) => setcompanyName(t.target.value)} /></p>
+                </div>
+                <div>
+                  <p className="firstNameHead">Message</p>
+                  {/* <textarea
+                  id="exampleTextarea"
+                  className="form-control"
+                  rows="5"
+                  col='50'
+                  value={text}
+                  onChange={handleChange}
+                  placeholder="Type your text here..."
+                /> */}
+                  <p><textarea value={message} style={{
+                    width: "205%",
+                    backgroundColor: "whitesmoke",
+                    padding: "15px",
+                    border: "#EAFAF3",
+                    borderRadius: "10px",
+                    outline: "none",
+                    resize: "none", // Prevent resizing
+                    overflow: 'hidden'
+                  }} rows="4" cols="10" type="text" placeholder="Enter Your Message" onChange={(t) => setmessage(t.target.value)} /></p>
+                </div>
+              </div>
+              <div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading} type="submit" className={loading ? "disabledAccountButton" : "accountButton1"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Send"}</button>
+                {/* <button className="btn formButton btn-success" onClick={handleSubmit}>Send</button> */}
+              </div>
             </div>
-            <div className="fullForm">
-              <div>
-                <p className="firstNameHead">Full Name</p>
-                <p><input value={fullName} type="text" className="firstName" placeholder="Enter Your Full Name" onChange={(t) => setfullName(t.target.value)} /></p>
-              </div>
-              <div>
-                <p className="firstNameHead">Email Address</p>
-                <p><input value={email} type="text" className="firstName" placeholder="Enter Your Email Address" onChange={(t) => setemail(t.target.value)} /></p>
-              </div>
-              <div>
-                <p className="firstNameHead">Phone Number</p>
-                <p><input value={phoneNumber} type="email" className="firstName" placeholder="Enter Your Phone Number" onChange={(t) => setphoneNumber(t.target.value)} /></p>
-              </div>
-              <div>
-                <p className="firstNameHead">Company Name</p>
-                <p><input value={companyName} type="text" className="firstName" placeholder="Enter Your Company Name" onChange={(t) => setcompanyName(t.target.value)} /></p>
-              </div>
-              <div>
-                <p className="firstNameHead">Message</p>
-                <p><textarea value={message} style={{
-                  width: "225%",
-                  backgroundColor: "whitesmoke",
-                  padding: "15px",
-                  border: "#EAFAF3",
-                  borderRadius: "10px",
-                  outline: "none",
-                  resize: "none", // Prevent resizing
-                  overflow: 'hidden'
-                }} rows="4" cols="80" type="text" placeholder="Enter Your Message" onChange={(t) => setmessage(t.target.value)} /></p>
-              </div>
-            </div>
-            <div>
-              <button
-                onClick={handleSubmit}
-                disabled={loading} type="submit" className={loading ? "disabledAccountButton" : "accountButton1"}>{loading ? <FerrisWheelSpinner loading={loading} size={28} color="#6DBB48" /> : "Send"}</button>
-              {/* <button className="btn formButton btn-success" onClick={handleSubmit}>Send</button> */}
-            </div>
-          </div>
-        </div>
-        {/* contact form */}
 
-        <div className="publicRelation">
-          <div className="halfPart">
-            <div style={{ display: "flex", alignItems: "center", margin: "0 0 10px 0" }}>
-              {/* <div style={{
-                backgroundColor: "white",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "100%",
-                margin: "0 20px 0 0"
-              }}>
-                <FaQuestion color="#09A144" size={20} />
-              </div> */}
-              <h2 style={{ margin: "0" }}>For Help & Support</h2>
-            </div>
-            <br />
-            {/* <div style={{ display: "flex", alignItems: "center", margin: "0 0 10px 0" }}>
-              <div style={{
-                backgroundColor: "white",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "100%",
-                margin: "0 20px 0 0"
-              }}>
-                <BsTelephonePlusFill color="#09A144" size={20} />
+            <div className="card d-flex" style={{ width: '40rem', backgroundColor: '#0E4772' }}>
+              <div className="card-body">
+                {/* <div className="firstFormPart"> */}
+                <h3 className="contactUs text-white fs-2 py-2">For Help & support</h3>
+                {/* </div> */}
+
+                <div style={{ display: "flex", alignItems: 'center' }}>
+                  <div style={{
+                    backgroundColor: "white",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "100%",
+                    margin: "10px 20px 0 0"
+                  }}>
+                    <br />
+                    <IoMdMail color="#09A144" size={20} />
+                  </div>
+                  <p style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
+                    <a href="mailto:info@sstrack.io" className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a>
+                  </p>
+                  <br />
+                </div>
+                <br />
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{
+                    backgroundColor: "white",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "100%",
+                    margin: "10px 20px 0 0"
+                  }}>
+                    <BsTelephonePlusFill color="#09A144" size={20} />
+                  </div>
+                  <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>+1 647-930-0988
+                  </p>
+                </div>
+                <br />
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{
+                    backgroundColor: "white",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "100%",
+                    margin: "10px 20px 0 0"
+                  }}>
+                    <MdLocationOn color="#09A144" size={20} />
+                  </div>
+                  <div>
+                    <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
+                      4370 Steels Ave W #204 Woodbridge, <br /> ON L4L 4Y4, Canada.
+                    </p>
+                  </div>
+                </div>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <img width="100%" style={{ padding: '0px' }} src={employeeMonitor} alt="" />
               </div>
-              <p style={{ margin: "0", fontWeight: '600' }}>+1 647-699-4687</p>
-            </div> */}
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={{
-                backgroundColor: "white",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "100%",
-                margin: "10px 20px 0 0"
-              }}>
-                <IoMdMail color="#09A144" size={20} />
-              </div>
-              <p style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
-                <a href="mailto:info@sstrack.io" className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', textDecoration: "none", fontSize: "18px" }}>info@sstrack.io</a>
-              </p>
-              <br />
-            </div>
-            <br />
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={{
-                backgroundColor: "white",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "100%",
-                margin: "10px 20px 0 0"
-              }}>
-                <BsTelephonePlusFill color="#09A144" size={20} />
-              </div>
-              <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
-                <a href={`tel:+16479300988`} style={{ textDecoration: "none", color: "inherit" }}>+1 647-930-0988</a>
-              </p>
-            </div>
-            <br />
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={{
-                backgroundColor: "white",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "100%",
-                margin: "10px 20px 0 0"
-              }}>
-                <MdLocationOn color="#09A144" size={20} />
-              </div>
-              <p className="text-white" style={{ margin: "10px 20px 0px 0px", fontWeight: '600', fontSize: "18px" }}>
-                4370 Steels Ave W #204 Woodbridge, <br /> ON L4L 4Y4, Canada.
-              </p>
             </div>
           </div>
-          <div>
-            <img width="100%" src={employeeMonitor} alt="" />
-          </div>
+
         </div>
-      </section>
 
 
         <section className="eightSection" style={{ marginTop: '4%' }}>
