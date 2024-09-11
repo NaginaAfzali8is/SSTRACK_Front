@@ -19,7 +19,7 @@ const Layout = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'space-between' }}>
+    <div className='mobhayat' style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'space-between' }}>
       {
         location.pathname === "/" ||
           location.pathname === "/signin" ||

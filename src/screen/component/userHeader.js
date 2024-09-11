@@ -46,6 +46,11 @@ function UserHeader() {
     const [items, setItem] = useState(JSON.parse(localStorage.getItem('items')));
 
 
+
+
+
+
+
     useEffect(() => {
         if (!socket) {
             console.error('Socket instance is null or undefined');
@@ -91,6 +96,11 @@ function UserHeader() {
             console.log(error);
         }
     }
+
+
+
+
+
 
     function logOut() {
         localStorage.removeItem("items");

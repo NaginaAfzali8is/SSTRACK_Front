@@ -20,7 +20,8 @@ import moment from "moment-timezone";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from '../../src/public/tracking.png';
-import paidStamp from '../images/paid.png';
+// import paidStamp from '../images/paid.png';
+
 
 function Account() {
 

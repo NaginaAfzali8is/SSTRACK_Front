@@ -407,7 +407,7 @@ useEffect(() => {
     };
 
     return (
-        <div>
+        <div className="mobhayat">
             <div className="container">
                 <div className="userHeader">
                     <div>
