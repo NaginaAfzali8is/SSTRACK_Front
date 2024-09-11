@@ -22,7 +22,6 @@ import jsPDF from 'jspdf';
 import logo from '../../src/public/tracking.png';
 import paidStamp from '../images/paid.png';
 
-
 function Account() {
 
     const [show, setShow] = useState(false);
@@ -36,7 +35,7 @@ function Account() {
     const [showWarning, setShowWarning] = useState(false);
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const items = JSON.parse(localStorage.getItem('items'));
     let headers = {
         Authorization: 'Bearer ' + token,
