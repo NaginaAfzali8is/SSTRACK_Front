@@ -36,76 +36,7 @@ function Signup() {
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
-    //
-    // async function handleCreateAccount() {
-    //     console.log(model);
-    //     if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
-    //         enqueueSnackbar("Please fill all fields", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         })
-    //         return null
-    //     }
-    //     if (!model.email.includes("@") || !model.email.includes(".")) {
-    //         enqueueSnackbar("Invalid email please enter valid email", {
-    //             variant: "error",
-    //             anchorOrigin: {
-    //                 vertical: "top",
-    //                 horizontal: "right"
-    //             }
-    //         })
-    //         return null
-    //     }
-    //     else {
-    //         setLoading(true)
-    //         try {
-    //             const response = await axios.post(`${apiUrl}/signup`, {
-    //                 company: model?.company,
-    //                 email: model?.email,
-    //                 name: model?.name,
-    //                 password: model?.password,
-    //                 timezone: model?.timezone,
-    //                 timezoneOffset: model?.timezoneOffset,
-    //                 userType: model?.userType,
-    //             })
-    //             if (response.status) {
-    //                 setLoading(false)
-    //                 enqueueSnackbar(response.data.Message, {
-    //                     variant: "success",
-    //                     anchorOrigin: {
-    //                         vertical: "top",
-    //                         horizontal: "right"
-    //                     }
-    //                 })
-    //                 setTimeout(() => {
-    //                     navigate('/signin')
-    //                 }, 3000);
-    //             }
-    //             console.log("signup from link response =====>", response);
-    //         } catch (error) {
-    //             setLoading(false)
-    //             enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
-    //                 variant: "error",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
-    //             console.log("catch error ===>", error);
-    //         }
-    //     }
-    // }
-    //
-
-
-
-
-
-
-
+   
     async function handleCreateAccount() {
         console.log(model);
         if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
@@ -130,9 +61,78 @@ function Signup() {
         }
         else {
             setLoading(true)
-            navigate('/payment');
+            try {
+                const response = await axios.post(`${apiUrl}/signup`, {
+                    company: model?.company,
+                    email: model?.email,
+                    name: model?.name,
+                    password: model?.password,
+                    timezone: model?.timezone,
+                    timezoneOffset: model?.timezoneOffset,
+                    userType: model?.userType,
+                })
+                if (response.status) {
+                    setLoading(false)
+                    enqueueSnackbar(response.data.Message, {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                    setTimeout(() => {
+                        navigate('/signin')
+                    }, 3000);
+                }
+                console.log("signup from link response =====>", response);
+            } catch (error) {
+                setLoading(false)
+                enqueueSnackbar(error?.response?.data?.message ? error?.response?.data?.message : "Network error", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
+                console.log("catch error ===>", error);
+            }
         }
     }
+    
+
+
+
+
+
+
+
+    // async function handleCreateAccount() {
+    //     console.log(model);
+    //     if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
+    //         enqueueSnackbar("Please fill all fields", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         })
+    //         return null
+    //     }
+    //     if (!model.email.includes("@") || !model.email.includes(".")) {
+    //         enqueueSnackbar("Invalid email please enter valid email", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         })
+    //         return null
+    //     }
+    //     else {
+    //         setLoading(true)
+    //         navigate('/payment');
+    //     }
+    // }
 
 
 
