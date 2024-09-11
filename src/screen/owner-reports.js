@@ -24,7 +24,7 @@ import ActivityChart from "../adminScreens/component/ActivityChart";
 import SelectBox from "../companyOwner/ownerComponent/selectBox";
 import makeAnimated from 'react-select/animated';
 import axios from "axios";
-import { useQuery } from 'react-query';
+// import { useQuery } from 'react-query';
 import crossButton from "../images/cross.webp";
 import { FaPlus, FaMinus } from 'react-icons/fa';
 
@@ -61,23 +61,24 @@ function OwnerReport() {
     setSelectedUsers(selectedUsers);
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
-
+  
     // Calculate total hours of selected users
     const totalHours = selectedUsers.reduce((acc, user) => {
       const hours = acc.hours + Math.floor(user.totalHours);
       const minutes = acc.minutes + (user.totalHours % 1) * 60;
       return { hours, minutes: minutes % 60 };
     }, { hours: 0, minutes: 0 });
-
+  
     // Parse existing totalHours value
     const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
-
+  
     // Calculate new total hours
     const newHours = existingHours + totalHours.hours;
     const newMinutes = existingMinutes + totalHours.minutes;
-
+  
     const totalActivity = 0;
-
+    
+    debugger
     // Update reportData state with total hours of selected users
     setReportData({
       ...reportData,
@@ -105,7 +106,7 @@ function OwnerReport() {
         let totalProjectHours = 0; // Initialize to 0
         let totalProjectActivity = 0; // Initialize to 0
         let projects = [];
-
+    
         if (user.projects && Array.isArray(user.projects)) {
           user.projects.forEach((project) => {
             totalProjectHours += project.projectHours;
@@ -117,12 +118,12 @@ function OwnerReport() {
             });
           });
         }
-
+    
         totalProjectHours += user.duration;
         totalProjectActivity += user.activity;
-
+    
         return {
-          employee: user.label ?? '', // Display the employee name, or empty string if label is undefined/null
+          employee: user.label, // Display the employee name
           Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
           Activity: user.projects && Array.isArray(user.projects) ? Math.floor(totalProjectActivity / user.projects.length) : 0, // Display activity
           projects: projects, // Return the projects array
@@ -174,61 +175,40 @@ function OwnerReport() {
   const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
   const getQueryKey = (type) => [`reports`, type, userType, employeeId, managerId];
 
-  const { data: yearlyReportData, error, isLoading, refetch } = useQuery(
-    getQueryKey('yearly'),
-    () => fetchYearlyReports(dateFilter?.thisYear ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
-    {
-      enabled: dateFilter?.thisYear || dateFilter?.lastYear,
-      staleTime: 60000, // 1 minute
-    }
-  );
-
-  const { data: weeklyReportData } = useQuery(
-    getQueryKey('yearly'),
-    () => getWeeklyReports(dateFilter?.thisWeek ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
-    {
-      enabled: dateFilter?.thisWeek || dateFilter?.lastWeek,
-      staleTime: 60000, // 1 minute
-    }
-  );
-
-  const { data: dailyReportData } = useQuery(
-    getQueryKey('yearly'),
-    () => getDailyReports(dateFilter?.today ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
-    {
-      enabled: dateFilter?.today || dateFilter?.yesterday,
-      staleTime: 60000, // 1 minute
-    }
-  );
+  // const { data: yearlyReportData, error, isLoading, refetch } = useQuery(
+  //   getQueryKey('yearly'),
+  //   () => fetchYearlyReports(dateFilter?.thisYear ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
+  //   {
+  //     enabled: dateFilter?.thisYear || dateFilter?.lastYear,
+  //     staleTime: 60000, // 1 minute
+  //   }
+  // );
 
 
-  useEffect(() => {
-    if (weeklyReportData) {
-      setReportData(weeklyReportData)
-    }
-  })
+  // const { data: dailyReportData } = useQuery(
+  //   getQueryKey('yearly'),
+  //   () => getDailyReports(dateFilter?.today ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
+  //   {
+  //     enabled: dateFilter?.today || dateFilter?.yesterday,
+  //     staleTime: 60000, // 1 minute
+  //   }
+  // );
 
 
-  useEffect(() => {
-    if (yearlyReportData) {
-      setReportData(yearlyReportData)
-    }
-  })
+  // useEffect(() => {
+  //   if (weeklyReportData) {
+  //     setReportData(weeklyReportData)
+  //   }
+  // })
 
-  const { data: monthlyReportData } = useQuery(
-    getQueryKey('monthly'),
-    () => getMonthlyReports(dateFilter?.thisMonth ? 'this' : 'previous', userType, employeeId, items, apiUrl, headers),
-    {
-      enabled: dateFilter?.thisMonth || dateFilter?.lastMonth,
-      staleTime: 60000, // 1 minute
-    }
-  );
 
-  useEffect(() => {
-    if (monthlyReportData) {
-      setReportData(monthlyReportData)
-    }
-  })
+  // useEffect(() => {
+  //   if (yearlyReportData) {
+  //     setReportData(yearlyReportData)
+  //   }
+  // })
+
+  
 
   const getData = async () => {
     setLoading(true)
@@ -375,7 +355,7 @@ function OwnerReport() {
   };
 
   const fetchDailyReports = async (type) => {
-    setLoading(true);
+
     let response;
     if (userType === 'admin' || userType === 'owner') {
       if (employeeId) {
@@ -407,76 +387,7 @@ function OwnerReport() {
     }
   };
 
-
-
-  const getDailyReports = async (type) => {
-    setLoading(true);
-    try {
-      let response;
-      if (userType === 'admin' || userType === 'owner') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers });
-        }
-      }
-      else if (userType === 'manager') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/manager/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/manager/day?daySpecifier=${type}`, { headers });
-        }
-      }
-      else {
-        response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${items._id}`, { headers });
-      }
-      if (response.status === 200) {
-        console.log(response);
-        setReportData(response.data.data);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
-
-
-
   const getWeeklyReports = async (type) => {
-    setLoading(true);
-    try {
-      let response;
-      if (userType === 'admin' || userType === 'owner') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}`, { headers });
-        }
-      } else if (userType === 'manager') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}`, { headers });
-        }
-      }
-      else {
-        response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${items._id}`, { headers });
-      }
-      if (response.status === 200) {
-        console.log(response);
-        setReportData(response.data.data);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
-
-  const fetchWeeklyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
 
     let response;
     if (userType === 'admin' || userType === 'owner') {
@@ -486,9 +397,10 @@ function OwnerReport() {
       else {
         response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}`, { headers });
       }
-    } else if (userType === 'manager') {
+    }
+    else if (userType === 'manager') {
       if (employeeId) {
-        response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
+        response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
       }
       else {
         response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}`, { headers });
@@ -498,13 +410,155 @@ function OwnerReport() {
       response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${items._id}`, { headers });
     }
     if (response.status === 200) {
+      console.log(response);
+      setReportData(response.data.data);
+    }
+    if (response.status === 200) {
       return response.data.data;
     } else {
       throw new Error('Failed to fetch reports');
     }
   };
 
-  const fetchMonthlyreports = async (type, userType, employeeId, items, apiUrl, headers) => {
+
+
+
+
+  const getDailyReports = async (type) => {
+    if (employeeId) {
+      setLoading(true)
+      try {
+        const response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers })
+        if (response.status) {
+          console.log(response);
+          setReportData(response.data.data)
+          setLoading(false)
+        }
+      }
+      catch (err) {
+        setLoading(false)
+        console.log(err);
+      }
+    }
+    else {
+      setLoading(true)
+      try {
+        const response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers })
+        if (response.status) {
+          console.log(response);
+          setReportData(response.data.data)
+          setLoading(false)
+        }
+      }
+      catch (err) {
+        setLoading(false)
+        console.log(err);
+      }
+    }
+  }
+
+  // const getWeeklyReports = async (type) => {
+  //   if (employeeId) {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //   }
+  //   else {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //   }
+  // }
+
+
+  // const getMonthlyReports = async (type) => {
+  //   if (employeeId) {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${employeeId}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //   }
+  //   else {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //     return null
+  //   }
+  // }
+
+  const getYearlyReports = async (type) => {
+
+    let response;
+    if (userType === 'admin' || userType === 'owner') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      }
+      else {
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+      }
+    }
+    else if (userType === 'manager') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      }
+      else {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
+      }
+    }
+    else {
+      response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
+    }
+    if (response.status === 200) {
+      console.log(response);
+      setReportData(response.data.data);
+    }
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to fetch reports');
+    }
+  };
+
+  const getMonthlyReports = async (type) => {
 
     let response;
     if (userType === 'admin' || userType === 'owner') {
@@ -514,7 +568,8 @@ function OwnerReport() {
       else {
         response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}`, { headers });
       }
-    } else if (userType === 'manager') {
+    }
+    else if (userType === 'manager') {
       if (employeeId) {
         response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
       }
@@ -526,63 +581,9 @@ function OwnerReport() {
       response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${items._id}`, { headers });
     }
     if (response.status === 200) {
-      return response.data.data;
-    } else {
-      throw new Error('Failed to fetch reports');
+      console.log(response);
+      setReportData(response.data.data);
     }
-  };
-
-  // const getMonthlyReports = async (type) => {
-  //   setLoading(true);
- 
-  //     let response;
-  //     if (userType === 'admin' || userType === 'owner') {
-  //       if (employeeId) {
-  //         response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
-  //       }
-  //       else {
-  //         response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}`, { headers });
-  //       }
-  //     } else if (userType === 'manager') {
-  //       if (employeeId) {
-  //         response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
-  //       }
-  //       else {
-  //         response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}`, { headers });
-  //       }
-  //     }
-  //     else {
-  //       response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${items._id}`, { headers });
-  //     }
-  //     if (response.status === 200) {
-  //       console.log(response);
-  //       setReportData(response.data.data);
-  //     }
-  //   setLoading(false);
-  // };
-
-  const getMonthlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
-   
-    setLoading(true);
-   
-    let response;
-
-    if (userType === 'admin' || userType === 'owner') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
-      } else {
-        response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}`, { headers });
-      }
-    } else if (userType === 'manager') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}&userId=${employeeId}`, { headers });
-      } else {
-        response = await axios.get(`${apiUrl}/manager/month?monthSpecifier=${type}`, { headers });
-      }
-    } else {
-      response = await axios.get(`${apiUrl}/owner/month?monthSpecifier=${type}&userId=${items._id}`, { headers });
-    }
-
     if (response.status === 200) {
       return response.data.data;
     } else {
@@ -590,71 +591,40 @@ function OwnerReport() {
     }
   };
 
-
-
-  const fetchYearlyReports = async (type, userType, employeeId, items, apiUrl, headers) => {
-    
-    setLoading(true);
-
-    let response;
-
-    if (userType === 'admin' || userType === 'owner') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-      } else {
-
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
-      }
-    } else if (userType === 'manager') {
-      if (employeeId) {
-        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-      } else {
-        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
-      }
-    } else {
-      response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
-    }
-
-    if (response.status === 200) {
-      return response.data.data;
-    } else {
-      throw new Error('Failed to fetch reports');
-    }
-  };
-
-
-  const getYearlyReports = async (type) => {
-    setLoading(true);
-    try {
-      let response;
-      if (userType === 'admin' || userType === 'owner') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
-        }
-      }
-      else if (userType === 'manager') {
-        if (employeeId) {
-          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
-        }
-        else {
-          response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&managerId=${items._id}`, { headers });
-        }
-      }
-      else {
-        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
-      }
-      if (response.status === 200) {
-        console.log(response);
-        setReportData(response.data.data);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
+  // const getYearlyReports = async (type) => {
+  //   if (employeeId) {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //     return null
+  //   }
+  //   else {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers })
+  //       if (response.status) {
+  //         console.log(response);
+  //         setReportData(response.data.data)
+  //         setLoading(false)
+  //       }
+  //     }
+  //     catch (err) {
+  //       setLoading(false)
+  //       console.log(err);
+  //     }
+  //     return null
+  //   }
+  // }
 
   useEffect(() => {
     getEmployess()
@@ -667,8 +637,8 @@ function OwnerReport() {
           dateFilter?.lastWeek === true ? getWeeklyReports("previous") :
             dateFilter?.thisMonth === true ? getMonthlyReports("this") :
               dateFilter?.lastMonth === true ? getMonthlyReports("previous") :
-                dateFilter?.thisYear === true ? fetchYearlyReports("this") :
-                  dateFilter?.lastYear === true ? fetchYearlyReports("previous") :
+                dateFilter?.thisYear === true ? getYearlyReports("this") :
+                  dateFilter?.lastYear === true ? getYearlyReports("previous") :
                     getReports()
   }, [employeeId, managerId, userType])
   // useEffect(() => {
@@ -690,13 +660,12 @@ function OwnerReport() {
   const user = users?.map(user => {
     const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
     const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
-
+  
     const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
     const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
-
+  
     return {
-      label: user.name ?? '', // Display the employee name, or empty string if label is undefined/null
-
+      label: user.name,
       value: user.email,
       id: user._id,
       duration: userDuration + totalProjectHours,
@@ -708,15 +677,12 @@ function OwnerReport() {
       })),
     };
   });
-
-  console.log("main agya users ho main", users);
-  { console.log("User showing...", user) }
+  
+  console.log("main agya users ho main",users);
+{console.log("User showing...", user)}
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
-
-  const allUsers = user; // assuming 'user' is the original array of users
-  const filteredUsers = user.filter(user => user.value !== null);
 
   return (
     <div>
@@ -744,7 +710,7 @@ function OwnerReport() {
                   <div className="summaryTodayDiv">
                     <p
                       onClick={() => {
-                        getDailyReports("this")
+                        fetchDailyReports("this")
                         setDateFilter({
                           today: true,
                           yesterday: false,
@@ -759,7 +725,7 @@ function OwnerReport() {
                       style={{ color: dateFilter.today === true && "#28659C", fontWeight: dateFilter.today === true && "600" }}>Today</p>
                     <p
                       onClick={() => {
-                        getDailyReports("previous")
+                        fetchDailyReports("previous")
                         setDateFilter({
                           today: false,
                           yesterday: true,
@@ -840,7 +806,7 @@ function OwnerReport() {
                   <div className="summaryTodayDiv">
                     <p
                       onClick={() => {
-                        fetchYearlyReports("this")
+                        getYearlyReports("this")
                         setDateFilter({
                           today: false,
                           yesterday: false,
@@ -855,7 +821,7 @@ function OwnerReport() {
                       style={{ color: dateFilter.thisYear === true && "#28659C", fontWeight: dateFilter.thisYear === true && "600" }}>This Year</p>
                     <p
                       onClick={() => {
-                        fetchYearlyReports("previous")
+                        getYearlyReports("previous")
                         setDateFilter({
                           today: false,
                           yesterday: false,
@@ -883,15 +849,13 @@ function OwnerReport() {
             <div className="crossButtonDiv">
               <SelectBox
                 onChange={(e) => handleSelectUsers(e)}
-                // options={allUsers}
-                options={allUsers.filter(user => user.label)} // Add this filter condition
-                // options={user.filter(user => use r.value !== null)} // Filter out options with null values
+                options={user}
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
                 isMulti={true}
               />
-              {console.log("User detials", allUsers)}
+              {console.log("User detials", user)}
             </div>
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}
@@ -932,7 +896,7 @@ function OwnerReport() {
               )
                 : (
                   // <div>No Data Available</div>
-                  <div className=""></div>
+                  <div className="loader"></div>
                 )}
             </div>
             <div className="employeeDiv">
@@ -947,122 +911,19 @@ function OwnerReport() {
             {console.log("reportData:", reportData)}
             {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
 
-            {(userType === "admin" || userType === "owner" || userType === 'user') && reportData && reportData.allUsers ? (
-              reportData.allUsers.map((data, index) => (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <div className="asadMehmoodDiv" key={index}>
-                    <div onClick={() => handleExpand(data?.employee)}>
-                      <p>
-                        {/* <FaPlus /> Add */}
-                        <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
-                          {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
-                          {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
-                          <span>{data?.employee}</span>
-                        </p>
-                      </p>
-                    </div>
-                    {console.log('Report Data selectUsers', reportData)}
-                    <div className="durationDiv">
-                      <p>{data?.Duration}</p>
-                      <p>{Math.floor(data?.Activity)} %</p>
-                    </div>
-                  </div>
-                  {expandedEmployee === data?.employee && (
-                    <div className="expandedDetails">
-                      {data?.projects
-                        ?.filter((project, index, projectsArray) => {
-
-                          if (projectsArray.length > 1) {
-                            return project.projectname !== null;
-                          }
-                          return true;
-                        })
-                        ?.map((project, projectIndex) => (
-                          <div key={projectIndex} className="asadMehmoodkabhaiDiv">
-
-                            <p >{project?.projectname || 'No project name'}</p>
-                            <div className="durationDiv">
-                              <p>{project.hours || 'No duration'}</p>
-                              <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              userType === "owner" && reportData ? (
+            {reportData?.allUsers?.map((data, index) => {
+              return (
                 <div className="asadMehmoodDiv">
-                  <div onClick={() => handleExpand(reportData?.employee)}>
-                    <p>
-                      <img
-                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
-                        alt="Toggle"
-                      />
-                      <span>{reportData?.employee}</span></p>
+                  <div>
+                    <p><img src={addButton} /><span>{data?.employee}</span></p>
                   </div>
                   <div className="durationDiv">
-                    <p>{reportData?.Duration}</p>
-                    <p>{Math.floor(reportData?.Activity)} %</p>
+                    <p>{data?.Duration}</p>
+                    <p>{Math.floor(data?.Activity)} %</p>
                   </div>
-                  {expandedEmployee === reportData?.employee && (
-                    <div className="expandedDetails">
-                      {reportData?.projects?.map((project, projectIndex) => (
-                        <div key={projectIndex} className="projectDetails">
-                          <p>Project Name: {project.projectname || 'No project name'}</p>
-                          <p>Duration: {project.hours || 'No duration'}</p>
-                          <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              ) : (
-                userType === 'manager' ? (
-                  <>
-                    {reportData ? (
-                      reportData.allUsers.map((data, index) => (
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div className="asadMehmoodDiv" key={index}>
-                            <div onClick={() => handleExpand(data?.employee)}>
-                              <p><img src={addButton} alt="Add" /><span>{data?.employee}</span></p>
-                            </div>
-                            <div className="durationDiv">
-                              <p>{data?.Duration}</p>
-                              <p>{Math.floor(data?.Activity)} %</p>
-                            </div>
-                          </div>
-                          {expandedEmployee === data?.employee && (
-                            <div className="expandedDetails">
-                              {data?.projects?.map((project, projectIndex) => (
-                                <div key={projectIndex} className="projectDetails">
-                                  <p>Project Name: {project.projectname || 'No project name'}</p>
-                                  <p>Duration: {project.hours || 'No duration'}</p>
-                                  <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div>No data available for the manager</div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {/* <div className="container">
-                        {reportData && reportData.allUsers ? (
-                          reportData.allUsers.map(renderEmployeeData)
-                        ) : (
-                          <div>No data available</div>
-                        )}
-                      </div> */}
-                  </>
-                )
               )
-            )}
+            })}
           </div>
         </div>
       </div>
