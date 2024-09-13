@@ -84,7 +84,7 @@ function UserDashboardSection(params) {
                     </div>
                     {(items?.userType !== "user") && (
                         <>
-                            <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"}>
+                            <div className={location.pathname === "/Projects" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/Projects')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/Projects')}>Projects</p>
                             </div>
                         </>
