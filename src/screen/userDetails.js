@@ -954,7 +954,7 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivitByyDay?.totalactivity) <= 20 ? -75 :
                                                                 Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
                                                                     Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
                                                                         Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
@@ -1044,7 +1044,7 @@ function UserDetails() {
                                                     <div className="needleContainerAlingment">
                                                         <div className="diamond"></div>
                                                         <div className="needlePointerMain"></div>
-                                                        <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                                        <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
                                                             <div className="needleScrewMain"></div>
                                                         </OverlayTrigger>
                                                     </div>
