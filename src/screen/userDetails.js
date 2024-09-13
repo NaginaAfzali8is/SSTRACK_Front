@@ -112,6 +112,7 @@ function UserDetails() {
             } else {
                 const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
                 if (response.data) {
+
                     console.log(response);
                     setData(response.data.data);
                     setTimeEntryId(response.data.data.TimeTrackingId);
@@ -705,8 +706,8 @@ function UserDetails() {
         }
     }
 
-    console.log(timeEntries);
-
+    console.log('Admin ka data', timeEntries);
+    debugger
     return (
         <div>
             {showScrollButton === true ? <BackToTop /> : null}
@@ -1059,8 +1060,9 @@ function UserDetails() {
                         </div>
                         <div>
                             {items.userType === "user" ? (
+
                                 <div>
-                                    {data && (data?.groupedScreenshots?.map((element) => {
+                                    {data && (data?.groupedScreenshots?.map((element, elements) => {
                                         return (
                                             <div>
                                                 {loading ? <Skeleton count={1} width="300px" height="34.5px" style={{ margin: "40px 0 0 0" }} /> : <div
@@ -1095,7 +1097,20 @@ function UserDetails() {
                                                             <CircularProgressBar activityPercentage={element?.totalactivity} size={30} />
                                                         </div>
                                                     </OverlayTrigger>
-                                                    <a className="websiteLink" href="#">{element?.time} {element?.description}</a>
+                                                    <p className="projectName">{elements?.project}</p>
+
+                                                    <p className="timeDuration">{element?.description}</p>
+                                                    {console.log("Des Name", element?.description)}
+                                                    {/* <div>
+                                                        <OverlayTrigger placement="top" overlay={<Tooltip>{elements?.description}</Tooltip>}>
+                                                            <p className="notes">
+                                                                <a className="websiteLink" href="#">{elements?.time} {element?.description}</a>
+                                                            </p>
+                                                        </OverlayTrigger>
+                                                    </div> */}
+                                                    {/* <a className="websiteLink" href="#">{element?.time} {element?.description}</a> */}
+                                                    {/* <a className="websiteLink" href="#">{element?.time} {element?.description ? element?.description : <Skeleton width="100px" />} Hello</a> */}
+
                                                     {showEditButton && <img onClick={() => {
                                                         console.log(element);
                                                         setShowTrimActivity(true)
@@ -1247,6 +1262,14 @@ function UserDetails() {
                                                     <CircularProgressBar activityPercentage={findTimeEntryActivity?.totalactivity} size={30} />
                                                 </div>
                                             </OverlayTrigger>
+                                            {element.items?.some(item => item.userType === "user") && (
+                                                <div>
+                                                    <p className="projectName">{element?.project}</p>
+
+                                                    <p className="timeDuration">{element?.description}</p>
+                                                </div>
+                                            )}
+                                            <p className="projectName">{element?.project}</p>
                                             <p className="timeDuration">{element?.description}</p>
                                             {showEditButton && <img onClick={() => {
                                                 console.log(element);
@@ -1361,6 +1384,7 @@ function UserDetails() {
                                     </div>
                                 )
                             })}
+
                         </div>
                     </div>
                 </div>

@@ -1524,6 +1524,18 @@ nav li a {
   cursor: pointer;
 }
 
+.projectName {
+  color: #28659C;
+  font-size: 18px;
+  margin: 5px;
+  /* font-weight: 500; */
+  cursor: pointer;
+  background-color: #A8C96A;
+  padding: 0px;
+  border: 1px solid greenyellow;
+  border-radius: 5px;
+}
+
 .timeDuration:hover {
   text-decoration: underline;
 }
@@ -6145,48 +6157,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   /* add a transition effect */
 }
 
-.hayat .card {
 
-
-  width: 40rem;
-
-
-}
-.hayat {
-
-
-  align-items: center;
-  justify-content: center;
-
-}
 
 @media only screen and (max-width: 1200) {
   .card {
     width: 50%
   }
-}
-
-@media (max-width: 1600px) and (min-width: 1100px) {
-  .hayat {
-    /* width: max-content; */
-  }
-  .hayat .card {
-    width: 50%;
-    border: 0;
-  }
-  
-
-
-}
-
-@media (max-width: 1100px) and (min-width: 300px) {
-
-
-.mobhayat {
-
-  inline-size: fit-content;
-
-}
-
-
 }

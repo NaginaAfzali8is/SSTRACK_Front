@@ -98,6 +98,13 @@ function Signup() {
             }
         }
     }
+    
+
+
+
+
+
+
 
     // async function handleCreateAccount() {
     //     console.log(model);
@@ -126,6 +133,47 @@ function Signup() {
     //         navigate('/payment');
     //     }
     // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     const handleStartDateChange = (selectedtimezone) => {
         // Assuming selectedtimezone is an object with a 'value' property representing the time zone name

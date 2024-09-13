@@ -9,7 +9,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete }) => {
             Authorization: "Bearer " + token,
         };
         console.log('default card set', cards);
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
             const response = await axios.post(`${DefaultPayApiUrl}/owner/setDefaultCard 	`, {
                 cardNumber: cards.cardNumber,
@@ -43,7 +43,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete }) => {
         console.log('delete card', card);
         console.log('delete header', headers);
 
-        const DefaultPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DefaultPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         try {
             const response = await axios.request({
                 url: `${DefaultPayApiUrl}/owner/deleteCard`,

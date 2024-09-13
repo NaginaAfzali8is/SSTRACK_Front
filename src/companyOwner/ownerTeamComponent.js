@@ -221,7 +221,7 @@ function OwnerTeamComponent(props) {
     const handleAssignUser = async (userID) => {
         try {
             const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
-                userIds: userID
+                userIds: [userID]
             }, { headers })
             if (response.status) {
                 enqueueSnackbar("Settings saved", {
@@ -479,7 +479,7 @@ function OwnerTeamComponent(props) {
                                         </div>
                                     </div>
                                 )}
-
+                                
 
                                 {/* {loading ? <Skeleton count={1} width="50px" height="33px" style={{ margin: "16px 0" }} /> : <p style={{
                                 color: "#0E4772",

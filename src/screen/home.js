@@ -1084,8 +1084,8 @@ function Home() {
         {/* ------------------- CONTACT FORM SECTION -------------- */}
 
         <div className="container justify-content-center align-items-center" id="section2">
-          <div className='row hayat'>
-            <div className="card d-flex pt-3" style={{ padding: '20px' }}>
+          <div className='row justify-content-center align-items-center'>
+            <div className="card d-flex pt-3" style={{ width: '40rem', padding: '20px' }}>
               <div className="firstFormPart">
                 <h3 className="contactUs">Contact us</h3>
                 <p className="query">For any questions or feedback please feel free to contact us using
@@ -1140,7 +1140,7 @@ function Home() {
               </div>
             </div>
 
-            <div className="card d-flex" style={{ backgroundColor: '#0E4772' }}>
+            <div className="card d-flex" style={{ width: '40rem', backgroundColor: '#0E4772' }}>
               <div className="card-body">
                 {/* <div className="firstFormPart"> */}
                 <h3 className="contactUs text-white fs-2 py-2">For Help & support</h3>
