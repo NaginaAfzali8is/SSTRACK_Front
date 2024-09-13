@@ -105,12 +105,31 @@ function Account() {
     };
 
 
+  
     const generatePDF = (invoice) => {
         getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
                 const doc = new jsPDF('p', 'pt', 'a4');
                 const width = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 40;
 
+
+                // Helper function to add a new page
+                const addNewPage = () => {
+                    doc.addPage();
+                    y = margin; // Reset Y position for new page
+                };
+
+                // Define helper function to check if content exceeds the page height
+                const checkContentOverflow = (currentY) => {
+                    if (currentY > pageHeight - margin) {
+                        console.log('Content exceeding page height. Adding new page...');
+                        addNewPage();
+                        return true;
+                    }
+                    return false;
+                };
                 // Define the maximum width and height for the logo image
                 const maxLogoWidth = 100;
                 const maxLogoHeight = 50;
@@ -230,6 +249,9 @@ function Account() {
                 invoice.details.forEach((item, index) => {
                     y += 10; // Move down to the next row
 
+                    // Check if content exceeds page
+                    if (checkContentOverflow(y)) return;
+
                     // Draw the top border
                     doc.setLineWidth(0.5);
 
@@ -240,6 +262,9 @@ function Account() {
                     doc.text('$' + amount.toFixed(2), width - 100, y);
 
                     y += 15; // Move down to draw the bottom border
+
+                    // Check if content exceeds page before drawing bottom border
+                    if (checkContentOverflow(y)) return;
                     doc.line(40, y, width - 40, y); // Draw the bottom border
                 });
 
@@ -250,39 +275,44 @@ function Account() {
 
                 // Add SubTotal
                 y += 20;
-                doc.setFont('helvetica', 'bold');
-                doc.text('SubTotal', 120, y);
-                doc.setFont('helvetica', 'normal');
-                doc.text('$' + ' ' + subTotal.toFixed(2), width - 100, y);
+                if (!checkContentOverflow(y)) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('SubTotal', 120, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('$' + ' ' + subTotal.toFixed(2), width - 100, y);
+                }
 
                 // Add Sales Tax (VAT)
                 y += 20;
-                doc.setFont('helvetica', 'bold');
-                doc.text('Sales Tax (VAT)', 120, y);
-                doc.setFont('helvetica', 'normal');
-                doc.text('$' + ' ' + salesTax.toFixed(2), width - 100, y);
+                if (!checkContentOverflow(y)) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Sales Tax (VAT)', 120, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('$' + ' ' + salesTax.toFixed(2), width - 100, y);
+                }
 
-                // Add a bottom row for total amount with upper and lower border
+                // Add total amount row with upper and lower border
                 y += 20;
-                doc.setFont('helvetica', 'bold');
-                doc.text('Total Amount', 120, y);
-                doc.setFont('helvetica', 'normal');
-                doc.text('$' + ' ' + totalAmount.toFixed(2), width - 100, y);
+                if (!checkContentOverflow(y)) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Total Amount', 120, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('$' + ' ' + totalAmount.toFixed(2), width - 100, y);
 
-                // Draw upper border for the total amount row
-                doc.setLineWidth(0.5);
-                doc.setDrawColor(0, 0, 0);
+                    // Draw upper border
+                    doc.setLineWidth(0.5);
+                    doc.setDrawColor(0, 0, 0);
+                    doc.line(40, y - 10, width - 40, y - 10); // Upper border
 
-                doc.line(40, y - 10, width - 40, y - 10); // Adjust y position for the upper border
-
-                // Draw lower border for the total amount row
-                doc.line(40, y + 10, width - 40, y + 10); // Adjust y position for the lower border
-
+                    // Draw lower border
+                    doc.line(40, y + 10, width - 40, y + 10); // Lower border
+                }
                 // Download the PDF
                 doc.save(`Invoice_${invoice.id}.pdf`);
             });
         });
     };
+
 
 
 
@@ -382,12 +412,12 @@ function Account() {
         else {
             setUpdatePassword(false)
             const res = await fetch(`${apiUrl}/signin/users/Update`, {
-                headers,
-                method: "PATCH",
-                body: JSON.stringify({
-                    password: newPassword
-                }),
-            })
+                password: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             try {
                 if (res.status === 200) {
                     console.log((await res.json()));
@@ -537,6 +567,7 @@ function Account() {
                         </div>
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
+                      {!(items?.userType === 'user' || items?.userType === 'manager') && (
                         <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
                             <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
                                 <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
@@ -632,6 +663,7 @@ function Account() {
                                 Download
                             </a> */}
                         </div>
+)}
                     </div>
                 </div>
             </div>

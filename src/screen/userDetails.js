@@ -954,7 +954,7 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivitByyDay?.totalactivity) <= 20 ? -75 :
+                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
                                                                 Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
                                                                     Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
                                                                         Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
@@ -988,8 +988,8 @@ function UserDetails() {
                                         <div className="circular-progress" style={{
                                             cursor: "pointer"
                                         }}>
-                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
-                                        </div>
+                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                            </div>
                                     </OverlayTrigger>
                                     <p className="timerClock">{data?.totalHours?.daily}</p>
                                     <p className="weekTimer">Week</p>

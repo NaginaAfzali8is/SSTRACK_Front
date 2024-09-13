@@ -288,8 +288,6 @@ function OwnerReport() {
     } catch (error) {
       console.log("Error:", error);
       return [];
-
-
     }
   };
 
@@ -387,6 +385,38 @@ function OwnerReport() {
     }
   };
 
+  const fetchYearlyReports = async (type) => {
+
+    let response;
+    if (userType === 'admin' || userType === 'owner') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      }
+      else {
+        response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}`, { headers });
+      }
+    }
+    else if (userType === 'manager') {
+      if (employeeId) {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}&userId=${employeeId}`, { headers });
+      }
+      else {
+        response = await axios.get(`${apiUrl}/manager/year?yearSpecifier=${type}`, { headers });
+      }
+    }
+    else {
+      response = await axios.get(`${apiUrl}/owner/year?yearSpecifier=${type}&userId=${items._id}`, { headers });
+    }
+    if (response.status === 200) {
+      console.log(response);
+      setReportData(response.data.data);
+    }
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to fetch reports');
+    }
+  };
   const getWeeklyReports = async (type) => {
 
     let response;
@@ -414,7 +444,7 @@ function OwnerReport() {
       setReportData(response.data.data);
     }
     if (response.status === 200) {
-      return response.data.data;
+      return response.data.data;  
     } else {
       throw new Error('Failed to fetch reports');
     }
@@ -591,6 +621,39 @@ function OwnerReport() {
     }
   };
 
+  // const getWeeklyReports = async (type) => {
+
+  //   let response;
+  //   if (userType === 'admin' || userType === 'owner') {
+  //     if (employeeId) {
+  //       response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
+  //     }
+  //     else {
+  //       response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}`, { headers });
+  //     }
+  //   }
+  //   else if (userType === 'manager') {
+  //     if (employeeId) {
+  //       response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}&userId=${employeeId}`, { headers });
+  //     }
+  //     else {
+  //       response = await axios.get(`${apiUrl}/manager/week?weekSpecifier=${type}`, { headers });
+  //     }
+  //   }
+  //   else {
+  //     response = await axios.get(`${apiUrl}/owner/week?weekSpecifier=${type}&userId=${items._id}`, { headers });
+  //   }
+  //   if (response.status === 200) {
+  //     console.log(response);
+  //     setReportData(response.data.data);
+  //   }
+  //   if (response.status === 200) {
+  //     return response.data.data;
+  //   } else {
+  //     throw new Error('Failed to fetch reports');
+  //   }
+  // };
+
   // const getYearlyReports = async (type) => {
   //   if (employeeId) {
   //     setLoading(true)
@@ -631,14 +694,14 @@ function OwnerReport() {
   }, [])
 
   useEffect(() => {
-    dateFilter?.today === true ? getDailyReports("this") :
-      dateFilter?.yesterday === true ? getDailyReports("previous") :
+    dateFilter?.today === true ? fetchDailyReports("this") :
+      dateFilter?.yesterday === true ? fetchDailyReports("previous") :
         dateFilter?.thisWeek === true ? getWeeklyReports("this") :
           dateFilter?.lastWeek === true ? getWeeklyReports("previous") :
             dateFilter?.thisMonth === true ? getMonthlyReports("this") :
               dateFilter?.lastMonth === true ? getMonthlyReports("previous") :
-                dateFilter?.thisYear === true ? getYearlyReports("this") :
-                  dateFilter?.lastYear === true ? getYearlyReports("previous") :
+                dateFilter?.thisYear === true ? fetchYearlyReports("this") :
+                  dateFilter?.lastYear === true ? fetchYearlyReports("previous") :
                     getReports()
   }, [employeeId, managerId, userType])
   // useEffect(() => {
@@ -683,6 +746,10 @@ function OwnerReport() {
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
+
+  const allUsers = user; // assuming 'user' is the original array of users
+  const filteredUsers = user.filter(user => user.value !== null);
+
 
   return (
     <div>
@@ -806,7 +873,7 @@ function OwnerReport() {
                   <div className="summaryTodayDiv">
                     <p
                       onClick={() => {
-                        getYearlyReports("this")
+                        fetchYearlyReports("this")
                         setDateFilter({
                           today: false,
                           yesterday: false,
@@ -821,7 +888,7 @@ function OwnerReport() {
                       style={{ color: dateFilter.thisYear === true && "#28659C", fontWeight: dateFilter.thisYear === true && "600" }}>This Year</p>
                     <p
                       onClick={() => {
-                        getYearlyReports("previous")
+                        fetchYearlyReports("previous")
                         setDateFilter({
                           today: false,
                           yesterday: false,
@@ -849,7 +916,7 @@ function OwnerReport() {
             <div className="crossButtonDiv">
               <SelectBox
                 onChange={(e) => handleSelectUsers(e)}
-                options={user}
+                options={allUsers.filter(user => user.label)} // Add this filter condition
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
