@@ -77,7 +77,9 @@ const Payment = () => {
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
-                const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+                // const apiUrl1 = 'https://ss-track-xi.vercel.app/api/v1';
+                const apiUrl1 = "https://myuniversallanguages.com:9093/api/v1";
+
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
@@ -173,7 +175,8 @@ const Payment = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                // const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/addNewCard`, {
                         // tokenId: paymentMethod.id,
@@ -435,7 +438,9 @@ const Payment = () => {
     };
 
     const handlePayWithThisCard = async () => {
-        const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
@@ -810,10 +815,6 @@ const Payment = () => {
                                 </div>
                             </div>
                         </div>
-
-
-
-
 
 
 

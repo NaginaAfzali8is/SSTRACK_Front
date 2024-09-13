@@ -257,7 +257,10 @@ function Account() {
 
                     y += 15; // Move down to draw the text
                     doc.text(String(index + 1), 40, y);
-                    doc.text(item.name + ' ' + item.periodStart + ' - ' + item.periodEnd, 120, y);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(item.name, 120, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(' ' + item.periodStart + ' - ' + item.periodEnd, 120 + doc.getTextWidth(item.name) + 5, y); // Adjust position based on bold text width
                     const amount = Number(item.amount); // Ensure item.amount is a number
                     doc.text('$' + amount.toFixed(2), width - 100, y);
 
