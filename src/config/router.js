@@ -46,22 +46,22 @@
 
 //             {/* Public Routes */}
 
-//             <Route path="/download" element={<Download />} />
-//             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-//             {/* <Route path="/payment" element={<Payment />} /> */}
-//             <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
-//             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
-//             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
-//             <Route path="/" element={<Home />} />
-//             <Route path="/capture-screen" element={<CaptureScreen />} />
-//             <Route path="/:token" element={<Home />} />
-//             <Route path="/create-account/:code/:email" element={<CreateAccount />} />
-//             <Route path="/forget-password" element={<ForgetPassword />} />
-//             <Route path="/update-password/:id" element={<UpdatePassword />} />
-//             <Route path="/verification-code" element={<VerificationCode />} />
-//             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-//             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
-//             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
+// <Route path="/download" element={<Download />} />
+// <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
+// {/* <Route path="/payment" element={<Payment />} /> */}
+// <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
+// <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
+// <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
+// <Route path="/" element={<Home />} />
+// <Route path="/capture-screen" element={<CaptureScreen />} />
+// <Route path="/:token" element={<Home />} />
+// <Route path="/create-account/:code/:email" element={<CreateAccount />} />
+// <Route path="/forget-password" element={<ForgetPassword />} />
+// <Route path="/update-password/:id" element={<UpdatePassword />} />
+// <Route path="/verification-code" element={<VerificationCode />} />
+// <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+// <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
+// <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
 
 //             {/* Private Routes */}
 
@@ -169,7 +169,7 @@ export default function AppRouter() {
 
             <Route path="/download" element={<Download />} />
             <Route path="/signup" element={!token ? <Signup /> : <Navigate to="/dashboard" />} />
-            <Route path="/payment" element={<Payment />} />
+            <Route path="/payment" element={token ? <Payment /> : <Navigate to="/signin" />} />
             <Route path="/signin" element={!token ? <SignIn /> : <Navigate to="/dashboard" />} />
             <Route path="/systemAdminLogin" element={<SystemAdminLogin />} />
             <Route path="/" element={<Home />} />
