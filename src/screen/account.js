@@ -512,7 +512,6 @@ function Account() {
                         </div>
                     </div>
                 )}
-
                 {!(items?.userType === 'user' || items?.userType === 'manager') && (
                     <div style={{ paddingTop: '10px' }}>
                         <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
