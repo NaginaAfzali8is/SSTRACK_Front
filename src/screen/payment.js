@@ -14,7 +14,7 @@ const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3e
 
 const Payment = () => {
     const location = useLocation();
-    const [plans] = useState(location.state?.plans || []);
+    const [plans, setPlans] = useState(location.state?.plans || []);
     const [fetchError] = useState(location.state?.fetchError || null);
     const [loading, setLoading] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
@@ -44,11 +44,11 @@ const Payment = () => {
         }
     }, [plans, defaultPlanIndex]);
 
-    const handlePlanSelect = (plan) => {
-        setSelectedPlan(plan);
+    // const handlePlanSelect = (plan) => {
+    //     setSelectedPlan(plan);
 
 
-    };
+    // };
 
     const getPlanDescription = (plan) => {
         return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr} screenshots per hour, screenshots kept ${plan.ssStored} days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'}, app & URL tracking`;
@@ -305,6 +305,48 @@ const Payment = () => {
 
 
 
+    //this api is for pricing plan who's data is to send to payment page
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
+
+    const fetchPlans = async () => {
+        try {
+            const response = await axios.get(`${planapiUrl}/owner/getPlans`);
+            const plans = response.data.data;
+            console.log('plansssss====>', plans)
+            setPlans(plans)
+            setSelectedPlan(plans[1]);
+            // Store plans in localStorage
+            // localStorage.setItem('plans', JSON.stringify(plans));
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching plans:', error);
+
+            setLoading(false);
+        }
+    };
+
+
+
+
+
+
+    useEffect(() => {
+        if (plans.length > 0) {
+            setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
+
+        } else {
+            fetchPlans();
+            // setSelectedPlan(plans[0])
+        }
+
+    }, [plans, defaultPlanIndex]);
+
+    const handlePlanSelect = (plan) => {
+        setSelectedPlan(plan);
+
+
+    };
 
     const PaymentModal = ({ showModal, handleClose }) => {
 
@@ -393,6 +435,7 @@ const Payment = () => {
                             selectedCard={selectedCard}
                             onSelect={handleSelectCard}
                             onActionComplete={fetchTokenAndSuspendedStatus}
+                            
                         />
                     )}
 
@@ -569,7 +612,9 @@ const Payment = () => {
                                     {selectedPlan && (
                                         <>
                                             <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
-                                            <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p>
+                                            {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
+                                            <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
+
                                         </>
                                     )}
                                 </div>
@@ -824,13 +869,6 @@ const Payment = () => {
                                 </div>
                             </div>
                         </div>
-
-
-
-
-
-
-
                     </div>
                 </div>
                 <PaymentModal

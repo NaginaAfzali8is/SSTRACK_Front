@@ -497,34 +497,44 @@ function Account() {
         console.log('Stored Plan ID::::::::::::::::::::::', Cardetail);
         return (
             <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
-                <div style={{ marginBottom: '20px' }}>
-                    <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{storedPlanId?.planType} Plan</h2>
-                    <p style={{ margin: '5px 0' }}>
-                        Price: <strong>${storedPlanId?.costPerUser}/employee/mo</strong>
-                    </p>
-                    <Link to="/payment" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link>
-                    <div>
-                        <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
-                            <span role="img" aria-label="employee icon">👥</span> Add or remove employees
-                        </Link>
+                {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                    <div style={{ marginBottom: '20px' }}>
+                        <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>  {storedPlanId?.planType?.[0].toUpperCase() + storedPlanId?.planType?.slice(1)}
+                        &nbsp; Plan</h2>
+                        <p style={{ margin: '5px 0' }}>
+                            Price: <strong>${storedPlanId?.costPerUser}/employee/mo</strong>
+                        </p>
+                        <Link to="/payment" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link>
+                        <div>
+                            <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
+                                <span role="img" aria-label="employee icon">👥</span> Add or remove employees
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div style={{ paddingTop: '10px' }}>
-                    <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
-                    <p style={{ margin: '5px 0' }}>
-                    {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toFixed(2)}</span> */}
-                    Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing}</span>
-                        {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
-                    </p>
-                    {/* <p style={{ margin: '5px 0' }}>
+                {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                    <div style={{ paddingTop: '10px' }}>
+                        <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
+                        <p style={{ margin: '5px 0' }}>
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toFixed(2)}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${parseFloat(billing).toFixed(2)}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${formatNumber(billing, 2)}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.slice(0, -8)}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toString().slice(0, -8)}</span> */}
+                            {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${(Math.round(billing * 100) / 100).toString()}</span> */}
+                            Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${Math.floor(billing * 100) / 100}</span>
+                        </p>
+                        {/* <p style={{ margin: '5px 0' }}>
                         Next payment due: 09/24/2024 (for 08/25/2024 – 09/24/2024)
                     </p> */}
-                    <p style={{ margin: '5px 0' }}>
-                        Billing method: <span style={{ marginRight: '5px' }}>💳•••• {Cardetail}</span>
-                        {/* <a href="#edit-billing" style={{ color: '#007bff', textDecoration: 'none' }}>Edit</a> */}
-                    </p>
-                </div>
+                        <p style={{ margin: '5px 0' }}>
+                            Billing method: <span style={{ marginRight: '5px' }}>💳•••• {Cardetail}</span>
+                            {/* <a href="#edit-billing" style={{ color: '#007bff', textDecoration: 'none' }}>Edit</a> */}
+                        </p>
+                    </div>
+                )}
             </div>
         );
     };
@@ -656,48 +666,69 @@ function Account() {
                         <BillingComponent />
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
-                        <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
-                            <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
-                                <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
-                                    Invoices
-                                </span>
-                                {/* <span style={{ padding: '10px 20px', cursor: 'pointer', color: 'grey' }}>Payments</span> */}
-                            </div>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr>
-                                        <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                            Invoice #
-                                        </th>
-                                        <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                            Date
-                                        </th>
-                                        <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                            Description
-                                        </th>
-                                        <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
-                                            Amount
-                                        </th>
-                                        {/* <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                        {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                            <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
+                                <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
+                                    <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
+                                        Invoices
+                                    </span>
+                                    {/* <span style={{ padding: '10px 20px', cursor: 'pointer', color: 'grey' }}>Payments</span> */}
+                                </div>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                Invoice #
+                                            </th>
+                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                Date
+                                            </th>
+                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                Description
+                                            </th>
+                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
+                                                Amount
+                                            </th>
+                                            {/* <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}>
                                             Balance
                                         </th> */}
-                                        <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {invoices.map((invoice) => (
-                                        <tr key={invoice.id}>
-                                            <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                {invoice.status === 'unpaid' ? (
-                                                    <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
-                                                ) : (
-                                                    <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
-                                                )}
-                                                {invoice.id} <br />
-                                                {/* {console.log('chllllllllllllllllllllll', invoice.status)} */}
-                                                {invoice.status === 'unpaid' && (
+                                            <th style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd', padding: '10px', textAlign: 'left' }}></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {invoices.map((invoice) => (
+                                            <tr key={invoice.id}>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
+                                                    {invoice.status === 'unpaid' ? (
+                                                        <span style={{ color: 'orange', marginRight: '5px' }}>&#9888;</span>
+                                                    ) : (
+                                                        <span style={{ color: 'green', marginRight: '5px' }}>&#10003;</span>
+                                                    )}
+                                                    {invoice.id} <br />
+                                                    {/* {console.log('chllllllllllllllllllllll', invoice.status)} */}
+                                                    {invoice.status === 'unpaid' && (
+                                                        <a
+                                                            href=""
+                                                            style={{
+                                                                color: '#28659C',
+                                                                textDecoration: 'none',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+                                                            onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                        >
+                                                            Pay
+                                                        </a>
+                                                    )}
+                                                </td>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
+                                                {/* <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.balance}</td> */}
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                     <a
-                                                        href=""
+                                                        href="#"
                                                         style={{
                                                             color: '#28659C',
                                                             textDecoration: 'none',
@@ -706,36 +737,16 @@ function Account() {
                                                         }}
                                                         onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
                                                         onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                                                        onClick={() => generatePDF(invoice)} // Generate PDF on click
                                                     >
-                                                        Pay
+                                                        PDF
                                                     </a>
-                                                )}
-                                            </td>
-                                            <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.date}</td>
-                                            <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{invoice.description}</td>
-                                            <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.amount}</td>
-                                            {/* <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${invoice.balance}</td> */}
-                                            <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
-                                                <a
-                                                    href="#"
-                                                    style={{
-                                                        color: '#28659C',
-                                                        textDecoration: 'none',
-                                                        fontWeight: 'bold',
-                                                        cursor: 'pointer',
-                                                    }}
-                                                    onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
-                                                    onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
-                                                    onClick={() => generatePDF(invoice)} // Generate PDF on click
-                                                >
-                                                    PDF
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {/* <a
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {/* <a
                                 href="#"
                                 style={{
                                     display: 'inline-block',
@@ -750,7 +761,8 @@ function Account() {
                             >
                                 Download
                             </a> */}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
