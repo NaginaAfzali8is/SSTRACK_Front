@@ -146,6 +146,8 @@ export default function AppRouter() {
           }, 2000);
         } catch (err) {
           console.error('Error fetching data', err);
+          let planId = null;
+          localStorage.setItem('planId', JSON.stringify(planId));
         }
       }
       setLoading(false);
