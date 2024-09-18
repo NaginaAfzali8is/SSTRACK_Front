@@ -502,7 +502,7 @@ function Account() {
                     <p style={{ margin: '5px 0' }}>
                         Price: <strong>${storedPlanId?.costPerUser}/employee/mo</strong>
                     </p>
-                    {/* <Link to="/payment" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link> */}
+                    <Link to="/payment" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link>
                     <div>
                         <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
                             <span role="img" aria-label="employee icon">👥</span> Add or remove employees
@@ -513,7 +513,8 @@ function Account() {
                 <div style={{ paddingTop: '10px' }}>
                     <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
                     <p style={{ margin: '5px 0' }}>
-                    Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toFixed(2)}</span>
+                    {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toFixed(2)}</span> */}
+                    Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing}</span>
                         {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
                     </p>
                     {/* <p style={{ margin: '5px 0' }}>

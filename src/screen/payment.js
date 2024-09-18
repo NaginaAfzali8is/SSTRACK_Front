@@ -73,6 +73,29 @@ const Payment = () => {
 
 
 
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
+    useEffect(() => {
+      const fetchPlans = async () => {
+        try {
+          const response = await axios.get(`${planapiUrl}/owner/getPlans`);
+          const plans = response.data.data;
+          setPlans(plans);
+          // Store plans in localStorage
+          localStorage.setItem('plans', JSON.stringify(plans));
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching plans:', error);
+          setFetchError('Error fetching plans');
+          setLoading(false);
+        }
+      };
+  
+      fetchPlans();
+    }, []);
+
+
+    
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {
             try {
