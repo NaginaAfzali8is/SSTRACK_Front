@@ -22,7 +22,7 @@ import jsPDF from 'jspdf';
 import logo from '../../src/public/tracking.png';
 import paidStamp from '../images/paid.png';
 import { Link } from 'react-router-dom'
-
+// import { link}
 
 function Account() {
 
@@ -543,18 +543,19 @@ function Account() {
                     <p style={{ margin: '5px 0' }}>
                         Price: <strong>${storedPlanId ? storedPlanId?.costPerUser : 0}/employee/mo</strong>
                     </p>
-                    <a href="#change-plan" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</a>
+                    <Link to='/payment' style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link>
                     <div>
-                        <a href="#add-employees" style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
+                        <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
                             <span role="img" aria-label="employee icon">👥</span> Add or remove employees
-                        </a>
+                        </Link>
                     </div>
                 </div>
 
                 <div style={{ paddingTop: '10px' }}>
                     <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
                     <p style={{ margin: '5px 0' }}>
-                        Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing ? Math.floor(billing * 100) / 100 : 0}</span>
+                        {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing ? Math.floor(billing * 100) / 100 : 0}</span> */}
+                        Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${0}</span>
 
                         <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a>
                     </p>
