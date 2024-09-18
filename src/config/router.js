@@ -133,6 +133,12 @@ export default function AppRouter() {
           };
           const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
+          // For objects or arrays:
+          const planId = response?.data.data[0].planId[1].id;
+
+
+          // Save to localStorage after converting to a string
+          localStorage.setItem('planId', JSON.stringify(planId));
           // Simulate a delay of 2 seconds
           setTimeout(() => {
             setSuspended(response?.data.data[0].suspended);

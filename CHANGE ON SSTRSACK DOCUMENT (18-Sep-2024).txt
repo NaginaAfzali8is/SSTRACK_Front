@@ -1,0 +1,9 @@
+//////////////// SSTRACK ////////////////////
+
+
+Display the project name sstrack > timeline > role user (35mins)
+set the select card for payment for responsive cards (40mins)
+set the CardSelecttion component for individual multiple card (35mins)
+set the CardSelection inside the Default fix the issue for responsive press the default modal then close the modal (45mins)
+add offline time show the description did not show the description if any issue and include the debugging (40mins)
+set the CardSelection inside the delete fix the issue for responsive press the delete modal then close the modal (35mins)

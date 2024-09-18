@@ -988,8 +988,8 @@ function UserDetails() {
                                         <div className="circular-progress" style={{
                                             cursor: "pointer"
                                         }}>
-                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
-                                            </div>
+                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                        </div>
                                     </OverlayTrigger>
                                     <p className="timerClock">{data?.totalHours?.daily}</p>
                                     <p className="weekTimer">Week</p>
@@ -1097,7 +1097,7 @@ function UserDetails() {
                                                             <CircularProgressBar activityPercentage={element?.totalactivity} size={30} />
                                                         </div>
                                                     </OverlayTrigger>
-                                                    <p className="projectName">{elements?.project}</p>
+                                                    <p className="projectName">{element?.project}</p>
 
                                                     <p className="timeDuration">{element?.description}</p>
                                                     {console.log("Des Name", element?.description)}
@@ -1265,7 +1265,7 @@ function UserDetails() {
                                             {element.items?.some(item => item.userType === "user") && (
                                                 <div>
                                                     <p className="projectName">{element?.project}</p>
-
+                                                    {console.log("Project Nanme", element?.project)}
                                                     <p className="timeDuration">{element?.description}</p>
                                                 </div>
                                             )}

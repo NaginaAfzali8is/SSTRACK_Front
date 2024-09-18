@@ -21,6 +21,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from '../../src/public/tracking.png';
 import paidStamp from '../images/paid.png';
+import { Link } from 'react-router-dom'
+
 
 function Account() {
 
@@ -41,7 +43,7 @@ function Account() {
         Authorization: 'Bearer ' + token,
     }
     console.log('usercompany==============', items);
-
+    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
 
     const fetchInvoices = async () => {
         try {
@@ -49,7 +51,7 @@ function Account() {
                 headers,
             });
             const data = await res.json();
-            // console.log('============================', data);
+            console.log('============================', data);
 
             // Transform the API data to the desired structure
             const transformedInvoices = data.data.map((invoice) => {
@@ -104,8 +106,12 @@ function Account() {
         img.src = imgUrl;
     };
 
+    const costPerUser = storedPlanId?.costPerUser || 0;  // Use storedPlanId's costPerUser or 0 as a fallback
 
-  
+    // Create the plandetail string
+    const plandetail = `${costPerUser}/employee/mo`;
+
+    //pdf generation
     const generatePDF = (invoice) => {
         getBase64Image(logo, (logoBase64, logoWidth, logoHeight) => {
             getBase64Image(paidStamp, (paidStampBase64, paidStampWidth, paidStampHeight) => {
@@ -175,21 +181,49 @@ function Account() {
 
 
                 // Move up and add margin from the right for invoice details
-                const invoiceDetailsY = headerY + 105; // Move up as needed
+                const invoiceDetailsY = headerY + 90; // Move up as needed
                 const invoiceDetailsX = width - rightMargin - 200; // Adjust for right margin
 
-                doc.setFontSize(12);
+                // Hardcoded plan variable for testing
+                let plan = 'professional'; // Options: 'professional', 'standard', 'free'
+                // Determine the plan details based on the hardcoded plan
+                // let plandetail = ''
+                // let planText = ''; // Initialize plan text
+                // if (plan === 'professional') {
+                //     planText = 'Professional Plan:';
+                //     plandetail = '$6.99/employee/mo';
+                // } else if (plan === 'standard') {
+                //     planText = 'Standard Plan:';
+                //     plandetail = '$3.99/employee/mo';
+                // }
+
+
+                doc.setFontSize(9);
                 doc.setFont('helvetica', 'bold');
                 doc.text('Invoice no.:', invoiceDetailsX, invoiceDetailsY);
-                doc.text('Invoice date:', invoiceDetailsX, invoiceDetailsY + 20);
-                doc.text('Balance:', invoiceDetailsX, invoiceDetailsY + 40);
-                doc.text('Billing period:', invoiceDetailsX, invoiceDetailsY + 60);
+                doc.text('Invoice date:', invoiceDetailsX, invoiceDetailsY + 15);
+                doc.text('Balance:', invoiceDetailsX, invoiceDetailsY + 30);
+                doc.text('Billing period:', invoiceDetailsX, invoiceDetailsY + 45);
+                doc.text(storedPlanId?.planType, invoiceDetailsX, invoiceDetailsY + 60);
 
                 doc.setFont('helvetica', 'normal');
                 doc.text(invoice.id, width - rightMargin - 100, invoiceDetailsY);
-                doc.text(invoice.date, width - rightMargin - 100, invoiceDetailsY + 20);
-                doc.text('$' + invoice.balance, width - rightMargin - 100, invoiceDetailsY + 40);
-                doc.text(invoice.description.split(' ')[1], width - rightMargin - 100, invoiceDetailsY + 60);
+                doc.text(invoice.date, width - rightMargin - 100, invoiceDetailsY + 15);
+                doc.text('$' + invoice.balance, width - rightMargin - 100, invoiceDetailsY + 30);
+                doc.text(invoice.description.split(' ')[1], width - rightMargin - 100, invoiceDetailsY + 45);
+                doc.text(plandetail, width - rightMargin - 100, invoiceDetailsY + 60);
+
+
+
+
+
+
+
+
+
+
+
+
 
                 // Add customer details on the left side
                 const customerDetailsY = invoiceDetailsY; // Use the same top margin as invoice details
@@ -208,8 +242,8 @@ function Account() {
                 // Add PAID stamp if paid
                 if (invoice.status === 'paid') {
                     // Define the maximum width and height for the PAID stamp image
-                    const maxPaidStampWidth = 300;  // Maximum width
-                    const maxPaidStampHeight = 150;  // Maximum height
+                    const maxPaidStampWidth = 250;  // Maximum width
+                    const maxPaidStampHeight = 125;  // Maximum height
 
                     // Calculate the aspect ratio for the PAID stamp
                     const paidStampAspectRatio = paidStampWidth / paidStampHeight;
@@ -226,28 +260,28 @@ function Account() {
                         }
                     }
 
-                    const paidStampX = width / 2 - paidStampWidth / 2; // Center the PAID stamp
-                    const paidStampY = 200 - paidStampHeight / 2;      // Adjust Y position
+                    const paidStampX = width / 2.5 - paidStampWidth / 2.5; // Center the PAID stamp
+                    const paidStampY = 140 - paidStampHeight / 2;      // Adjust Y position
                     doc.addImage(paidStampBase64, 'PNG', paidStampX, paidStampY, paidStampWidth, paidStampHeight);
                 }
 
                 // Add Invoice Details
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text('Invoice #' + invoice.id, 40, 260);
+                doc.text('Invoice #' + invoice.id, 40, 210);
 
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
 
                 doc.setFont('helvetica', 'bold');
-                doc.text('Item', 40, 280);
-                doc.text('Service', 120, 280);
-                doc.text('Amount', width - 100, 280);
+                doc.text('Item', 40, 230);
+                doc.text('Service', 120, 230);
+                doc.text('Amount', width - 100, 230);
 
-                let y = 300; // Starting Y position for the table
+                let y = 237; // Starting Y position for the table
 
                 invoice.details.forEach((item, index) => {
-                    y += 10; // Move down to the next row
+                    y += 5; // Move down to the next row
 
                     // Check if content exceeds page
                     if (checkContentOverflow(y)) return;
@@ -255,16 +289,20 @@ function Account() {
                     // Draw the top border
                     doc.setLineWidth(0.5);
 
-                    y += 15; // Move down to draw the text
+                    y += 7; // Move down to draw the text
+                    doc.setFont('helvetica', 'normal');
                     doc.text(String(index + 1), 40, y);
-                    doc.setFont('helvetica', 'bold');
+                    doc.setFont('helvetica', 'normal');
                     doc.text(item.name, 120, y);
                     doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(128, 128, 128);
                     doc.text(' ' + item.periodStart + ' - ' + item.periodEnd, 120 + doc.getTextWidth(item.name) + 5, y); // Adjust position based on bold text width
+                    // Reset text color back to black after the gray text
+                    doc.setTextColor(0, 0, 0);
                     const amount = Number(item.amount); // Ensure item.amount is a number
                     doc.text('$' + amount.toFixed(2), width - 100, y);
 
-                    y += 15; // Move down to draw the bottom border
+                    y += 7; // Move down to draw the bottom border
 
                     // Check if content exceeds page before drawing bottom border
                     if (checkContentOverflow(y)) return;
@@ -305,10 +343,10 @@ function Account() {
                     // Draw upper border
                     doc.setLineWidth(0.5);
                     doc.setDrawColor(0, 0, 0);
-                    doc.line(40, y - 10, width - 40, y - 10); // Upper border
+                    doc.line(40, y - 11, width - 40, y - 11); // Upper border
 
                     // Draw lower border
-                    doc.line(40, y + 10, width - 40, y + 10); // Lower border
+                    doc.line(40, y + 5, width - 40, y + 5); // Lower border
                 }
                 // Download the PDF
                 doc.save(`Invoice_${invoice.id}.pdf`);
@@ -317,6 +355,7 @@ function Account() {
     };
 
 
+    const [plans, setPlans] = useState('')
 
 
 
@@ -415,12 +454,12 @@ function Account() {
         else {
             setUpdatePassword(false)
             const res = await fetch(`${apiUrl}/signin/users/Update`, {
-                password: newPassword
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+                headers,
+                method: "PATCH",
+                body: JSON.stringify({
+                    password: newPassword
+                }),
+            })
             try {
                 if (res.status === 200) {
                     console.log((await res.json()));
@@ -446,6 +485,51 @@ function Account() {
 
     console.log(items)
     console.log(verify)
+
+
+
+
+    const BillingComponent = () => {
+        // Retrieve and parse the stored data
+        // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+        const billing = JSON.parse(localStorage.getItem('billdetail'));
+        const Cardetail = JSON.parse(localStorage.getItem('carddetail'));
+        console.log('Stored Plan ID::::::::::::::::::::::', Cardetail);
+        return (
+            <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
+                <div style={{ marginBottom: '20px' }}>
+                    <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{storedPlanId?.planType} Plan</h2>
+                    <p style={{ margin: '5px 0' }}>
+                        Price: <strong>${storedPlanId?.costPerUser}/employee/mo</strong>
+                    </p>
+                    {/* <Link to="/payment" style={{ color: '#007bff', textDecoration: 'none' }}>Change plan</Link> */}
+                    <div>
+                        <Link to='/team' style={{ color: '#007bff', textDecoration: 'none', marginTop: '10px', display: 'inline-block' }}>
+                            <span role="img" aria-label="employee icon">👥</span> Add or remove employees
+                        </Link>
+                    </div>
+                </div>
+
+                <div style={{ paddingTop: '10px' }}>
+                    <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
+                    <p style={{ margin: '5px 0' }}>
+                        Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing}</span>
+                        {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
+                    </p>
+                    {/* <p style={{ margin: '5px 0' }}>
+                        Next payment due: 09/24/2024 (for 08/25/2024 – 09/24/2024)
+                    </p> */}
+                    <p style={{ margin: '5px 0' }}>
+                        Billing method: <span style={{ marginRight: '5px' }}>💳•••• {Cardetail}</span>
+                        {/* <a href="#edit-billing" style={{ color: '#007bff', textDecoration: 'none' }}>Edit</a> */}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+
+
 
     return (
         <div>
@@ -568,9 +652,9 @@ function Account() {
                                 </div>
                             )}
                         </div>
+                        <BillingComponent />
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
-                      {!(items?.userType === 'user' || items?.userType === 'manager') && (
                         <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
                             <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
                                 <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
@@ -666,7 +750,6 @@ function Account() {
                                 Download
                             </a> */}
                         </div>
-)}
                     </div>
                 </div>
             </div>
