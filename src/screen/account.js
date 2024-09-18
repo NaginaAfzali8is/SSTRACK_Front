@@ -513,7 +513,7 @@ function Account() {
                 <div style={{ paddingTop: '10px' }}>
                     <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
                     <p style={{ margin: '5px 0' }}>
-                        Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing}</span>
+                    Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing.toFixed(2)}</span>
                         {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
                     </p>
                     {/* <p style={{ margin: '5px 0' }}>
