@@ -64,14 +64,16 @@ function OwnerTeam() {
     }
     const dispatch = useDispatch();
 
-    // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
-    //     const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
-    //     return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
-    // }
     function getAssignedUsersCount(users, assignedUsers, currentUserId) {
         const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
-        return assignedUsersList.length;
+        return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
     }
+
+    // function getAssignedUsersCount(users, assignedUsers, currentUserId) {
+    //     // const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id));
+    //     const assignedUsersList = users?.filter((u) => assignedUsers.includes(u._id) && u._id !== currentUserId);
+    //     return assignedUsersList.length;
+    // }
     // const getData = async () => {
     //     setLoading(true)
     //     try {
@@ -751,9 +753,13 @@ function OwnerTeam() {
                                                 {
                                                     e?.userType === "owner" ? <div>
                                                         <AiFillStar color="#e7c741" size={20} />
+                                                        <p style={{ margin: 0, fontWeight: "600", color: "white" }}>
+                                                            {/* {getAssignedUsersCount(users, e.assignedUsers, e._id)} */}
+                                                        </p>
                                                     </div> :
                                                         e?.userType === "admin" ? <div>
                                                             <AiFillStar color="#28659C" size={20} />
+
                                                         </div>
                                                             :
                                                             e?.userType === "manager" && (
@@ -761,7 +767,10 @@ function OwnerTeam() {
                                                                     <AiOutlineUser color="white" size={20} />
                                                                     {/* <p style={{ margin: 0, fontWeight: "600", color: "white" }}>{e?.assignedUsers?.filter(f => f !== user._id)?.length}</p> */}
                                                                     <p style={{ margin: 0, fontWeight: "600", color: "white" }}>
-                                                                        {getAssignedUsersCount(users, e.assignedUsers, e._id)}
+                                                                        {/* getAssignedUsersCount(users, e.assignedUsers, e._id, currentUserType) */}
+
+                                                                        {/* {getAssignedUsersCount(users, e.assignedUsers, e._id) + (e?.userType === "manager" ? 1 : 0)} */}
+                                                                        {getAssignedUsersCount(users, e.assignedUsers, e._id) + 1}
                                                                     </p>
                                                                 </div>
                                                             )}

@@ -78,6 +78,14 @@ function UserDetails() {
     const [startTime, setStartTime] = useState(null)
     const [endTime, setEndTime] = useState(null)
     const [deleteActivity, setDeleteActivity] = useState(false)
+    const [note, setNote] = useState('');
+    const noteRef = useRef(note);
+
+    const handleInputChange = (event) => {
+        setNote(event.target.value);
+        noteRef.current = event.target.value;
+    };
+
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
@@ -98,11 +106,9 @@ function UserDetails() {
                     axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
                     axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
                 ]);
-
                 const screenshotsData = screenshotsResponse.data;
                 const activitiesData = activitiesResponse.data;
                 const hoursData = hoursResponse.data;
-
                 setData(hoursData.data);
                 setTotalActivityByDay(activitiesData.data);
                 setTimeEntryId(hoursData.data.TimeTrackingId);
@@ -141,7 +147,7 @@ function UserDetails() {
 
         const handleUpdateData = () => {
             // console.log('Received updateData event');
-            fetchData();
+            // fetchData();
         };
 
         socket.on('new-ss', handleUpdateData);
@@ -570,11 +576,11 @@ function UserDetails() {
         setShowOfflineTime(false)
         setShowSplitActivity(false)
         setShowTrimActivity(false)
-        console.log({
+        console.log('Add Offline time', {
             startTime: formattedDate + " " + offlineTime?.startTime,
             endTime: formattedDate + " " + offlineTime?.endTime,
             projectId: "643fb528272a1877e4fcf30e",
-            notes: "Offline activity description"
+            notes: note
         });
         if (!isValidTimeFormat(offlineTime.startTime) || !isValidTimeFormat(offlineTime.endTime)) {
             setShowOfflineTime(true)
@@ -592,7 +598,7 @@ function UserDetails() {
                 startTime: formattedDate + " " + offlineTime?.startTime,
                 endTime: formattedDate + " " + offlineTime?.endTime,
                 projectId: "643fb528272a1877e4fcf30e",
-                notes: "Offline activity description"
+                notes: note
             }, {
                 headers: {
                     Authorization: 'Bearer ' + token
@@ -606,7 +612,7 @@ function UserDetails() {
                         horizontal: "right"
                     }
                 })
-                console.log(response);
+                console.log("Api response addedd offline time", response);
             }
         } catch (error) {
             console.log(error);
@@ -707,7 +713,7 @@ function UserDetails() {
     }
 
     console.log('Admin ka data', timeEntries);
-    debugger
+
     return (
         <div>
             {showScrollButton === true ? <BackToTop /> : null}
@@ -763,7 +769,13 @@ function UserDetails() {
                                 <option>Click HR</option>
                             </select>
                         </div> */}
-                        <textarea placeholder="Note (optional)" rows="5" ></textarea>
+                        <textarea
+                            placeholder="Note (optional)"
+                            rows="5"
+                            value={noteRef.current}
+                            onChange={handleInputChange}
+                        />
+                        {/* <textarea placeholder="Note (optional)" name='note' rows="5" ></textarea> */}
                         <div className="deleteActivityPart">
                             <div style={{ cursor: "pointer", display: "flex", alignItems: "center" }} onClick={handleDivClick}>
                                 <input id="editcheck" type="checkbox" checked={deleteActivity} onChange={(e) => setDeleteActivity(e.target.checked)} />
@@ -849,6 +861,7 @@ function UserDetails() {
                         <textarea placeholder="Note (optional)" rows="5" ></textarea>
                     </div>
                 </Modal.Body>
+
                 <Modal.Footer>
                     <button className="teamActionButton" onClick={handleAddOfflineTime}>
                         SAVE CHANGES
@@ -954,17 +967,17 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
-                                                                Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
-                                                                    Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
-                                                                        Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
-                                                                            Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                            transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
+                                                                Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
+                                                                    Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
+                                                                        Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
+                                                                            Math.floor(data?.totalactivity) > 80 ? 75 : -108
                                                                 }deg)`
                                                         }}>
                                                         <div className="needleContainerAlingment">
                                                             <div className="diamond"></div>
                                                             <div className="needlePointerMain"></div>
-                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
                                                                 <div className="needleScrewMain"></div>
                                                             </OverlayTrigger>
                                                         </div>
@@ -976,6 +989,29 @@ function UserDetails() {
                                 </div>
                             </div>
                         ) : <div className="timerAndTracking">
+                            {/* <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
+                                <div>
+                                    <img width={120} src={logo} alt="" />
+                                </div>
+                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                                    <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
+                                    <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+                                    <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
+                                    <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                        <div className="circular-progress" style={{
+                                            cursor: "pointer"
+                                        }}>
+                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                        </div>
+                                    </OverlayTrigger>
+                                    <p className="timerClock">{data?.totalHours?.daily}</p>
+                                    <p className="weekTimer">Week</p>
+                                    <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                    <img src={circleDot} alt="CircleDot.png" />
+                                    <p className="weekTimer">Month</p>
+                                    <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
+                                </div>
+                            </div> */}
                             <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
                                 <div>
                                     <img width={120} src={logo} alt="" />
@@ -1001,7 +1037,7 @@ function UserDetails() {
                             </div>
                             <div className="activity-image-container">
                                 <div className="activityMainHeading">
-                                    <h4 className="activityMainHeadingContent">Activity Tracker</h4>
+                                    {/* <h4 className="activityMainHeadingContent">Activity Tracker</h4> */}
                                     <p className="activityMainContent">Activity Level</p>
                                 </div>
                                 <div className="activityMeternContent">
@@ -1063,6 +1099,8 @@ function UserDetails() {
 
                                 <div>
                                     {data && (data?.groupedScreenshots?.map((element, elements) => {
+
+                                        //   {offlineTime.filter((element) => element.timeentryId !== trimActivity.timeentryId).map((element, index) => {
                                         return (
                                             <div>
                                                 {loading ? <Skeleton count={1} width="300px" height="34.5px" style={{ margin: "40px 0 0 0" }} /> : <div
@@ -1224,6 +1262,8 @@ function UserDetails() {
                                                 </div>
                                             </div>
                                         )
+
+
                                     }))}
                                 </div>
                             ) : timeEntries?.map((element) => {

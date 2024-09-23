@@ -218,26 +218,78 @@ function OwnerTeamComponent(props) {
         }
     }
 
+    // const handleAssignUser = async (userID) => {
+    //     try {
+    //         const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
+    //             // userIds: [userID]
+    //             userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
+    //             // userId: users.filter(user => user.isAssign).map(user => user._id)
+    //             //   userIds: [...users.filter(user => user.isAssign).map(user => user._id), userID]
+    //             // userIds: [...users.filter(user => user.isAssign).map(user => user._id), userID]
+    //         }, { headers })
+    //         if (response.status) {
+    //             enqueueSnackbar("Settings saved", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+    //         }
+    //     }
+    //     catch (err) {
+    //         setLoading(false)
+    //         console.log(err);
+    //     }
+    // }
+
+    
     const handleAssignUser = async (userID) => {
         try {
-            const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
-                userIds: [userID]
-            }, { headers })
-            if (response.status) {
-                enqueueSnackbar("Settings saved", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                })
-            }
+          const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
+            userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
+          }, { headers })
+          if (response.status) {
+            // const assignedUsersCount = users.filter(user => user.isAssign).length;
+            enqueueSnackbar(`Settings saved. Total assigned users: ${assignedUsersCount}`, {
+              variant: "success",
+              anchorOrigin: {
+                vertical: "top",
+                horizontal: "right"
+              }
+            })
+          }
         }
         catch (err) {
-            setLoading(false)
-            console.log(err);
+          setLoading(false)
+          console.log(err);
         }
-    }
+      }
+
+    // const handleAssignUser = async (userID) => {
+    //     try {
+    //         const response = await axios.patch(`${apiUrl}/superAdmin/assign-user-to-manager/${fixId}`, {
+    //             userIds: [...new Set([...users.filter(user => user.isAssign).map(user => user._id), userID])]
+    //         }, { headers })
+    //         if (response.status) {
+    //             // Update the owner's count
+    //             const ownerCount = users.filter(user => user.isAssign).length + 1;
+    //             // Update the owner's count in the state or database
+    //             setOwnerCount(ownerCount);
+    //             enqueueSnackbar("Settings saved", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+    //         }
+    //     } catch (err) {
+    //         setLoading(false)
+    //         console.log(err);
+    //     }
+    // }
+
 
     const handleRemoveAssignUser = async (id) => {
         try {
@@ -437,7 +489,7 @@ function OwnerTeamComponent(props) {
                                                                     if (user._id === f._id) {
                                                                         const newIsAssign = !user.isAssign;
                                                                         if (newIsAssign) {
-                                                                            handleAssignUser([...user.managerId, f._id]); // Pass the updated userIds array
+                                                                            handleAssignUser([f._id]); // Pass the updated userIds array
                                                                         } else {
                                                                             handleRemoveAssignUser(user._id); // Pass user ID to removal function
                                                                         }
@@ -445,6 +497,7 @@ function OwnerTeamComponent(props) {
                                                                             ...user,
                                                                             isAssign: newIsAssign,
                                                                             managerId: newIsAssign ? [...user.managerId, fixId] : user.managerId.filter(id => id !== fixId)
+
                                                                             // If newIsAssign is true, add fixId to managerId array; otherwise, remove fixId from the array
                                                                         };
                                                                     }
@@ -457,6 +510,7 @@ function OwnerTeamComponent(props) {
                                                         type="checkbox"
                                                         checked={
                                                             f?.managerId?.length === 0 ? false : users.find((user) => user._id === f._id)?.managerId.includes(fixId)
+                                                            // f?.managerId?.length === 0 ? false : users.find((user) => user._id === f._id)?.managerId.includes(fixId)
                                                         }
                                                     />
                                                     {user?.userType !== "manager" && <label
@@ -479,7 +533,7 @@ function OwnerTeamComponent(props) {
                                         </div>
                                     </div>
                                 )}
-                                
+
 
                                 {/* {loading ? <Skeleton count={1} width="50px" height="33px" style={{ margin: "16px 0" }} /> : <p style={{
                                 color: "#0E4772",
