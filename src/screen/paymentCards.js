@@ -4,17 +4,19 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
-import PaymentCards from './paymentCards'
-import PaymentPlans from './paymentPlan'
+
 const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 
 
 const Payment = ({ updatePaymentStatus }) => {
 
+
+    const navigate = useNavigate()
     const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
     const [fetchError] = useState(location.state?.fetchError || null);
@@ -32,79 +34,17 @@ const Payment = ({ updatePaymentStatus }) => {
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
-    const [show, setShow] = useState(false);
-    const [deleteAccount, setDeleteAccount] = useState(false);
-    const [showButton, setShowButton] = useState([])
-    const [updatePassword, setUpdatePassword] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [newPassword2, setNewPassword2] = useState("");
-    const [verify, setVerify] = useState(false);
-    const [invoices, setInvoices] = useState([]);
-    // const [isLoading, setIsLoading] = useState(false);
-    const [showWarning, setShowWarning] = useState(false);
-    // let token = localStorage.getItem('token');
-    // const navigate = useNavigate('');
-    const items = JSON.parse(localStorage.getItem('items'));
-    // let headers = {
-    //     Authorization: 'Bearer ' + token,
-    // }
-    // const [selectedPlan, setSelectedPlan] = useState(null);
+    // const [plans, setPlans] = useState([]);
+    // const [loading, setLoading] = useState(true);
+    // const [fetchError, setFetchError] = useState(null);
+    const [selectedPackage, setSelectedPackage] = useState(0);
 
-    console.log('usercompany==============', items);
-    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
 
     const handleUpdatePaymentStatus = (status) => {
         setPaymentStatus(status);
         setHasUnpaidInvoices(status !== 'paid');
     };
-
-    const fetchInvoices = async () => {
-        try {
-            const res = await fetch(`${apiUrl}/owner/getInvoice`, {
-                headers,
-            });
-            const data = await res.json();
-            console.log('============================', data);
-
-            // Transform the API data to the desired structure
-            const transformedInvoices = data.data.map((invoice) => {
-                // Log the status of each invoice
-                console.log('Invoice status:', invoice.status);
-
-                return {
-                    id: invoice.invoiceNumber,
-                    date: new Date(invoice.invoiceDate).toLocaleDateString(),
-                    description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-                        invoice.employee[0].periodEnd
-                    ).toLocaleDateString()}`,
-                    amount: parseFloat(invoice.subTotal).toFixed(2),
-                    balance: parseFloat(invoice.balance).toFixed(2),
-                    status: (invoice.status),
-                    details: invoice.employee.map(emp => ({
-                        name: emp.name,
-                        periodStart: new Date(emp.periodStart).toLocaleDateString(),
-                        periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
-                        amount: emp.amount,
-                    })),
-                };
-            });
-            setHasUnpaidInvoices(hasUnpaidInvoice); // Set hasUnpaidInvoices state
-            setInvoices(transformedInvoices);
-            // Check if there is any unpaid invoice
-            const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
-            setShowButton(hasUnpaidInvoice);
-        } catch (error) {
-            console.error('Error fetching invoices:!!!!!!!!!!!!!!!!', error);
-        }
-    };
-
-
-    useEffect(() => {
-        fetchInvoices();
-    }, []);
-
-
 
     // Update hasUnpaidInvoices state when invoice status changes
     useEffect(() => {
@@ -682,8 +622,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 if (response.data.success) {
                     console.log('Payment successful:', response);
                     setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    handleUpdatePaymentStatus('paid'); // Update paymentStatus and hasUnpaidInvoices states
+                    setInvoice({ status: 'paid' }); // Update invoice status to 'paid'
                     setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                 } else {
                     console.error('Payment failed:', response.data.error);
@@ -706,156 +646,156 @@ const Payment = ({ updatePaymentStatus }) => {
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
 
+    const handleUpgradeClick = (defaultPlanIndex) => {
+        // Update the selected package when a button is clicked
+        navigate('/payment', {
+            state: {
+                plans,
+                fetchError,
+                loading: false,
+                defaultPlanIndex
+            }
+        });
+        // setSelectedPackage(defaultPlanIndex);
+    };
+    useEffect(() => {
+        const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
+        if (storedPlanId?.planType === 'free') {
+            setSelectedPackage(1); // Basic
+        } else if (storedPlanId?.planType === 'standard') {
+            setSelectedPackage(2); // Standard
+        } else if (storedPlanId?.planType === 'premium') {
+            setSelectedPackage(3); // Premium
+        }
+    }, []); // Empty dependency array to run only once on component mount
+
+    useEffect(() => {
+        if (selectedPlan) {
+            localStorage.setItem('planId', JSON.stringify(selectedPlan));
+        }
+    }, [selectedPlan]);
 
     return (
-        <div>
-            <div className="container">
-                <div className="userHeader">
-                    <div>
-                        <h5>Paid plan</h5>
-                    </div>
-                </div>
-                <div className="mainwrapper">
-                    <div className="ownerTeamContainer">
-                        <h3 className="card-title mb-4">Selected Plan</h3>
-                        <div style={{
-                            padding: "20px",
-                            border: "1px solid #ccc",
-                            borderRadius: "15px",
-                            backgroundColor: "#fff",
-                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                            marginBottom: "20px",
-                            width: '400px',
-                            backgroundImage: 'linear-gradient(135deg, #0070BA, #00A1F1)',
-                            color: 'white',
-                            fontFamily: 'Arial, sans-serif',
-                            textAlign: 'left',
-                            position: 'relative',
-                        }}>
-
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '20px'
-                            }}>
-                                <span style={{ fontSize: "18px", fontWeight: "bold" }}>
-                                    {paycard ? paycard.cardType : "Visa"}
-                                </span>
-                                <img
-                                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
-                                    alt="Visa logo"
-                                    style={{ width: '60px', height: 'auto' }}
-                                />
-                            </div>
-
-                            <div style={{
-                                fontSize: "16px",
-                                letterSpacing: "2px",
-                                marginBottom: '20px'
-                            }}>
-                                **** **** **** {paycard ? paycard.cardNumber : ""}
-                                {/* **** **** **** {paycard.cardNumber.slice(-4)} */}
-
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <div>
-                                    <div style={{ fontSize: "12px", fontWeight: "bold" }}>Expires</div>
-                                    <div style={{ fontSize: "14px" }}>{paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}</div>
-                                    {/* <div style={{ fontSize: "14px" }}>12/25</div> */}
-                                </div>
-                            </div>
-                            {/* <button
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
-                                    }}
-                                    // onClick={handlePayWithThisCard}
-                                    // disabled={isLoading}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
-                                >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                </button> */}
-                              {/* {invoices.filter(invoice => invoice.status === 'unpaid').length > 0 ? (
+        <>
+            <div className='container'>
+                <div className='row' style={{ marginLeft: '2px', gap: '65px' }}>
+                    <div className="card" style={{ width: '22rem' }}>
+                        <div className="card-body text-center mt-3">
+                            <h3
+                                style={{
+                                    fontSize: "1.2em", // Reduced font size
+                                    color: "#333",
+                                    marginBottom: "5px", // Reduced margin
+                                }}
+                            >
+                                Upgrade to Paid Plan
+                            </h3>
+                            <p className='mt-3' style={{ marginBottom: "10px", fontSize: "0.9em" }}> {/* Reduced margin and font size */}
+                                This card will be charged monthly
+                            </p>
+                            {selectedPlan?.planType === 'standard' || selectedPlan?.planType === 'premium' ? (
                                 <button
+                                    onClick={handleShowNewModal}
                                     style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
                                         display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
+                                        padding: "8px 16px", // Reduced padding
+                                        backgroundColor: "#7CCB58",
                                         color: "white",
                                         border: "none",
                                         borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
+                                        fontSize: "0.9em", // Reduced font size
+                                        cursor: "pointer",
                                         transition: "background-color 0.3s ease",
                                     }}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
                                 >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
+                                    Upgrade to Paid Plan
                                 </button>
-                            ) : (
-                                <span></span>
-                            )} */}
-                            {invoice.status === 'unpaid' ? (
-                                <button
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
-                                    }}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
-                                >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                </button>
-                            ) : (
-                                <span></span>
-                            )}
+                            ) : null}
                         </div>
-                        {responseMessage && (
-                            <div style={{
-                                marginTop: '50px',
-                                padding: '10px',
-                                borderRadius: '5px',
-                                backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                            }}>
-                                {responseMessage}
-                            </div>
-                        )}
-                        <br />
-                        <PaymentCards />
-                        <PaymentPlans />
+                    </div>
+                    <div className="card" style={{ width: '22rem' }}>
+                        <div className="card-body text-center">
+                            <h3 className='text-center'
+                                style={{
+                                    fontSize: "1.2em", // Reduced font size
+                                    color: "#333",
+                                    marginBottom: "5px", // Reduced margin
+                                }}
+                            >
+                                or Pay with PayPal
+                            </h3>
+                            <button className='align-items-center text-center'
+                                onClick={handlePayPalClick}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '10px 20px',
+                                    backgroundColor: '#FFB730', // Yellow background color
+                                    border: '2px solid #FFB730', // Border to match the background
+                                    borderRadius: '50px', // Rounded corners
+                                    cursor: 'pointer',
+                                    textDecoration: 'none',
+                                    fontSize: '1em',
+                                    fontWeight: 'bold',
+                                    color: '#0070BA', // PayPal blue color for text
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Slight shadow for effect
+                                    transition: 'background-color 0.3s ease',
+                                    margin: '10px',
+                                }}
+                            >
+                                <img
+                                    src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
+                                    alt="PayPal"
+                                    style={{
+                                        width: '24px',
+                                        height: 'auto',
+                                        marginRight: '8px', // Space between icon and text
+                                    }}
+                                />
+                                PayPal
+                            </button>
+                            <p style={{ fontSize: "0.9em", marginBottom: "0" }}> {/* Reduced font size and margin */}
+                                PayPal will <strong>NOT</strong> be charged monthly automatically, we
+                                will remind you when it is time to pay or you can add credit in
+                                advance.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="card" style={{ width: '22rem' }}>
+
+                        <div className="card-body text-center mt-3">
+                            <h3
+                                style={{
+                                    fontSize: "1.2em", // Reduced font size
+                                    color: "#333",
+                                    marginBottom: "5px", // Reduced margin
+                                }}
+                            >
+                                Add new card
+                            </h3>
+                            <p style={{ marginBottom: "10px", fontSize: "0.9em" }} className='mt-3' > {/* Reduced margin and font size */}
+                                The card will be charged monthly
+                            </p>
+                            <button className='mt-2'
+                                onClick={handleShowNewModal}
+                                style={{
+                                    display: "inline-block",
+                                    padding: "8px 16px", // Reduced padding
+                                    backgroundColor: "#7CCB58",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    fontSize: "0.9em", // Reduced font size
+                                    cursor: "pointer",
+                                    transition: "background-color 0.3s ease",
+                                }}
+                            >
+                                Select Card
+                            </button>
+
+                        </div>
                     </div>
                 </div>
                 <PaymentModal
@@ -863,6 +803,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     handleClose={handleCloseModal}
                     selectedPlan={selectedPlan}
                 />
+                {/* // )} */}
             </div>
             <div>
                 <NewCardModal
@@ -870,9 +811,18 @@ const Payment = ({ updatePaymentStatus }) => {
                     handleClose={handleCloseNewModal}
                 />
             </div>
-        </div>
+        </>
+
+
     );
 };
+
+
+
+
+
+
+
 
 
 export default Payment;

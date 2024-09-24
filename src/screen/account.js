@@ -35,6 +35,7 @@ function Account() {
     const [newPassword2, setNewPassword2] = useState("");
     const [verify, setVerify] = useState(false);
     const [invoices, setInvoices] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
     let token = localStorage.getItem('token');
     const navigate = useNavigate('');
@@ -43,9 +44,12 @@ function Account() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'));
 
+    
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
@@ -479,61 +483,61 @@ function Account() {
     // }
     const updateMyPassword = async () => {
         if (newPassword === "" || newPassword2 === "") {
-          console.log("asddas");
+            console.log("asddas");
         }
         if (newPassword === currentPassword || newPassword2 === currentPassword) {
-          enqueueSnackbar("New password should unique", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right"
-            }
-          })
+            enqueueSnackbar("New password should unique", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            })
         } else {
             setUpdatePassword(false)
             try {
-              const params = new URLSearchParams();
-              params.append('password', newPassword);
-              
-            const res = await fetch(`${apiUrl}/signin/users/Update`, {
-              method: "PATCH",
-              body: params,
-              headers: {
-                Authorization: `Bearer ${token}`
-              },
-            });
-            console.log("API Response:", res);
-            if (res.status === 200) {
-              console.log((await res.json()));
-              enqueueSnackbar("password updated successfully", {
-                variant: "success",
-                anchorOrigin: {
-                  vertical: "top",
-                  horizontal: "right"
+                const params = new URLSearchParams();
+                params.append('password', newPassword);
+
+                const res = await fetch(`${apiUrl}/signin/users/Update`, {
+                    method: "PATCH",
+                    body: params,
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                });
+                console.log("API Response:", res);
+                if (res.status === 200) {
+                    console.log((await res.json()));
+                    enqueueSnackbar("password updated successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                } else {
+                    console.log("Error updating password:", res.status, res.statusText);
+                    enqueueSnackbar("Failed to update password", {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                 }
-              })
-            } else {
-              console.log("Error updating password:", res.status, res.statusText);
-              enqueueSnackbar("Failed to update password", {
-                variant: "error",
-                anchorOrigin: {
-                  vertical: "top",
-                  horizontal: "right"
-                }
-              })
+            } catch (error) {
+                console.log("Error updating password:", error);
+                enqueueSnackbar("Error updating password", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                })
             }
-          } catch (error) {
-            console.log("Error updating password:", error);
-            enqueueSnackbar("Error updating password", {
-              variant: "error",
-              anchorOrigin: {
-                vertical: "top",
-                horizontal: "right"
-              }
-            })
-          }
         }
-      }
+    }
 
 
     const offsetInMinutes = moment.tz(items.timezone).utcOffset();

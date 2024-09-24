@@ -8,7 +8,7 @@ import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 import PaymentCards from './paymentCards'
-import PaymentPlans from './paymentPlan'
+
 const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 
@@ -32,79 +32,11 @@ const Payment = ({ updatePaymentStatus }) => {
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
-    const [show, setShow] = useState(false);
-    const [deleteAccount, setDeleteAccount] = useState(false);
-    const [showButton, setShowButton] = useState([])
-    const [updatePassword, setUpdatePassword] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [newPassword2, setNewPassword2] = useState("");
-    const [verify, setVerify] = useState(false);
-    const [invoices, setInvoices] = useState([]);
-    // const [isLoading, setIsLoading] = useState(false);
-    const [showWarning, setShowWarning] = useState(false);
-    // let token = localStorage.getItem('token');
-    // const navigate = useNavigate('');
-    const items = JSON.parse(localStorage.getItem('items'));
-    // let headers = {
-    //     Authorization: 'Bearer ' + token,
-    // }
-    // const [selectedPlan, setSelectedPlan] = useState(null);
-
-    console.log('usercompany==============', items);
-    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
 
     const handleUpdatePaymentStatus = (status) => {
         setPaymentStatus(status);
         setHasUnpaidInvoices(status !== 'paid');
     };
-
-    const fetchInvoices = async () => {
-        try {
-            const res = await fetch(`${apiUrl}/owner/getInvoice`, {
-                headers,
-            });
-            const data = await res.json();
-            console.log('============================', data);
-
-            // Transform the API data to the desired structure
-            const transformedInvoices = data.data.map((invoice) => {
-                // Log the status of each invoice
-                console.log('Invoice status:', invoice.status);
-
-                return {
-                    id: invoice.invoiceNumber,
-                    date: new Date(invoice.invoiceDate).toLocaleDateString(),
-                    description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-                        invoice.employee[0].periodEnd
-                    ).toLocaleDateString()}`,
-                    amount: parseFloat(invoice.subTotal).toFixed(2),
-                    balance: parseFloat(invoice.balance).toFixed(2),
-                    status: (invoice.status),
-                    details: invoice.employee.map(emp => ({
-                        name: emp.name,
-                        periodStart: new Date(emp.periodStart).toLocaleDateString(),
-                        periodEnd: new Date(emp.periodEnd).toLocaleDateString(),
-                        amount: emp.amount,
-                    })),
-                };
-            });
-            setHasUnpaidInvoices(hasUnpaidInvoice); // Set hasUnpaidInvoices state
-            setInvoices(transformedInvoices);
-            // Check if there is any unpaid invoice
-            const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
-            setShowButton(hasUnpaidInvoice);
-        } catch (error) {
-            console.error('Error fetching invoices:!!!!!!!!!!!!!!!!', error);
-        }
-    };
-
-
-    useEffect(() => {
-        fetchInvoices();
-    }, []);
-
-
 
     // Update hasUnpaidInvoices state when invoice status changes
     useEffect(() => {
@@ -682,8 +614,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 if (response.data.success) {
                     console.log('Payment successful:', response);
                     setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    handleUpdatePaymentStatus('paid'); // Update paymentStatus and hasUnpaidInvoices states
+                    setInvoice({ status: 'paid' }); // Update invoice status to 'paid'
                     setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                 } else {
                     console.error('Payment failed:', response.data.error);
@@ -708,139 +640,131 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     return (
-        <div>
-            <div className="container">
-                <div className="userHeader">
-                    <div>
-                        <h5>Paid plan</h5>
-                    </div>
-                </div>
-                <div className="mainwrapper">
-                    <div className="ownerTeamContainer">
-                        <h3 className="card-title mb-4">Selected Plan</h3>
-                        <div style={{
-                            padding: "20px",
-                            border: "1px solid #ccc",
-                            borderRadius: "15px",
-                            backgroundColor: "#fff",
-                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                            marginBottom: "20px",
-                            width: '400px',
-                            backgroundImage: 'linear-gradient(135deg, #0070BA, #00A1F1)',
-                            color: 'white',
-                            fontFamily: 'Arial, sans-serif',
-                            textAlign: 'left',
-                            position: 'relative',
-                        }}>
+        <>
+           
 
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '20px'
-                            }}>
-                                <span style={{ fontSize: "18px", fontWeight: "bold" }}>
-                                    {paycard ? paycard.cardType : "Visa"}
-                                </span>
-                                <img
-                                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
-                                    alt="Visa logo"
-                                    style={{ width: '60px', height: 'auto' }}
-                                />
-                            </div>
 
-                            <div style={{
-                                fontSize: "16px",
-                                letterSpacing: "2px",
-                                marginBottom: '20px'
-                            }}>
-                                **** **** **** {paycard ? paycard.cardNumber : ""}
-                                {/* **** **** **** {paycard.cardNumber.slice(-4)} */}
-
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <div>
-                                    <div style={{ fontSize: "12px", fontWeight: "bold" }}>Expires</div>
-                                    <div style={{ fontSize: "14px" }}>{paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}</div>
-                                    {/* <div style={{ fontSize: "14px" }}>12/25</div> */}
-                                </div>
-                            </div>
-                            {/* <button
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
-                                    }}
-                                    // onClick={handlePayWithThisCard}
-                                    // disabled={isLoading}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
-                                >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                </button> */}
-                              {/* {invoices.filter(invoice => invoice.status === 'unpaid').length > 0 ? (
-                                <button
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
-                                    }}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
-                                >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                </button>
+                    <div className='container mt-4'>
+                        <div className="row">
+                            {loading ? (
+                                <p className="col-12">Loading plans...</p>
+                            ) : fetchError ? (
+                                <p className="col-12">{fetchError}</p>
                             ) : (
-                                <span></span>
-                            )} */}
-                            {invoice.status === 'unpaid' ? (
-                                <button
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '20px',
-                                        right: '20px',
-                                        display: "inline-block",
-                                        padding: "10px 20px",
-                                        backgroundColor: isLoading ? "#ccc" : "#7CCB58",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        fontSize: "14px",
-                                        cursor: isLoading ? "not-allowed" : "pointer",
-                                        transition: "background-color 0.3s ease",
-                                    }}
-                                    onClick={selectedPlan ? handlePayWithThisCard : null}
-                                    disabled={isLoading || !selectedPlan}
-                                >
-                                    {isLoading ? "Processing..." : "Pay with this card"}
-                                </button>
-                            ) : (
-                                <span></span>
+                                plans
+                                    .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
+                                    .map((plan, index) => (
+                                        // <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} key={plan._id}>
+                                        //     <div className="card mb-3 w-110">
+                                        //         <div className="card-body">
+                                        //             <div className="form-check">
+                                        //                 <input
+                                        //                     type="radio"
+                                        //                     style={{
+                                        //                         position: 'absolute',
+                                        //                         opacity: 0,
+                                        //                         cursor: 'pointer'
+                                        //                     }}
+                                        //                     id={plan._id}
+                                        //                     name="plan"
+                                        //                     value={plan.planType}
+                                        //                     checked={selectedPlan?._id === plan._id}
+                                        //                     onChange={() => handlePlanSelect(plan)}
+                                        //                     className="form-check-input"
+                                        //                 />
+                                        //                 <label className="form-check-label" htmlFor={plan._id}>
+                                        //                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+                                        //                 </label>
+                                        //             </div>
+                                        //             <p className="card-text">{getPlanDescription(plan)}</p>
+                                        //         </div>
+                                        //     </div>
+                                        // </div>
+                                        <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
+                                            <div className='card'>
+                                                <div className="card-body w-120">
+                                                    <label style={{
+                                                        position: 'relative',
+                                                        paddingLeft: '30px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '22px',
+                                                        userSelect: 'none',
+                                                        display: 'flex',
+                                                        alignItems: 'center'
+                                                    }}
+                                                    >
+                                                        <input
+                                                            type="radio"
+                                                            id={plan._id}
+                                                            name="plan"
+                                                            value={plan.planType}
+                                                            checked={selectedPlan?._id === plan._id}
+                                                            onChange={() => handlePlanSelect(plan)}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                opacity: 0,
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        />
+                                                        <span style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            height: '25px',
+                                                            width: '25px',
+                                                            backgroundColor: selectedPlan?._id === plan._id ? '#4CAF50' : '#0070BA', // Changed color
+                                                            borderRadius: '50%',
+                                                            transition: 'background-color 0.3s'
+                                                        }}
+                                                        ></span>
+                                                        <span style={{
+                                                            position: 'absolute',
+                                                            top: '9px',
+                                                            left: '9px',
+                                                            height: '8px',
+                                                            width: '8px',
+                                                            borderRadius: '50%',
+                                                            backgroundColor: selectedPlan?._id === plan._id ? 'white' : 'transparent',
+                                                            display: selectedPlan?._id === plan._id ? 'block' : 'none'
+                                                        }}
+                                                        ></span>
+                                                        {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+                                                    </label>
+                                                    <p className="card-text">{getPlanDescription(plan)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
                             )}
                         </div>
-                        {responseMessage && (
+                    </div>
+                    <br />
+                    <div className='container'>
+                            <div className='card'>
+                                <div className='card-body'>
+                                    <h3 className="card-title mt-4">Estimated payments</h3>
+                                    <div className="mt-2" style={{ maxWidth: "70%", color: 'grey' }}>Pay only for what you use. There is no minimum fee. If you add a worker for a single day, you'll pay for this day only. Not month. You are free to add or remove workers anytime as you see fit. Your credit card will not be charged today, only at the end of your billing period.</div>
+                                    <div className="container mt-4">
+                                        <div className="row">
+                                            <div className="col-12">
+                                                <p><strong>First billing period:</strong> {firstBillingPeriodStart && firstBillingPeriodEnd ? `${formatDate(firstBillingPeriodStart)}–${formatDate(firstBillingPeriodEnd)}` : 'N/A'}</p>
+                                                <p><strong>First charge date:</strong> {billingDate ? formatDate(billingDate) : 'N/A'}</p>
+                                                <p><strong>Current employees:</strong> {TotalUsers} — you won't be charged for yourself unless you track your own time</p>
+                                                {selectedPlan && (
+                                                    <>
+                                                        <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
+                                                        {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
+                                                        <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
+
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',
                                 padding: '10px',
@@ -852,27 +776,35 @@ const Payment = ({ updatePaymentStatus }) => {
                             }}>
                                 {responseMessage}
                             </div>
-                        )}
-                        <br />
-                        <PaymentCards />
-                        <PaymentPlans />
-                    </div>
-                </div>
-                <PaymentModal
-                    showModal={showModal}
-                    handleClose={handleCloseModal}
-                    selectedPlan={selectedPlan}
-                />
-            </div>
+                        )} */}
+           
+
+            {/* {showModal && ( */}
+            <PaymentModal
+                showModal={showModal}
+                handleClose={handleCloseModal}
+                selectedPlan={selectedPlan}
+            />
+            {/* // )} */}
+
             <div>
                 <NewCardModal
                     showNewCardModal={showNewCardModal}
                     handleClose={handleCloseNewModal}
                 />
             </div>
-        </div>
+
+        </>
+
     );
 };
+
+
+
+
+
+
+
 
 
 export default Payment;
