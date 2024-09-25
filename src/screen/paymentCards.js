@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
-
+// import Modal from 'react-bootstrap/Modal';
 const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 
@@ -38,6 +38,7 @@ const Payment = ({ updatePaymentStatus }) => {
     // const [loading, setLoading] = useState(true);
     // const [fetchError, setFetchError] = useState(null);
     const [selectedPackage, setSelectedPackage] = useState(0);
+    const [showModal1, setShowModal1] = useState(false);
 
 
 
@@ -446,40 +447,34 @@ const Payment = ({ updatePaymentStatus }) => {
             >
                 <div className="text-left mb-4">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
-                        <button
+                        {/* <button
                             style={activeTab === 'cardSelection' ? activeTabButtonStyle : tabButtonStyle}
                             onClick={() => setActiveTab('cardSelection')}
                         >
                             Card Selection
-                        </button>
+                        </button> */}
 
-                        <button
-                            style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
-                            onClick={() => setActiveTab('payment')}
-                        >
-                            Add New Card
-                        </button>
 
                     </div>
 
-                    {activeTab === 'cardSelection' && (
-                        <CardSelection
+
+                    {/* <CardSelection
                             cards={cards}
                             selectedCard={selectedCard}
                             onSelect={handleSelectCard}
                             onActionComplete={fetchTokenAndSuspendedStatus}
 
-                        />
-                    )}
+                        /> */}
 
-                    {activeTab === 'payment' && (
-                        <Elements stripe={stripePromise}>
-                            <div className="payment-container mt-4">
-                                <p className="mb-4">Complete Your Payment</p>
-                                <CheckoutForm2 />
-                            </div>
-                        </Elements>
-                    )}
+
+                    {/* {activeTab === 'payment' && ( */}
+                    <Elements stripe={stripePromise}>
+                        <div className="payment-container mt-4">
+                            <p className="mb-4">Complete Your Payment</p>
+                            <CheckoutForm2 />
+                        </div>
+                    </Elements>
+                    {/* )} */}
                 </div>
             </CustomModal>
         );
@@ -501,11 +496,14 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-    const handleShowModal = () => {
-        setShowModal(true);
+    const handleShowModal1 = () => {
+        setShowModal1(true);
     };
     const handleCloseModal = () => {
         setShowModal(false);
+    };
+    const handleCloseModal1 = () => {
+        setShowModal1(false);
     };
 
     const handlePayPalClick = () => {
@@ -605,6 +603,18 @@ const Payment = ({ updatePaymentStatus }) => {
 
     // };
 
+    const [showCard, setShowCard] = useState(false);
+
+
+    const handleYes = () => {
+        setShowCard(true);
+    };
+
+    const handleNo = () => {
+        setShowModal1(false);
+    };
+
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -679,24 +689,24 @@ const Payment = ({ updatePaymentStatus }) => {
     return (
         <>
             <div className='container'>
-                <div className='row' style={{ marginLeft: '2px', gap: '65px' }}>
-                    <div className="card" style={{ width: '22rem' }}>
-                        <div className="card-body text-center mt-3">
-                            <h3
-                                style={{
-                                    fontSize: "1.2em", // Reduced font size
-                                    color: "#333",
-                                    marginBottom: "5px", // Reduced margin
-                                }}
-                            >
-                                Upgrade to Paid Plan
-                            </h3>
-                            <p className='mt-3' style={{ marginBottom: "10px", fontSize: "0.9em" }}> {/* Reduced margin and font size */}
-                                This card will be charged monthly
-                            </p>
-                            {selectedPlan?.planType === 'standard' || selectedPlan?.planType === 'premium' ? (
+                <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
+                    {selectedPlan?.planType === 'standard' || selectedPlan?.planType === 'premium' ? (
+                        <div className="card" style={{ width: '22rem' }}>
+                            <div className="card-body text-center mt-3">
+                                <h3
+                                    style={{
+                                        fontSize: "1.2em", // Reduced font size
+                                        color: "#333",
+                                        marginBottom: "5px", // Reduced margin
+                                    }}
+                                >
+                                    Upgrade to Paid Plan
+                                </h3>
+                                <p className='mt-3' style={{ marginBottom: "10px", fontSize: "0.9em" }}> {/* Reduced margin and font size */}
+                                    This card will be charged monthly
+                                </p>
                                 <button
-                                    onClick={handleShowNewModal}
+                                    onClick={handleShowModal1}
                                     style={{
                                         display: "inline-block",
                                         padding: "8px 16px", // Reduced padding
@@ -711,9 +721,86 @@ const Payment = ({ updatePaymentStatus }) => {
                                 >
                                     Upgrade to Paid Plan
                                 </button>
-                            ) : null}
+                            </div>
                         </div>
-                    </div>
+                    ) : null}
+                    <Modal show={showModal1} onHide={handleCloseModal1} style={{ marginTop: '10%' }} >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Upgrade to Paid Plan</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {showCard ? (
+                                <div className='card'>
+                                    <div className="card-body" style={{ height: '12rem' }}>
+                                        <div className='d-flex justify-content-between align-items-center'>
+
+                                            {paycard ? paycard.cardType : "Visa"}
+                                            <img
+                                                src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                                alt="Visa logo"
+                                                style={{ width: '60px', height: 'auto' }}
+                                            />
+                                        </div>
+                                        <div className='d-flex justify-content-between align-items-center mt-3'>
+                                            **** **** **** {paycard ? paycard.cardNumber : ""}
+                                        </div>
+                                        <div className='d-flex'>
+                                            Expires
+                                        </div>
+                                        <div>
+                                            {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+                                        </div>
+                                        {invoice.status === 'unpaid' && paycard && paycard.cardNumber ? (
+                                            <button
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: '20px',
+                                                    right: '20px',
+                                                    display: "inline-block",
+                                                    padding: "10px 20px",
+                                                    backgroundColor: isLoading ? "#ccc" : "#7CCB58",
+                                                    color: "white",
+                                                    border: "none",
+                                                    borderRadius: "5px",
+                                                    fontSize: "14px",
+                                                    cursor: isLoading ? "not-allowed" : "pointer",
+                                                    transition: "background-color 0.3s ease",
+                                                }}
+                                                onClick={selectedPlan ? handlePayWithThisCard : null}
+                                                disabled={isLoading || !selectedPlan}
+                                            >
+                                                {isLoading ? "Processing..." : "Pay with this card"}
+                                            </button>
+
+                                        ) : (
+                                            <span></span>
+                                        )}
+
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <p>⭐Please note that you are initial plan upgrade from Standard to Premium. If you have already entered your card information, please confirm by clicking 'Yes' to proceed with the upgrade. Your card will be charged monthly according to the Premium plan's pricing. If you have not entered your card information, you will be prompted to do so after confirming the upgrade.</p>
+                                </div>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            {showCard ? (
+                                <button onClick={handleCloseModal1} style={{ width: '30%', backgroundColor: "#7CCB58", color: "white", padding: '10px', border: "none", borderRadius: "5px", fontSize: "0.9em", cursor: "pointer" }}>
+                                    Close
+                                </button>
+                            ) : (
+                                <>
+                                    <button onClick={handleYes} style={{ backgroundColor: "#7CCB58", color: "white", border: "none", padding: '10px', borderRadius: "5px", fontSize: "0.9em", cursor: "pointer" }}>
+                                        Yes
+                                    </button>
+                                    <button onClick={handleNo} style={{ backgroundColor: "#ccc", color: "black", border: "none", padding: '10px', borderRadius: "5px", fontSize: "0.9em", cursor: "pointer" }}>
+                                        No
+                                    </button>
+                                </>
+                            )}
+                        </Modal.Footer>
+                    </Modal>
                     <div className="card" style={{ width: '22rem' }}>
                         <div className="card-body text-center">
                             <h3 className='text-center'
@@ -804,7 +891,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     selectedPlan={selectedPlan}
                 />
                 {/* // )} */}
-            </div>
+            </div >
             <div>
                 <NewCardModal
                     showNewCardModal={showNewCardModal}

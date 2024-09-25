@@ -641,130 +641,134 @@ const Payment = ({ updatePaymentStatus }) => {
 
     return (
         <>
-           
 
 
-                    <div className='container mt-4'>
-                        <div className="row">
-                            {loading ? (
-                                <p className="col-12">Loading plans...</p>
-                            ) : fetchError ? (
-                                <p className="col-12">{fetchError}</p>
-                            ) : (
-                                plans
-                                    .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
-                                    .map((plan, index) => (
-                                        // <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} key={plan._id}>
-                                        //     <div className="card mb-3 w-110">
-                                        //         <div className="card-body">
-                                        //             <div className="form-check">
-                                        //                 <input
-                                        //                     type="radio"
-                                        //                     style={{
-                                        //                         position: 'absolute',
-                                        //                         opacity: 0,
-                                        //                         cursor: 'pointer'
-                                        //                     }}
-                                        //                     id={plan._id}
-                                        //                     name="plan"
-                                        //                     value={plan.planType}
-                                        //                     checked={selectedPlan?._id === plan._id}
-                                        //                     onChange={() => handlePlanSelect(plan)}
-                                        //                     className="form-check-input"
-                                        //                 />
-                                        //                 <label className="form-check-label" htmlFor={plan._id}>
-                                        //                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-                                        //                 </label>
-                                        //             </div>
-                                        //             <p className="card-text">{getPlanDescription(plan)}</p>
-                                        //         </div>
-                                        //     </div>
-                                        // </div>
-                                        <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
-                                            <div className='card'>
-                                                <div className="card-body w-120">
-                                                    <label style={{
-                                                        position: 'relative',
-                                                        paddingLeft: '30px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '22px',
-                                                        userSelect: 'none',
-                                                        display: 'flex',
-                                                        alignItems: 'center'
-                                                    }}
-                                                    >
-                                                        <input
-                                                            type="radio"
-                                                            id={plan._id}
-                                                            name="plan"
-                                                            value={plan.planType}
-                                                            checked={selectedPlan?._id === plan._id}
-                                                            onChange={() => handlePlanSelect(plan)}
-                                                            style={{
-                                                                position: 'absolute',
-                                                                opacity: 0,
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        />
-                                                        <span style={{
-                                                            position: 'absolute',
-                                                            top: 0,
-                                                            left: 0,
-                                                            height: '25px',
-                                                            width: '25px',
-                                                            backgroundColor: selectedPlan?._id === plan._id ? '#4CAF50' : '#0070BA', // Changed color
-                                                            borderRadius: '50%',
-                                                            transition: 'background-color 0.3s'
-                                                        }}
-                                                        ></span>
-                                                        <span style={{
-                                                            position: 'absolute',
-                                                            top: '9px',
-                                                            left: '9px',
-                                                            height: '8px',
-                                                            width: '8px',
-                                                            borderRadius: '50%',
-                                                            backgroundColor: selectedPlan?._id === plan._id ? 'white' : 'transparent',
-                                                            display: selectedPlan?._id === plan._id ? 'block' : 'none'
-                                                        }}
-                                                        ></span>
-                                                        {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-                                                    </label>
-                                                    <p className="card-text">{getPlanDescription(plan)}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                            )}
-                        </div>
-                    </div>
-                    <br />
-                    <div className='container'>
-                            <div className='card'>
-                                <div className='card-body'>
-                                    <h3 className="card-title mt-4">Estimated payments</h3>
-                                    <div className="mt-2" style={{ maxWidth: "70%", color: 'grey' }}>Pay only for what you use. There is no minimum fee. If you add a worker for a single day, you'll pay for this day only. Not month. You are free to add or remove workers anytime as you see fit. Your credit card will not be charged today, only at the end of your billing period.</div>
-                                    <div className="container mt-4">
-                                        <div className="row">
-                                            <div className="col-12">
-                                                <p><strong>First billing period:</strong> {firstBillingPeriodStart && firstBillingPeriodEnd ? `${formatDate(firstBillingPeriodStart)}–${formatDate(firstBillingPeriodEnd)}` : 'N/A'}</p>
-                                                <p><strong>First charge date:</strong> {billingDate ? formatDate(billingDate) : 'N/A'}</p>
-                                                <p><strong>Current employees:</strong> {TotalUsers} — you won't be charged for yourself unless you track your own time</p>
-                                                {selectedPlan && (
-                                                    <>
-                                                        <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
-                                                        {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
-                                                        <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
 
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+            <div className='container mt-4'>
+                <div className="row">
+                    {loading ? (
+                        <p className="col-12">Loading plans...</p>
+                    ) : fetchError ? (
+                        <p className="col-12">{fetchError}</p>
+                    ) : (
+                        plans
+                            .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
+                            .map((plan, index) => (
+                                // <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} key={plan._id}>
+                                //     <div className="card mb-3 w-110">
+                                //         <div className="card-body">
+                                //             <div className="form-check">
+                                //                 <input
+                                //                     type="radio"
+                                //                     style={{
+                                //                         position: 'absolute',
+                                //                         opacity: 0,
+                                //                         cursor: 'pointer'
+                                //                     }}
+                                //                     id={plan._id}
+                                //                     name="plan"
+                                //                     value={plan.planType}
+                                //                     checked={selectedPlan?._id === plan._id}
+                                //                     onChange={() => handlePlanSelect(plan)}
+                                //                     className="form-check-input"
+                                //                 />
+                                //                 <label className="form-check-label" htmlFor={plan._id}>
+                                //                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+                                //                 </label>
+                                //             </div>
+                                //             <p className="card-text">{getPlanDescription(plan)}</p>
+                                //         </div>
+                                //     </div>
+                                // </div>
+                                <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
+                                <div className='card'>
+                                  <div className="card-body w-120">
+                                    <label style={{
+                                      position: 'relative',
+                                      paddingLeft: '30px',
+                                      cursor: 'pointer',
+                                      fontSize: '22px',
+                                      userSelect: 'none',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      width: '100%', // Add this to make the label full width
+                                      height: '100%', // Add this to make the label full height
+                                    }}
+                                    >
+                                      <input
+                                        type="radio"
+                                        id={plan._id}
+                                        name="plan"
+                                        value={plan.planType}
+                                        checked={selectedPlan?._id === plan._id}
+                                        onChange={() => handlePlanSelect(plan)}
+                                        style={{
+                                          position: 'absolute',
+                                          opacity: 0,
+                                          cursor: 'pointer'
+                                        }}
+                                      />
+                                      <span style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        height: '25px',
+                                        width: '25px',
+                                        backgroundColor: selectedPlan?._id === plan._id ? '#4CAF50' : '#0070BA', // Changed color
+                                        borderRadius: '50%',
+                                        transition: 'background-color 0.3s'
+                                      }}
+                                      ></span>
+                                      <span style={{
+                                        position: 'absolute',
+                                        top: '9px',
+                                        left: '9px',
+                                        height: '8px',
+                                        width: '8px',
+                                        borderRadius: '50%',
+                                        backgroundColor: selectedPlan?._id === plan._id ? 'white' : 'transparent',
+                                        display: selectedPlan?._id === plan._id ? 'block' : 'none'
+                                      }}
+                                      ></span>
+                                      <div style={{ marginLeft: '10px' }}>
+                                        {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+                                        <p className="card-text" style={{fontSize: '1rem'}}>{getPlanDescription(plan)}</p>
+                                      </div>
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                    )}
+                </div>
+            </div>
+            <br />
+            <div className='container'>
+                <div className='card'>
+                    <div className='card-body'>
+                        <h3 className="card-title mt-4">Estimated payments</h3>
+                        <div className="mt-2" style={{ maxWidth: "70%", color: 'grey' }}>Pay only for what you use. There is no minimum fee. If you add a worker for a single day, you'll pay for this day only. Not month. You are free to add or remove workers anytime as you see fit. Your credit card will not be charged today, only at the end of your billing period.</div>
+                        <div className="container mt-4">
+                            <div className="row">
+                                <div className="col-12">
+                                    <p><strong>First billing period:</strong> {firstBillingPeriodStart && firstBillingPeriodEnd ? `${formatDate(firstBillingPeriodStart)}–${formatDate(firstBillingPeriodEnd)}` : 'N/A'}</p>
+                                    <p><strong>First charge date:</strong> {billingDate ? formatDate(billingDate) : 'N/A'}</p>
+                                    <p><strong>Current employees:</strong> {TotalUsers} — you won't be charged for yourself unless you track your own time</p>
+                                    {selectedPlan && (
+                                        <>
+                                            <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
+                                            {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
+                                            <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
+
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                    {/* {responseMessage && (
+                    </div>
+                </div>
+            </div>
+            {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',
                                 padding: '10px',
@@ -777,7 +781,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 {responseMessage}
                             </div>
                         )} */}
-           
+
 
             {/* {showModal && ( */}
             <PaymentModal

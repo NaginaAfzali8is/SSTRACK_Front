@@ -1049,7 +1049,7 @@ function Home() {
                   Time Tracking
                   SSTrack
                   up to <b>10</b> screenshots per hour
-                  screenshots stored for <b>2 <br /> months</b>
+                  screenshots stored for <b>6<br /> months</b>
                 </p>
                 <p className="activtiyUrl text-center">    Individual settings
                 </p>
