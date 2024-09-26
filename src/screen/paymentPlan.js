@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -33,6 +33,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [paymentStatus, setPaymentStatus] = useState('');
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
 
+    const navigate = useNavigate();
     const handleUpdatePaymentStatus = (status) => {
         setPaymentStatus(status);
         setHasUnpaidInvoices(status !== 'paid');
@@ -775,7 +776,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 <div style={{ marginLeft: '10px' }}>
                                                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
                                                     <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
-                                                
+
                                                 </div>
                                             </label>
                                         </div>
