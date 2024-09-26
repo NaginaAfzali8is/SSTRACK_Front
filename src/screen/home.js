@@ -72,7 +72,7 @@ import screenShot6 from '../images/screenShot6.jpg'
 
 function Home() {
 
-  const { token } = useParams()
+  // const { token } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const [downloadOS, setDownloadOS] = useState("mac")
@@ -88,10 +88,11 @@ function Home() {
   const [message, setmessage] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // or 'error'
   const [text, setText] = useState("");
-  const [plans, setPlans] = useState([]);
+  // const [plans, setPlans] = useState([]);
   // const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem('token'); 
   const [fetchError, setFetchError] = useState(null);
-  const [selectedPackage, setSelectedPackage] = useState(0);
+  const [selectedPackage, setSelectedPackage] = useState();
 
   const handleChange = (event) => {
     setText(event.target.value);
@@ -190,44 +191,60 @@ function Home() {
 
 
 
-  const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+  const plans = [
+    { id: 1, name: 'Free' },
+    { id: 2, name: 'Standard' },
+    { id: 3, name: 'Premium' }
+  ];
+
+
+  // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
   // Retrieve the stored plan from localStorage and set the selected package
   useEffect(() => {
-    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
-
-    if (storedPlanId?.planType === 'free') {
-      setSelectedPackage(1); // Basic
+    const storedPlanId = JSON.parse(localStorage.getItem('planIdforHome'));
+    console.log('=====>>>>>>>',selectedPackage)
+    // Check the stored plan type to set the selected package
+    if (!storedPlanId?.planType || storedPlanId?.planType === 'free') {
+      setSelectedPackage(1); // Free plan
     } else if (storedPlanId?.planType === 'standard') {
-      setSelectedPackage(2); // Standard
+      setSelectedPackage(2); // Standard plan
     } else if (storedPlanId?.planType === 'premium') {
-      setSelectedPackage(3); // Premium
+      setSelectedPackage(3); // Premium plan
     }
   }, []); // Empty dependency array to run only once on component mount
 
 
-  const handleUpgradeClick = (defaultPlanIndex) => {
-    // Update the selected package when a button is clicked
+  const handleUpgradeClicks = (selectedPlan) => {
+    // Navigate to the payment page, passing along the relevant data
     navigate('/payment', {
       state: {
-        plans,
-        fetchError,
-        loading: false,
-        defaultPlanIndex
+        selectedPlan, // Pass the selected plan
       }
     });
-    // setSelectedPackage(defaultPlanIndex);
   };
 
   // Function to return the appropriate button text
-  const getButtonText = (buttonPackage) => {
-    if (buttonPackage === selectedPackage) {
-      return 'Current';
-    } else if (buttonPackage > selectedPackage) {
-      return 'Upgrade';
+  const getButtonText = (planId) => {
+    // Check if token is available
+    if (!token) {
+      // If token is not available, show the plan names (Free, Standard, Premium)
+      if (planId === 1) return 'Free';
+      if (planId === 2) return 'Standard';
+      if (planId === 3) return 'Premium';
+    }
+
+    // If token is available, show relevant text based on the selected plan
+    if (planId === selectedPackage) {
+      return 'Current'; // The user is already on this plan
+    } else if (planId > selectedPackage) {
+      return 'Upgrade'; // The plan is higher than the current one
     } else {
-      return 'Downgrade';
+      return 'Downgrade'; // The plan is lower than the current one
     }
   };
+
+
+
 
 
 
@@ -267,8 +284,8 @@ function Home() {
   async function signin() {
     const decoded = jwtDecode(token);
     localStorage.setItem("items", JSON.stringify(decoded));
-    localStorage.setItem("token", token);
-    navigate("/dashboard")
+    // localStorage.setItem("token", token);
+    // navigate("/dashboard")
   }
 
   useEffect(() => {
@@ -431,11 +448,9 @@ function Home() {
         <br />
         <br />
         <p className='ethical' id="section1" ref={section1Ref}>Monitor employee hours and screen captures online.</p>
-        <p className='employee'>Discover how much time and money your remote or office team dedicates to each task.</p>
-
+        <p className='employee'>Discover how much time and money your remote or office team dedicates to each task.</p>\
         <div clasName="container" style={{ padding: '20px 20px' }}>
           <div className="row justify-content-center align-items-center">
-
             <div className="card m-3" style={{ width: '22rem', height: "35rem", backgroundColor: '#0E4772', borderRadius: "1rem" }}>
               <div className="d-flex justify-content-center">
                 <img
@@ -1015,7 +1030,7 @@ function Home() {
                 <br />
                 <div className="mt-auto">
                   <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}
-                    onClick={() => handleUpgradeClick(1)}>{getButtonText(1)}</button>
+                    onClick={() => handleUpgradeClicks(1)}>{getButtonText(1)}</button>
                 </div>
                 {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
@@ -1064,7 +1079,7 @@ function Home() {
                 <div className="mt-auto">
                   <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}
 
-                    onClick={() => handleUpgradeClick(2)}>{getButtonText(2)}</button>
+                    onClick={() => handleUpgradeClicks(2)}>{getButtonText(2)}</button>
                 </div>
 
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
@@ -1113,7 +1128,7 @@ function Home() {
                 <p className="activtiyUrl text-center">
                 </p>
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }} onClick={() => handleUpgradeClick(3)}>{getButtonText(3)}</button>
+                  <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }} onClick={() => handleUpgradeClicks(3)}>{getButtonText(3)}</button>
                 </div>
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
               </div>

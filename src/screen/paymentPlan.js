@@ -480,7 +480,47 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
 
+    const [selectedPackage, setSelectedPackage] = useState();
 
+
+    const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+    // Retrieve the stored plan from localStorage and set the selected package
+    useEffect(() => {
+        const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
+        if (storedPlanId?.planType === 'free') {
+            setSelectedPackage(1); // Basic
+        } else if (storedPlanId?.planType === 'standard') {
+            setSelectedPackage(2); // Standard
+        } else if (storedPlanId?.planType === 'premium') {
+            setSelectedPackage(3); // Premium
+        }
+    }, []); // Empty dependency array to run only once on component mount
+
+
+    const handleUpgradeClick = (defaultPlanIndex) => {
+        // Update the selected package when a button is clicked
+        navigate('/payment', {
+            state: {
+                plans,
+                fetchError,
+                loading: false,
+                // defaultPlanIndex
+            }
+        });
+        // setSelectedPackage(defaultPlanIndex);
+    };
+
+    // Function to return the appropriate button text
+    const getButtonText = (buttonPackage) => {
+        if (buttonPackage === selectedPackage) {
+            return 'Current';
+        } else if (buttonPackage > selectedPackage) {
+            return 'Upgrade';
+        } else {
+            return 'Downgrade';
+        }
+    };
 
 
     const handleShowNewModal = () => {
@@ -631,12 +671,13 @@ const Payment = ({ updatePaymentStatus }) => {
 
     };
 
-
     const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
     const Cardetail = paycard?.cardNumber
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
+
+    const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
 
     return (
@@ -645,6 +686,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
             <div className='container mt-4'>
+
                 <div className="row">
                     {loading ? (
                         <p className="col-12">Loading plans...</p>
@@ -681,66 +723,68 @@ const Payment = ({ updatePaymentStatus }) => {
                                 //     </div>
                                 // </div>
                                 <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
-                                <div className='card'>
-                                  <div className="card-body w-120">
-                                    <label style={{
-                                      position: 'relative',
-                                      paddingLeft: '30px',
-                                      cursor: 'pointer',
-                                      fontSize: '22px',
-                                      userSelect: 'none',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      width: '100%', // Add this to make the label full width
-                                      height: '100%', // Add this to make the label full height
-                                    }}
-                                    >
-                                      <input
-                                        type="radio"
-                                        id={plan._id}
-                                        name="plan"
-                                        value={plan.planType}
-                                        checked={selectedPlan?._id === plan._id}
-                                        onChange={() => handlePlanSelect(plan)}
-                                        style={{
-                                          position: 'absolute',
-                                          opacity: 0,
-                                          cursor: 'pointer'
-                                        }}
-                                      />
-                                      <span style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        height: '25px',
-                                        width: '25px',
-                                        backgroundColor: selectedPlan?._id === plan._id ? '#4CAF50' : '#0070BA', // Changed color
-                                        borderRadius: '50%',
-                                        transition: 'background-color 0.3s'
-                                      }}
-                                      ></span>
-                                      <span style={{
-                                        position: 'absolute',
-                                        top: '9px',
-                                        left: '9px',
-                                        height: '8px',
-                                        width: '8px',
-                                        borderRadius: '50%',
-                                        backgroundColor: selectedPlan?._id === plan._id ? 'white' : 'transparent',
-                                        display: selectedPlan?._id === plan._id ? 'block' : 'none'
-                                      }}
-                                      ></span>
-                                      <div style={{ marginLeft: '10px' }}>
-                                        {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-                                        <p className="card-text" style={{fontSize: '1rem'}}>{getPlanDescription(plan)}</p>
-                                      </div>
-                                    </label>
-                                  </div>
+                                    <div className='card'>
+                                        <div className="card-body w-120">
+                                            <label style={{
+                                                position: 'relative',
+                                                paddingLeft: '30px',
+                                                cursor: 'pointer',
+                                                fontSize: '22px',
+                                                userSelect: 'none',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: '100%', // Add this to make the label full width
+                                                height: '100%', // Add this to make the label full height
+                                            }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    id={plan._id}
+                                                    name="plan"
+                                                    value={plan.planType}
+                                                    checked={selectedPlan?._id === plan._id}
+                                                    onChange={() => handlePlanSelect(plan)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        opacity: 0,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    height: '25px',
+                                                    width: '25px',
+                                                    backgroundColor: selectedPlan?._id === plan._id ? '#4CAF50' : '#0070BA', // Changed color
+                                                    borderRadius: '50%',
+                                                    transition: 'background-color 0.3s'
+                                                }}
+                                                ></span>
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    top: '9px',
+                                                    left: '9px',
+                                                    height: '8px',
+                                                    width: '8px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: selectedPlan?._id === plan._id ? 'white' : 'transparent',
+                                                    display: selectedPlan?._id === plan._id ? 'block' : 'none'
+                                                }}
+                                                ></span>
+                                                <div style={{ marginLeft: '10px' }}>
+                                                    {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+                                                    <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
+                                                
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                              </div>
                             ))
                     )}
                 </div>
+
             </div>
             <br />
             <div className='container'>

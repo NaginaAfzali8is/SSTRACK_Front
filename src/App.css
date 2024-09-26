@@ -6194,6 +6194,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 }
 
+/* @media (max-width: 1100px) and (min-width: 300px) {
+
+
+  .mobhayat {
+
+    inline-size: fit-content;
+
+  }
+
+
+} */
+
+
 @media (max-width: 1100px) and (min-width: 300px) {
 
 
@@ -6203,5 +6216,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
   }
 
+  body {
+
+    width: fit-content;
+
+  }
 
 }

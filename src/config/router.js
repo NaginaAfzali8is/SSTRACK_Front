@@ -139,6 +139,7 @@ export default function AppRouter() {
 
           // Save to localStorage after converting to a string
           localStorage.setItem('planId', JSON.stringify(planId));
+          localStorage.setItem('planIdforHome', JSON.stringify(planId));
           // Simulate a delay of 2 seconds
           setTimeout(() => {
             setSuspended(response?.data.data[0].suspended);
@@ -148,6 +149,7 @@ export default function AppRouter() {
           console.error('Error fetching data', err);
           let planId = null;
           localStorage.setItem('planId', JSON.stringify(planId));
+          localStorage.setItem('planIdforHome', JSON.stringify(planId));
         }
       }
       setLoading(false);
