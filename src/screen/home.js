@@ -875,6 +875,7 @@ function Home() {
                 </div>
               </div>
             </div>
+
             <div className="row justify-content-center">
               <div className="col-md-5 col-sm-12 col-lg-6" style={{ borderRight: '2px solid #bfb4b4' }}>
                 <div className="card mx-auto" style={{ width: "18rem", width: '100%' }}>
@@ -1030,15 +1031,14 @@ function Home() {
                 <br />
                 <div className="mt-auto">
                   <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}
-                    onClick={() => handleUpgradeClicks(1)}>{getButtonText(1)}</button>
+                  >{getButtonText(1)}</button>
                 </div>
                 {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
                 </button> */}
                 <br />
               </div>
-            </div>
-
+            </div>  
             {/* ------------------------------ pricing card 2 ------------------------- */}
             <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid  #7ACB59", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
               <div className="card-body px-3">

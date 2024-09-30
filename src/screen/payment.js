@@ -385,7 +385,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         planId: selectedPlan._id,
                     }, { headers });
 
-                    console.log('Payment Response:', response);
+                    console.log('Payment1111 Response:', response);
 
                     if (response.data.success) {
                         setSuccess(true);
@@ -433,11 +433,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
 
-
-
-
-
-
     useEffect(() => {
         if (plans.length > 0) {
             setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
@@ -458,17 +453,87 @@ const Payment = ({ updatePaymentStatus }) => {
     const PaymentModal = ({ showModal, handleClose }) => {
 
         const [showAnotherModal, setShowAnotherModal] = useState(false);
+        const token = localStorage.getItem('token');
+        const headers = {
+            Authorization: "Bearer " + token,
+        };
+        const [upgradeResponse, setUpgradeResponse] = useState(null);
 
-        const handleOkClick = () => {
-            handleClose(); // Add this line to close the modal
-            setShowAnotherModal(false);
-            enqueueSnackbar("Payment Successfully", {
-                variant: "success",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
+
+        // const handleOkClick = async () => {
+        //     handleClose(); // Add this line to close the modal
+        //     setShowAnotherModal(false);
+
+        //     try {
+        //         const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
+        //             cardType: paycard.cardType,
+        //             expMonth: paycard.expMonth,
+        //             expYear: paycard.expYear,
+        //             cardNumber: paycard.cardNumber,
+        //             TotalAmount: '58.88',
+        //             dueDate: '2024-07-30',
+        //             planId: selectedPlan._id,
+        //         }, { headers });
+
+        //         console.log('upgrade repsonose:', cardType);
+
+        //         if (response.data.success) {
+        //             enqueueSnackbar("Payment Successfully", {
+        //                 variant: "success",
+        //                 anchorOrigin: {
+        //                     vertical: "top",
+        //                     horizontal: "right"
+        //                 }
+        //             })
+        //         } else {
+        //             enqueueSnackbar(`Payment failed: ${response.data.message}`, {
+        //                 variant: "error",
+        //                 anchorOrigin: {
+        //                     vertical: "top",
+        //                     horizontal: "right"
+        //                 }
+        //             })
+        //         }
+        //     } catch (error) {
+        //         enqueueSnackbar(`Payment failed: ${error.response ? error.response.data.message : error.message}`, {
+        //             variant: "error",
+        //             anchorOrigin: {
+        //                 vertical: "top",
+        //                 horizontal: "right"
+        //             }
+        //         })
+        //     }
+        // };
+
+        const [error, setError] = useState(null); // Define the error variable
+        const [success, setSuccess] = useState(false);
+
+        const handleOkClick = async (event) => {
+            event.preventDefault();
+            setLoading(true);
+
+            try {
+                const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
+                    cardType: paycard.cardType,
+                    expMonth: paycard.expMonth,
+                    expYear: paycard.expYear,
+                    cardNumber: paycard.cardNumber,
+                    TotalAmount: '58.88',
+                    dueDate: '2024-07-30',
+                    planId: selectedPlan._id,
+                }, { headers });
+
+                console.log('Payment ka reponse:', response);
+
+                if (response.data.success) {
+                    setSuccess(true);
+                } else {
+                    setError(`Payment failed: ${response.data.message}`);
                 }
-            })
+            } catch (error) {
+                setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
+            }
+            setLoading(false);
         };
 
         return (
@@ -498,14 +563,26 @@ const Payment = ({ updatePaymentStatus }) => {
                     </Modal.Header>
                     <Modal.Body>
                         <p>are sure you want to change plan?</p>
+                        {upgradeResponse && (
+                            <div>
+                                <h5>Upgrade Response:</h5>
+                                <pre>{JSON.stringify(upgradeResponse, null, 2)}</pre>
+                            </div>
+                        )}
+                        <form onSubmit={handleOkClick} className="payment-form">
+                            {error && <div className="error-message">{error}</div>}
+                            {success && <div className="success-message">Payment successful!</div>}
+                            <button type="submit" disabled={loading} className="submit-button">
+                                {loading ? 'Processing...' : 'Pay'}
+                            </button>
+                        </form>
                     </Modal.Body>
-                    
-                    <button onClick={handleOkClick}>ok</button>
                 </Modal>
             </div>
         );
     };
 
+    
     // const PaymentModal = ({ showModal, handleClose }) => {
 
     //     return (
@@ -634,11 +711,6 @@ const Payment = ({ updatePaymentStatus }) => {
 
         );
     };
-
-
-
-
-
 
 
     const handleShowNewModal = () => {
@@ -813,7 +885,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         <h3 className="card-title mb-4">Selected Plan</h3>
                         <PaymentPlans />
                         <br />
-                        <button
+                        {/* <button
                             onClick={
                                 handleShowModal
                             }
@@ -830,7 +902,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             }}
                         >
                             Upgrade to Paid Plan
-                        </button>
+                        </button> */}
 
                         <div className='container d-flex'>
                             <div className="row d-flex" style={{ width: '60rem' }}>

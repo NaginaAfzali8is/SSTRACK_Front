@@ -128,10 +128,6 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-
-
-
-
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
@@ -639,6 +635,21 @@ const Payment = ({ updatePaymentStatus }) => {
     // };
 
 
+
+    const handleUpgradeDowngrade = (newPlan, currentPlan) => {
+        if (currentPlan) {
+          // Downgrade logic
+          // Update current plan to new plan
+          setPlanData(newPlan);
+          setSelectedPlan(newPlan);
+        } else {
+          // Upgrade logic
+          // Update planData state to new plan
+          setPlanData(newPlan);
+          setSelectedPlan(newPlan);
+        }
+      };
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -681,6 +692,9 @@ const Payment = ({ updatePaymentStatus }) => {
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
     const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+    const setPlanData = (newPlan) => {
+        localStorage.setItem('planIdforHome', JSON.stringify(newPlan));
+      };
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
     const handleOpenModal = () => {
@@ -792,7 +806,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                     display: selectedPlan?._id === plan._id ? 'block' : 'none'
                                                 }}
                                                 ></span>
-                                                <div style={{ marginLeft: '10px' }}>
+                                                {/* <div style={{ marginLeft: '10px' }}>
                                                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
 
                                                     {planData ? (
@@ -823,6 +837,46 @@ const Payment = ({ updatePaymentStatus }) => {
                                                             cursor: 'pointer',  // Pointer on hover
                                                             fontSize: '0.875rem'
                                                         }}>
+                                                            Upgrade
+                                                        </button>
+                                                    )}
+                                                    <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
+                                                </div> */}
+                                                <div style={{ marginLeft: '10px' }}>
+                                                    {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
+
+                                                    {planData ? (
+                                                        plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? (
+                                                            <span style={{ color: 'green' }}> Current</span>
+                                                        ) : (
+                                                            <button style={{
+                                                                marginLeft: '10px',
+                                                                padding: '5px 10px',  // Adjusting padding for a smaller size
+                                                                backgroundColor: 'green',  // Green background
+                                                                color: 'white',  // White text
+                                                                border: 'none',  // Removing default border
+                                                                borderRadius: '5px',  // Rounded corners
+                                                                cursor: 'pointer',  // Pointer on hover
+                                                                fontSize: '0.875rem'
+                                                            }}
+                                                                onClick={() => handleUpgradeDowngrade(plan, planData)}
+                                                            >
+                                                                {plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? 'Downgrade' : planData ? 'Downgrade' : 'Upgrade'}
+                                                            </button>
+                                                        )
+                                                    ) : (
+                                                        <button style={{
+                                                            marginLeft: '10px',
+                                                            padding: '5px 10px',  // Adjusting padding for a smaller size
+                                                            backgroundColor: 'green',  // Green background
+                                                            color: 'white',  // White text
+                                                            border: 'none',  // Removing default border
+                                                            borderRadius: '5px',  // Rounded corners
+                                                            cursor: 'pointer',  // Pointer on hover
+                                                            fontSize: '0.875rem'
+                                                        }}
+                                                            onClick={() => handleUpgradeDowngrade(plan, null)}
+                                                        >
                                                             Upgrade
                                                         </button>
                                                     )}
