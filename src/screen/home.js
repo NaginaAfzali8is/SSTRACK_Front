@@ -90,7 +90,7 @@ function Home() {
   const [text, setText] = useState("");
   // const [plans, setPlans] = useState([]);
   // const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token'); 
+  const token = localStorage.getItem('token');
   const [fetchError, setFetchError] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState();
 
@@ -202,7 +202,7 @@ function Home() {
   // Retrieve the stored plan from localStorage and set the selected package
   useEffect(() => {
     const storedPlanId = JSON.parse(localStorage.getItem('planIdforHome'));
-    console.log('=====>>>>>>>',selectedPackage)
+    console.log('=====>>>>>>>', selectedPackage)
     // Check the stored plan type to set the selected package
     if (!storedPlanId?.planType || storedPlanId?.planType === 'free') {
       setSelectedPackage(1); // Free plan
@@ -214,11 +214,25 @@ function Home() {
   }, []); // Empty dependency array to run only once on component mount
 
 
+  const getButtonDisabled = (planId) => {
+
+    // If token is not available, return false
+    if (!token) {
+      return false;
+    }
+    // If token is available, show relevant disabled state based on the selected plan
+    if (planId === selectedPackage) {
+      return 'Current'; // The user is already on this plan
+    } else {
+      return false;
+    }
+  };
+
   const handleUpgradeClicks = (selectedPlan) => {
     // Navigate to the payment page, passing along the relevant data
-    navigate('/payment', {
+    navigate('/account', {
       state: {
-        selectedPlan, // Pass the selected plan
+        defaultPlanIndex:selectedPlan
       }
     });
   };
@@ -242,15 +256,6 @@ function Home() {
       return 'Downgrade'; // The plan is lower than the current one
     }
   };
-
-
-
-
-
-
-
-
-
 
   const handleClick = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -1030,15 +1035,16 @@ function Home() {
                 </p>
                 <br />
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}
-                  >{getButtonText(1)}</button>
+                  <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
+                    disabled={getButtonDisabled(1)}
+                  > {getButtonText(1)}</button>
                 </div>
                 {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
                 </button> */}
                 <br />
               </div>
-            </div>  
+            </div>
             {/* ------------------------------ pricing card 2 ------------------------- */}
             <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid  #7ACB59", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
               <div className="card-body px-3">
@@ -1075,13 +1081,11 @@ function Home() {
                 <p className="activtiyUrl text-center">
                 </p>
                 <br />
-
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: "#7ACB59", marginTop: '20px' }}
-
-                    onClick={() => handleUpgradeClicks(2)}>{getButtonText(2)}</button>
+                  <button type="button" className="pricingButton" style={{ color: 'white', width: '150px', backgroundColor: getButtonDisabled(2) ? "#ccc" : "#7ACB59", marginTop: '20px' }}
+                    onClick={() => handleUpgradeClicks(2)} disabled={getButtonDisabled(2)}
+                  >{getButtonText(2)}</button>
                 </div>
-
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
 
               </div>
@@ -1128,7 +1132,8 @@ function Home() {
                 <p className="activtiyUrl text-center">
                 </p>
                 <div className="mt-auto">
-                  <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: "#0E4772", marginTop: '20px' }} onClick={() => handleUpgradeClicks(3)}>{getButtonText(3)}</button>
+                  <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: getButtonDisabled(3) ? "#ccc" : "#0E4772", marginTop: '20px' }} disabled={getButtonDisabled(3)}
+                    onClick={() => handleUpgradeClicks(3)}>{getButtonText(3)}</button>
                 </div>
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
               </div>

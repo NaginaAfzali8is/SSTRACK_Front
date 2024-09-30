@@ -249,15 +249,33 @@
   transition: 0.5s;
 }
 
+.pricingButton:disabled:hover {
+  background-color: #ccc !important;
+  /* transition: 0.5s; */
+}
+
 .pricingButton1:hover {
   background-color: #1d5b8a !important;
   transition: 0.5s;
 }
 
+.pricingButton1:disabled:hover {
+  background-color: #ccc !important;
+  /* cursor: not-allowed; */
+}
 /* .pricingButton2:hover {
   background-color: #ccd3d4 !important;
   transition: 0.5s;
 } */
+
+.pricingButton2:disabled:hover {
+  background-color: #ccc !important;
+  /* transition: 0.5s; */
+  cursor: none;
+
+}
+
+
 .signUpButton1:hover {
   /* font-size: 18px;
   font-weight: 600 !important;

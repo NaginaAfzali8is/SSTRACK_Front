@@ -22,6 +22,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [defaultPlanIndex] = useState(location.state?.defaultPlanIndex || 0);
     const [showModal, setShowModal] = useState(false);
+    const [showModalwithoutcard, setShowModalwithoutcard] = useState(false);
     const [TotalUsers, setTotalUsers] = useState(0);
     const [showNewCardModal, setshowNewCardModal] = useState(false);
     const [billingDate, setBillingDate] = useState(null);
@@ -126,6 +127,10 @@ const Payment = ({ updatePaymentStatus }) => {
         }
         setLoading(false);
     };
+
+
+
+
 
 
     useEffect(() => {
@@ -370,7 +375,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const handlePlanSelect = (plan) => {
         setSelectedPlan(plan);
-
+        console.log('planssssssssss', plan)
 
     };
 
@@ -526,164 +531,139 @@ const Payment = ({ updatePaymentStatus }) => {
         setshowNewCardModal(false);
     };
 
-
     const handleShowModal = () => {
-        setShowModal(true);
+        setShowModal(true);  // For when the paycard is available
     };
+
+    const handleShowModal2 = () => {
+        console.log('No card available');
+        // setShowModalwithoutcard(true);  // For when the paycard is not available
+    };
+
     const handleCloseModal = () => {
         setShowModal(false);
     };
 
-    const handleCloseModal1 = () => {
-        setIsOpen(false);
-    };
-    const handlePayPalClick = () => {
-        const amount = selectedPlan.costPerUser * TotalUsers;
-        const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
-        window.open(paypalUrl, '_blank');
+    const handleCloseModal2 = () => {
+        setShowModalwithoutcard(false);
     };
 
-    // const handleSubmit = async (event) => {
-    //     event.preventDefault();
-    //     setLoading(true);
 
-    //     if (!stripe || !elements) {
-    //         setError('Stripe has not loaded correctly.');
-    //         setLoading(false);
-    //         return;
-    //     }
+    const Withoutcardpayment = ({ showModalwithoutcard, handleCloseModal2, selectedPlan }) => {
+        return (
+            <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Change Your Plan</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="text-left mb-4">
+                        {/* Optional elements can be placed here */}
+                        {selectedPlan ? (
+                            <div>
+                                Are you sure you want to chage your plan
+                                <div className='container d-flex'>
+                                    <div className="row d-flex" style={{ width: '60rem' }}>
+                                        <div className="col-md-12">
+                                            <div className='card'>
+                                                <div className="card-body" style={{ height: '12rem' }}>
+                                                    <div className='d-flex justify-content-between align-items-center'>
+                                                        {paycard ? paycard.cardType : "Visa"}
+                                                        <img
+                                                            src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"
+                                                            alt="Visa logo"
+                                                            style={{ width: '60px', height: 'auto' }}
+                                                        />
+                                                    </div>
+                                                    <span>
+                                                        **** **** **** {paycard ? paycard.cardNumber : ""}
+                                                    </span>
+                                                    <div className='d-flex'>
+                                                        Expires
+                                                    </div>
+                                                    <div>
+                                                        {paycard ? paycard.expMonth : '**'}/{paycard ? paycard.expYear : '**'}
+                                                    </div>
 
-    //     const cardElement = elements.getElement(CardElement);
-
-    //     const { error, paymentMethod } = await stripe.createPaymentMethod({
-    //         type: 'card',
-    //         card: elements.getElement(CardElement),
-    //     });
-
-    //     if (error) {
-    //         setError(error.message);
-    //         setLoading(false);
-    //     } else {
-
-    //         console.log('Card Info:', {
-
-    //             cardType: paymentMethod.card.brand,
-    //             expMonth: paymentMethod.card.exp_month,
-    //             expYear: paymentMethod.card.exp_year,
-    //             cardNumber: paymentMethod.card.last4,
-
-    //         });
-    //         const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    //         try {
-    //             const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
-    //                 // tokenId: paymentMethod.id,
-    //                 // TotalAmount: selectedPlan.costPerUser,
-    //                 // planId: selectedPlan._id,
-    //                 cardType: paymentMethod.card.brand,
-    //                 expMonth: paymentMethod.card.exp_month,
-    //                 expYear: paymentMethod.card.exp_year,
-    //                 cardNumber: paymentMethod.card.last4,
-    //                 tokenId: paymentMethod.id,
-    //                 TotalAmount: '58.88',
-    //                 dueDate: '2024-07-30',
-    //                 planId: selectedPlan._id,
-    //             }, { headers });
-
-    //             console.log('Payment Response:', response);
-
-    //             if (response.data.success) {
-    //                 setSuccess(true);
-    //             } else {
-    //                 setError(`Payment failed: ${response.data.message}`);
-    //             }
-    //         } catch (error) {
-    //             setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
-    //         }
-    //         setLoading(false);
-    //     }
-    // };
-    // const handlePayWithCard = async () => {
-    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    //     if (paycard) {
-    //         console.log('Pay with this card:', paycard);
-    //         setIsLoading(true);
-    //         setResponseMessage(null);
-    //         try {
-    //             const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
-    //                 cardNumber: paycard.cardNumber,
-    //                 expMonth: paycard.expMonth,
-    //                 expYear: paycard.expYear,
-    //                 tokenId: paycard.tokenId,
-    //                 cardType: paycard.cardType,
-    //             }, { headers });
-
-    //             if (response.data.success) {
-    //                 console.log('Payment successful:', response);
-    //                 setResponseMessage('Payment successful!');
-    //             } else {
-    //                 console.error('Payment failed:', response.data.error);
-    //                 setResponseMessage('Payment failed: ' + response.data.error);
-    //             }
-    //         } catch (error) {
-    //             console.error('Error:', error);
-    //             setResponseMessage('Error: ' + error.response.data.message);
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     }
-
-    // };
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>No plan selected</div>
+                        )}
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button style={{
+                        alignSelf: "center",
+                        marginLeft: '10px',
+                        padding: '5px 10px',  // Adjusting padding for a smaller size
+                        backgroundColor: 'green',  // Green background
+                        color: 'white',  // White text
+                        border: 'none',  // Removing default border
+                        borderRadius: '5px',  // Rounded corners
+                        cursor: 'pointer',  // Pointer on hover
+                        fontSize: '0.875rem'
+                    }}
+                        onClick={handleDirectChangePlan}
+                    >OK</button>
+                </Modal.Footer>
+            </Modal >
+        );
+    };
 
 
-
-    const handleUpgradeDowngrade = (newPlan, currentPlan) => {
-        if (currentPlan) {
-          // Downgrade logic
-          // Update current plan to new plan
-          setPlanData(newPlan);
-          setSelectedPlan(newPlan);
-        } else {
-          // Upgrade logic
-          // Update planData state to new plan
-          setPlanData(newPlan);
-          setSelectedPlan(newPlan);
-        }
-      };
-
-    const handlePayWithThisCard = async () => {
+    const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
-            setIsLoading(true);
+            // setIsLoading(true);
             setResponseMessage(null);
             try {
-                const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
-                    cardNumber: paycard.cardNumber,
-                    expMonth: paycard.expMonth,
-                    expYear: paycard.expYear,
-                    tokenId: paycard.tokenId,
-                    cardType: paycard.cardType,
+                const response = await axios.post(`${DirectPayApiUrl}/owner/upgrade`, {
+                    // tokenId: paymentMethod.id,
+                    // TotalAmount: selectedPlan.costPerUser,
+                    // planId: selectedPlan._id,
+
+                    planId: selectedPlan._id,
                 }, { headers });
                 if (response.data.success) {
                     console.log('Payment successful:', response);
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('paid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'paid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
+                    // setResponseMessage('Payment successful!');
+                    // handleUpdatePaymentStatus('paid'); 
+                    // setInvoice({ status: 'paid' });
+                    // setHasUnpaidInvoices(false) 
+
                 } else {
                     console.error('Payment failed:', response.data.error);
-                    setResponseMessage('Payment failed: ' + response.data.error);
+                    // setResponseMessage('Payment failed: ' + response.data.error);
                 }
+                handleCloseModal2()
             } catch (error) {
                 console.error('Error:', error);
-                setResponseMessage('Error: ' + error.response.data.message);
+                // setResponseMessage('Error: ' + error.response.data.message);
             } finally {
-                setIsLoading(false);
+                // setIsLoading(false);
+                setShowModalwithoutcard(false);
             }
         }
 
     };
 
+
+
+    const planchange = () => {
+        if (paycard) {
+            setShowModalwithoutcard(true);  // For when the paycard is not available
+            console.log('card is available', showModalwithoutcard);
+
+        } else {
+            console.log('card is not available');
+            handleShowModal();
+        }
+    }
     const [isOpen, setIsOpen] = useState(false);
 
     const totalbill = selectedPlan?.costPerUser * TotalUsers
@@ -692,9 +672,6 @@ const Payment = ({ updatePaymentStatus }) => {
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
     const planData = JSON.parse(localStorage.getItem('planIdforHome'));
-    const setPlanData = (newPlan) => {
-        localStorage.setItem('planIdforHome', JSON.stringify(newPlan));
-      };
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
     const handleOpenModal = () => {
@@ -704,22 +681,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
     return (
         <>
-            {/* <button
-                onClick={handleShowModal}
-                style={{
-                    display: "inline-block",
-                    padding: "8px 16px", // Reduced padding
-                    backgroundColor: "#7CCB58",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    fontSize: "0.9em", // Reduced font size
-                    cursor: "pointer",
-                    transition: "background-color 0.3s ease",
-                }}
-            >
-                Upgrade to Paid Plan
-            </button> */}
+
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -730,32 +692,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         plans
                             .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
                             .map((plan, index) => (
-                                // <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} key={plan._id}>
-                                //     <div className="card mb-3 w-110">
-                                //         <div className="card-body">
-                                //             <div className="form-check">
-                                //                 <input
-                                //                     type="radio"
-                                //                     style={{
-                                //                         position: 'absolute',
-                                //                         opacity: 0,
-                                //                         cursor: 'pointer'
-                                //                     }}
-                                //                     id={plan._id}
-                                //                     name="plan"
-                                //                     value={plan.planType}
-                                //                     checked={selectedPlan?._id === plan._id}
-                                //                     onChange={() => handlePlanSelect(plan)}
-                                //                     className="form-check-input"
-                                //                 />
-                                //                 <label className="form-check-label" htmlFor={plan._id}>
-                                //                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-                                //                 </label>
-                                //             </div>
-                                //             <p className="card-text">{getPlanDescription(plan)}</p>
-                                //         </div>
-                                //     </div>
-                                // </div>
+
                                 <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
                                     <div className='card'>
                                         <div className="card-body w-120">
@@ -775,8 +712,8 @@ const Payment = ({ updatePaymentStatus }) => {
                                                     type="radio"
                                                     id={plan._id}
                                                     name="plan"
-                                                    value={plan.planType}
-                                                    checked={selectedPlan?._id === plan._id}
+                                                    value={plan?.planType}
+                                                    checked={selectedPlan?._id === plan?._id}
                                                     onChange={() => handlePlanSelect(plan)}
                                                     style={{
                                                         position: 'absolute',
@@ -806,42 +743,6 @@ const Payment = ({ updatePaymentStatus }) => {
                                                     display: selectedPlan?._id === plan._id ? 'block' : 'none'
                                                 }}
                                                 ></span>
-                                                {/* <div style={{ marginLeft: '10px' }}>
-                                                    {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-
-                                                    {planData ? (
-                                                        plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? (
-                                                            <span style={{ color: 'green' }}> Current</span>
-                                                        ) : (
-                                                            <button style={{
-                                                                marginLeft: '10px',
-                                                                padding: '5px 10px',  // Adjusting padding for a smaller size
-                                                                backgroundColor: 'green',  // Green background
-                                                                color: 'white',  // White text
-                                                                border: 'none',  // Removing default border
-                                                                borderRadius: '5px',  // Rounded corners
-                                                                cursor: 'pointer',  // Pointer on hover
-                                                                fontSize: '0.875rem'
-                                                            }}>
-                                                                {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
-                                                            </button>
-                                                        )
-                                                    ) : (
-                                                        <button style={{
-                                                            marginLeft: '10px',
-                                                            padding: '5px 10px',  // Adjusting padding for a smaller size
-                                                            backgroundColor: 'green',  // Green background
-                                                            color: 'white',  // White text
-                                                            border: 'none',  // Removing default border
-                                                            borderRadius: '5px',  // Rounded corners
-                                                            cursor: 'pointer',  // Pointer on hover
-                                                            fontSize: '0.875rem'
-                                                        }}>
-                                                            Upgrade
-                                                        </button>
-                                                    )}
-                                                    <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
-                                                </div> */}
                                                 <div style={{ marginLeft: '10px' }}>
                                                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
 
@@ -859,9 +760,9 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                 cursor: 'pointer',  // Pointer on hover
                                                                 fontSize: '0.875rem'
                                                             }}
-                                                                onClick={() => handleUpgradeDowngrade(plan, planData)}
+                                                                onClick={planchange}
                                                             >
-                                                                {plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? 'Downgrade' : planData ? 'Downgrade' : 'Upgrade'}
+                                                                {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
                                                             </button>
                                                         )
                                                     ) : (
@@ -875,7 +776,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                             cursor: 'pointer',  // Pointer on hover
                                                             fontSize: '0.875rem'
                                                         }}
-                                                            onClick={() => handleUpgradeDowngrade(plan, null)}
+                                                            onClick={planchange}
                                                         >
                                                             Upgrade
                                                         </button>
@@ -937,13 +838,11 @@ const Payment = ({ updatePaymentStatus }) => {
                 selectedPlan={selectedPlan}
             />
             {/* // )} */}
-
-            <div>
-                <NewCardModal
-                    showNewCardModal={showNewCardModal}
-                    handleClose={handleCloseNewModal}
-                />
-            </div>
+            <Withoutcardpayment
+                showModalwithoutcard={showModalwithoutcard}
+                handleCloseModal2={handleCloseModal2}
+                selectedPlan={selectedPlan}
+            />
 
         </>
 

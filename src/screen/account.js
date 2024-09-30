@@ -24,6 +24,7 @@ import paidStamp from '../images/paid.png';
 import { Link } from 'react-router-dom'
 // import { link}
 import BillingComponent from "./BillingComponent";
+import Payment from './payment'
 
 function Account() {
 
@@ -871,6 +872,7 @@ function Account() {
                     </div>
                 </div>
             </div>
+            <Payment />
             <img className="accountLine" src={line} />
         </div>
     )
