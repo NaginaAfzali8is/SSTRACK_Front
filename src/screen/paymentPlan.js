@@ -244,6 +244,9 @@ const Payment = ({ updatePaymentStatus }) => {
             </form>
         );
     };
+
+    const [modalData, setModalData] = useState({});
+
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -302,7 +305,8 @@ const Payment = ({ updatePaymentStatus }) => {
                         planId: selectedPlan._id,
                     }, { headers });
 
-                    console.log('Payment Response:', response);
+
+                    console.log('Payment acctual:', response);
 
                     if (response.data.success) {
                         setSuccess(true);
@@ -322,7 +326,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 {error && <div className="error-message">{error}</div>}
                 {success && <div className="success-message">Payment successful!</div>}
                 <button type="submit" disabled={!stripe || loading} className="submit-button">
-                    {loading ? 'Processing...' : 'Pay'}
+                    {loading ? 'Upgrade to paid plan' : 'Pay'}
+
                 </button>
             </form>
         );
@@ -384,8 +389,6 @@ const Payment = ({ updatePaymentStatus }) => {
                     <div className="text-left mb-4">
                         {/* <h5 className="owner-name">Owner Name</h5> */}
                         {/* <h5 className="employee-count">Number of employees: 5</h5> */}
-
-
                         {selectedPlan && (
                             <Elements stripe={stripePromise}>
                                 <div className="payment-container mt-4">
@@ -399,7 +402,6 @@ const Payment = ({ updatePaymentStatus }) => {
             </Modal>
         );
     };
-
 
     const NewCardModal = ({ showNewCardModal, handleClose }) => {
 
@@ -445,7 +447,6 @@ const Payment = ({ updatePaymentStatus }) => {
                         >
                             Card Selection
                         </button>
-
                         <button
                             style={activeTab === 'payment' ? activeTabButtonStyle : tabButtonStyle}
                             onClick={() => setActiveTab('payment')}
@@ -479,11 +480,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-
-
     const [selectedPackage, setSelectedPackage] = useState();
-
-
     const storedPlanId = JSON.parse(localStorage.getItem('planId'));
     // Retrieve the stored plan from localStorage and set the selected package
     useEffect(() => {
@@ -541,6 +538,9 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModal(false);
     };
 
+    const handleCloseModal1 = () => {
+        setIsOpen(false);
+    };
     const handlePayPalClick = () => {
         const amount = selectedPlan.costPerUser * TotalUsers;
         const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
@@ -638,6 +638,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
     // };
 
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -672,22 +673,40 @@ const Payment = ({ updatePaymentStatus }) => {
 
     };
 
+    const [isOpen, setIsOpen] = useState(false);
+
     const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
     const Cardetail = paycard?.cardNumber
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
-
+    const planData = JSON.parse(localStorage.getItem('planIdforHome'));
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
+
+    const handleOpenModal = () => {
+        setIsOpen(true);
+    };
 
 
     return (
         <>
-
-
-
+            {/* <button
+                onClick={handleShowModal}
+                style={{
+                    display: "inline-block",
+                    padding: "8px 16px", // Reduced padding
+                    backgroundColor: "#7CCB58",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    fontSize: "0.9em", // Reduced font size
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease",
+                }}
+            >
+                Upgrade to Paid Plan
+            </button> */}
             <div className='container mt-4'>
-
                 <div className="row">
                     {loading ? (
                         <p className="col-12">Loading plans...</p>
@@ -775,8 +794,39 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 ></span>
                                                 <div style={{ marginLeft: '10px' }}>
                                                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-                                                    <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
 
+                                                    {planData ? (
+                                                        plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? (
+                                                            <span style={{ color: 'green' }}> Current</span>
+                                                        ) : (
+                                                            <button style={{
+                                                                marginLeft: '10px',
+                                                                padding: '5px 10px',  // Adjusting padding for a smaller size
+                                                                backgroundColor: 'green',  // Green background
+                                                                color: 'white',  // White text
+                                                                border: 'none',  // Removing default border
+                                                                borderRadius: '5px',  // Rounded corners
+                                                                cursor: 'pointer',  // Pointer on hover
+                                                                fontSize: '0.875rem'
+                                                            }}>
+                                                                {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                            </button>
+                                                        )
+                                                    ) : (
+                                                        <button style={{
+                                                            marginLeft: '10px',
+                                                            padding: '5px 10px',  // Adjusting padding for a smaller size
+                                                            backgroundColor: 'green',  // Green background
+                                                            color: 'white',  // White text
+                                                            border: 'none',  // Removing default border
+                                                            borderRadius: '5px',  // Rounded corners
+                                                            cursor: 'pointer',  // Pointer on hover
+                                                            fontSize: '0.875rem'
+                                                        }}>
+                                                            Upgrade
+                                                        </button>
+                                                    )}
+                                                    <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
                                                 </div>
                                             </label>
                                         </div>
@@ -785,7 +835,6 @@ const Payment = ({ updatePaymentStatus }) => {
                             ))
                     )}
                 </div>
-
             </div>
             <br />
             <div className='container'>
@@ -804,7 +853,6 @@ const Payment = ({ updatePaymentStatus }) => {
                                             <p><strong>Price per user:</strong> ${selectedPlan.costPerUser}/month</p>
                                             {/* <p className="font-weight-bold"><strong>Estimated total:</strong> <span>${selectedPlan.costPerUser * TotalUsers}/month</span></p> */}
                                             <p className="font-weight-bold"><strong>Estimated total:</strong>  <span>${Math.floor(selectedPlan.costPerUser * TotalUsers * 100) / 100}/month</span></p>
-
                                         </>
                                     )}
                                 </div>

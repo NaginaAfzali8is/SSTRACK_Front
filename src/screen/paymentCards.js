@@ -690,7 +690,7 @@ const Payment = ({ updatePaymentStatus }) => {
         <>
             <div className='container'>
                 <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
-                  
+
                     <div className="card" style={{ width: '22rem' }}>
                         <div className="card-body text-center">
                             <h3 className='text-center'

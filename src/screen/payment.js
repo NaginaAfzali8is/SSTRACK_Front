@@ -10,7 +10,7 @@ import CustomModal from './component/CustomModal';
 import PaymentCards from './paymentCards'
 import PaymentPlans from './paymentPlan'
 const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-// import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
 
@@ -237,7 +237,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const firstBillingPeriodEnd = billingDate ? addMonth(firstBillingPeriodStart) : null;
 
 
-   
+
     const CheckoutForm2 = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -251,7 +251,7 @@ const Payment = ({ updatePaymentStatus }) => {
         };
 
         const handleSubmit = async (event) => {
-          
+
             event.preventDefault();
             setLoading(true);
 
@@ -398,7 +398,6 @@ const Payment = ({ updatePaymentStatus }) => {
                 setLoading(false);
             }
         };
-
         return (
             <form onSubmit={handleSubmit} className="payment-form">
                 <CardElement className="card-element" />
@@ -458,30 +457,79 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const PaymentModal = ({ showModal, handleClose }) => {
 
+        const [showAnotherModal, setShowAnotherModal] = useState(false);
+
+        const handleOkClick = () => {
+            handleClose(); // Add this line to close the modal
+            setShowAnotherModal(false);
+            enqueueSnackbar("Payment Successfully", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            })
+        };
+
         return (
-            <Modal show={showModal} onHide={handleClose} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Payment Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="text-left mb-4">
-                        {/* <h5 className="owner-name">Owner Name</h5> */}
-                        {/* <h5 className="employee-count">Number of employees: 5</h5> */}
-
-
-                        {selectedPlan && (
-                            <Elements stripe={stripePromise}>
-                                <div className="payment-container mt-4">
-                                    <p className="mb-4">Complete Your Payment</p>
-                                    <CheckoutForm />
-                                </div>
-                            </Elements>
-                        )}
-                    </div>
-                </Modal.Body>
-            </Modal>
+            <div>
+                <Modal show={showModal && (!paycard || !paycard.cardNumber)} onHide={handleClose} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Payment Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="text-left mb-4">
+                            {/* <h5 className="owner-name">Owner Name</h5> */}
+                            {/* <h5 className="employee-count">Number of employees: 5</h5> */}
+                            {selectedPlan && (
+                                <Elements stripe={stripePromise}>
+                                    <div className="payment-container mt-4">
+                                        <p className="mb-4">Complete Your Payment</p>
+                                        <CheckoutForm />
+                                    </div>
+                                </Elements>
+                            )}
+                        </div>
+                    </Modal.Body>
+                </Modal>
+                <Modal show={showModal && paycard && paycard.cardNumber} onHide={() => setShowAnotherModal(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Payment</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>are sure you want to change plan?</p>
+                    </Modal.Body>
+                    
+                    <button onClick={handleOkClick}>ok</button>
+                </Modal>
+            </div>
         );
     };
+
+    // const PaymentModal = ({ showModal, handleClose }) => {
+
+    //     return (
+    //       <Modal show={showModal} onHide={handleClose} centered>
+    //         <Modal.Header closeButton>
+    //           <Modal.Title>Payment Details</Modal.Title>
+    //         </Modal.Header>
+    //         <Modal.Body>
+    //           <div className="text-left mb-4">
+    //             {selectedPlan ? (
+    //               <Elements stripe={stripePromise}>
+    //                 <div className="payment-container mt-4">
+    //                   <p className="mb-4">Complete Your Payment</p>
+    //                   <CheckoutForm />
+    //                 </div>
+    //               </Elements>
+    //             ) : (
+    //               <p>Please enter your card number to proceed with payment.</p>
+    //             )}
+    //           </div>
+    //         </Modal.Body>
+    //       </Modal>
+    //     );
+    //   };
 
     // const handleSetDefaultCard = async (cards) => {
     //     const token = localStorage.getItem('token');
@@ -498,13 +546,13 @@ const Payment = ({ updatePaymentStatus }) => {
 
     //         if (response.data.success) {
     //             console.log('Default card set successfully:', response);
-    //             enqueueSnackbar("Default card set successfully", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
+    // enqueueSnackbar("Default card set successfully", {
+    //     variant: "success",
+    //     anchorOrigin: {
+    //         vertical: "top",
+    //         horizontal: "right"
+    //     }
+    // })
     //             setpaycard(cards); // update paycard state
     //             // onActionComplete();
     //         } else {
@@ -606,6 +654,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const handleShowModal = () => {
         setShowModal(true);
     };
+
     const handleCloseModal = () => {
         setShowModal(false);
     };
@@ -750,7 +799,10 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     return (
+
         <div>
+            <SnackbarProvider />
+
             <div className="container">
                 <div className="userHeader">
                     <div>
@@ -762,6 +814,25 @@ const Payment = ({ updatePaymentStatus }) => {
                         <h3 className="card-title mb-4">Selected Plan</h3>
                         <PaymentPlans />
                         <br />
+                        <button
+                            onClick={
+                                handleShowModal
+                            }
+                            style={{
+                                display: "inline-block",
+                                padding: "8px 16px", // Reduced padding
+                                backgroundColor: "#7CCB58",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "5px",
+                                fontSize: "0.9em", // Reduced font size
+                                cursor: "pointer",
+                                transition: "background-color 0.3s ease",
+                            }}
+                        >
+                            Upgrade to Paid Plan
+                        </button>
+
                         <div className='container d-flex'>
                             <div className="row d-flex" style={{ width: '60rem' }}>
                                 <div className="col-md-6">
@@ -880,7 +951,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 />
             </div>
 
-        </div>
+        </div >
     );
 };
 
