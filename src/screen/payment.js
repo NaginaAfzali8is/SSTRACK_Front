@@ -9,10 +9,10 @@ import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 import PaymentCards from './paymentCards'
 import PaymentPlans from './paymentPlan'
-const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
+const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 const Payment = ({ updatePaymentStatus }) => {
 
@@ -802,7 +802,6 @@ const Payment = ({ updatePaymentStatus }) => {
 
         <div>
             <SnackbarProvider />
-
             <div className="container">
                 <div className="userHeader">
                     <div>
