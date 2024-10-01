@@ -71,8 +71,33 @@ const Payment = ({ updatePaymentStatus }) => {
             default:
                 return "";
         }
+        console.log('Card Type', cardType)
     };
-
+    const fetchCardLogo = () => {
+        if (!cardType) {
+          setErrorMessage('Please enter a card type.');
+          return;
+        }
+      
+        const cardIconUrl = getCardIcon(cardType);
+        if (cardIconUrl) {
+          setLogoUrl(cardIconUrl);
+          setErrorMessage('');
+        } else {
+          const domain = cardType.toLowerCase().replace(/\s+/g, '') + '.com';
+          const clearbitUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+      
+          axios.get(clearbitUrl)
+            .then(response => {
+              setLogoUrl(clearbitUrl);
+              setErrorMessage('');
+            })
+            .catch(error => {
+              setErrorMessage(`Failed to fetch logo for ${cardType}. Please try again.`);
+              setLogoUrl('');
+            });
+        }
+      };
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
@@ -177,9 +202,6 @@ const Payment = ({ updatePaymentStatus }) => {
             setLoading(false);
         }
     }, [headers]);
-
-
-
 
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {

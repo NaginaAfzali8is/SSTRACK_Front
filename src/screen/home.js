@@ -1034,11 +1034,11 @@ function Home() {
                   App & URL Tracking
                 </p>
                 <br />
-                <div className="mt-auto">
-                  <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
-                    disabled={getButtonDisabled(1)}
-                  > {getButtonText(1)}</button>
-                </div>
+                  <div className="mt-auto">
+                    <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'white', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
+                        disabled={true}
+                    > {getButtonText(1)}</button>
+                  </div>
                 {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
                   Current Plan
                 </button> */}

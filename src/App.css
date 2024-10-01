@@ -271,7 +271,7 @@
 .pricingButton2:disabled:hover {
   background-color: #ccc !important;
   /* transition: 0.5s; */
-  cursor: none;
+  cursor: default;
 
 }
 
@@ -5926,8 +5926,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 .pricingButton,
-.pricingButton1,
-.pricingButton2 {
+.pricingButton1
+ {
   color: #fff;
   font-size: 18px;
   font-weight: 600;
@@ -5937,7 +5937,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   border-radius: 5.52px
 }
 
-
+.pricingButton2{
+  color: #ccc;
+  font-size: 18px;
+  font-weight: 600;
+  display: block;
+  margin: auto;
+  padding: 8px 10px;
+  border-radius: 5.52px;
+  background-color: #ccc !important
+}
 
 
 

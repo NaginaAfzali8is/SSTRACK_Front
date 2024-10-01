@@ -129,10 +129,6 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-
-
-
-
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
@@ -224,6 +220,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
                     if (response.data.success) {
                         setSuccess(true);
+                        setTimeout(() => {
+                            setshowNewCardModal(false);
+                        }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
                     }
@@ -311,6 +310,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
                     if (response.data.success) {
                         setSuccess(true);
+                        setTimeout(() => {
+                            setShowModal(false);
+                        }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
                     }
@@ -333,7 +335,6 @@ const Payment = ({ updatePaymentStatus }) => {
             </form>
         );
     };
-
 
 
     //this api is for pricing plan who's data is to send to payment page
@@ -544,6 +545,7 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModal(false);
     };
 
+    /////// enter your card number close the modal///////////
     const handleCloseModal2 = () => {
         setShowModalwithoutcard(false);
     };
@@ -608,7 +610,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         fontSize: '0.875rem'
                     }}
                         onClick={handleDirectChangePlan}
-                    >OK</button>
+                    >Pay Now</button>
                 </Modal.Footer>
             </Modal >
         );
@@ -652,8 +654,6 @@ const Payment = ({ updatePaymentStatus }) => {
 
     };
 
-
-
     const planchange = () => {
         if (paycard) {
             setShowModalwithoutcard(true);  // For when the paycard is not available
@@ -663,7 +663,9 @@ const Payment = ({ updatePaymentStatus }) => {
             console.log('card is not available');
             handleShowModal();
         }
+        // setPlanData(plan)
     }
+
     const [isOpen, setIsOpen] = useState(false);
 
     const totalbill = selectedPlan?.costPerUser * TotalUsers
@@ -672,16 +674,17 @@ const Payment = ({ updatePaymentStatus }) => {
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
     const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
+    // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
+
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
 
     const handleOpenModal = () => {
         setIsOpen(true);
     };
 
-
     return (
         <>
-
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -693,9 +696,14 @@ const Payment = ({ updatePaymentStatus }) => {
                             .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
                             .map((plan, index) => (
 
-                                <div className={`col-6 ${index % 2 === 0 ? 'pr-2' : 'pl-2'}`} style={{ marginBottom: '10px' }} key={plan._id}>
-                                    <div className='card'>
-                                        <div className="card-body w-120">
+                                <div className={`col-6 ${index % 2 === 0 ? '' : 'pl-2'}`} style={{
+                                    marginBottom: '10px',
+                                    overflow: 'hidden', // Add this line
+                                }} key={plan._id}>
+                                    <div className='card' >
+                                        <div className="card-body w-100" style={{
+                                            backgroundColor: selectedPlan?._id === plan._id ? '#8accff' : '',
+                                        }}>
                                             <label style={{
                                                 position: 'relative',
                                                 paddingLeft: '30px',
@@ -745,11 +753,31 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 ></span>
                                                 <div style={{ marginLeft: '10px' }}>
                                                     {plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)} - ${plan.costPerUser}/month
-
                                                     {planData ? (
                                                         plan.planType.charAt(0).toUpperCase() === planData.planType.charAt(0).toUpperCase() ? (
                                                             <span style={{ color: 'green' }}> Current</span>
                                                         ) : (
+                                                            selectedPlan?._id === plan._id ? (
+                                                                <button style={{
+                                                                    marginLeft: '10px',
+                                                                    padding: '5px 5px',  // Adjusting padding for a smaller size
+                                                                    backgroundColor: 'green',  // Green background
+                                                                    color: 'white',  // White text
+                                                                    border: 'none',  // Removing default border
+                                                                    borderRadius: '5px',  // Rounded corners
+                                                                    cursor: 'pointer',  // Pointer on hover
+                                                                    fontSize: '0.875rem'
+                                                                }}
+                                                                    onClick={planchange}
+                                                                >
+                                                                    {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                                </button>
+                                                            ) : (
+                                                                <span></span>
+                                                            )
+                                                        )
+                                                    ) : (
+                                                        selectedPlan?._id === plan._id ? (
                                                             <button style={{
                                                                 marginLeft: '10px',
                                                                 padding: '5px 10px',  // Adjusting padding for a smaller size
@@ -762,24 +790,11 @@ const Payment = ({ updatePaymentStatus }) => {
                                                             }}
                                                                 onClick={planchange}
                                                             >
-                                                                {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                                Upgrade
                                                             </button>
+                                                        ) : (
+                                                            <span></span>
                                                         )
-                                                    ) : (
-                                                        <button style={{
-                                                            marginLeft: '10px',
-                                                            padding: '5px 10px',  // Adjusting padding for a smaller size
-                                                            backgroundColor: 'green',  // Green background
-                                                            color: 'white',  // White text
-                                                            border: 'none',  // Removing default border
-                                                            borderRadius: '5px',  // Rounded corners
-                                                            cursor: 'pointer',  // Pointer on hover
-                                                            fontSize: '0.875rem'
-                                                        }}
-                                                            onClick={planchange}
-                                                        >
-                                                            Upgrade
-                                                        </button>
                                                     )}
                                                     <p className="card-text" style={{ fontSize: '1rem' }}>{getPlanDescription(plan)}</p>
                                                 </div>
@@ -829,8 +844,6 @@ const Payment = ({ updatePaymentStatus }) => {
                                 {responseMessage}
                             </div>
                         )} */}
-
-
             {/* {showModal && ( */}
             <PaymentModal
                 showModal={showModal}
@@ -843,18 +856,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 handleCloseModal2={handleCloseModal2}
                 selectedPlan={selectedPlan}
             />
-
         </>
-
     );
 };
-
-
-
-
-
-
-
-
 
 export default Payment;

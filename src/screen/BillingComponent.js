@@ -97,6 +97,7 @@ const BillingComponent = () => {
             }
         }
     }, []);
+    
     return (
         <>
             {!(items?.userType === 'user' || items?.userType === 'manager') && (
