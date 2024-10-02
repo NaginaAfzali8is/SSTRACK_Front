@@ -1024,7 +1024,7 @@ function Home() {
                 <p className="card-text text-center" style={{ marginTop: "37%" }}>
                   Time Tracking
                   SSTrack
-                  up to <b>3</b> screenshots per hour
+                  up to <b>10</b> screenshots per hour
                   screenshots stored for <b>15 days</b>
                 </p>
                 <p className="activtiyUrl text-center" style={{ marginTop: '18%' }} >Individual settings
