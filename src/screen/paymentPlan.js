@@ -8,6 +8,9 @@ import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 import PaymentCards from './paymentCards'
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+
+
 
 const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
@@ -96,8 +99,6 @@ const Payment = ({ updatePaymentStatus }) => {
             setLoading(false);
         }
     }, [headers]);
-
-
 
 
     const fetchTokenAndSuspendedStatus = async () => {
@@ -633,6 +634,13 @@ const Payment = ({ updatePaymentStatus }) => {
                 }, { headers });
                 if (response.data.success) {
                     console.log('Payment successful:', response);
+                    enqueueSnackbar("Payment Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                     // setResponseMessage('Payment successful!');
                     // handleUpdatePaymentStatus('paid'); 
                     // setInvoice({ status: 'paid' });
@@ -685,6 +693,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
     return (
         <>
+            <SnackbarProvider />
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (

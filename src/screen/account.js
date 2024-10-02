@@ -50,7 +50,7 @@ function Account() {
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'));
 
-    
+
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
@@ -593,11 +593,11 @@ function Account() {
 
             if (storedBilling === 'Standard') {
                 price = 3.99;
-              } else if (storedBilling === 'Premium') {
+            } else if (storedBilling === 'Premium') {
                 price = 4.99;
-              } else {
+            } else {
                 price = 0; // default to 0 if no plan is selected
-              }
+            }
 
             if (storedBilling) {
                 try {
@@ -610,7 +610,7 @@ function Account() {
         }, []);
         return (
             <>
-                {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
                     <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
                         <div style={{ marginBottom: '20px' }}>
                             <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>{storedPlanId?.planType ? `${storedPlanId?.planType[0].toUpperCase()}${storedPlanId?.planType.slice(1)}` : 'Free'} Plan</h2>
@@ -771,7 +771,7 @@ function Account() {
                         <BillingComponent />
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
-                        {!(items?.userType === 'user' || items?.userType === 'manager') && (
+                        {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
                             <div style={{ width: '80%', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
                                 <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
                                     <span style={{ padding: '10px 20px', fontWeight: 'bold', borderBottom: '3px solid #28659C', color: 'black' }}>
@@ -871,11 +871,11 @@ function Account() {
                     </div>
                 </div>
             </div>
-            <Payment />
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+                <Payment />
+            )}
             <img className="accountLine" src={line} />
         </div>
     )
-
 }
-
 export default Account;

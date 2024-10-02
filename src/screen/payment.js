@@ -12,7 +12,12 @@ import PaymentPlans from './paymentPlan'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
-const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+
+const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+
+// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
+// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
 const Payment = ({ updatePaymentStatus }) => {
 
@@ -501,13 +506,13 @@ const Payment = ({ updatePaymentStatus }) => {
         //         console.log('upgrade repsonose:', cardType);
 
         //         if (response.data.success) {
-        //             enqueueSnackbar("Payment Successfully", {
-        //                 variant: "success",
-        //                 anchorOrigin: {
-        //                     vertical: "top",
-        //                     horizontal: "right"
-        //                 }
-        //             })
+        // enqueueSnackbar("Payment Successfully", {
+        //     variant: "success",
+        //     anchorOrigin: {
+        //         vertical: "top",
+        //         horizontal: "right"
+        //     }
+        // })
         //         } else {
         //             enqueueSnackbar(`Payment failed: ${response.data.message}`, {
         //                 variant: "error",
