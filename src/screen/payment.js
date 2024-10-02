@@ -46,6 +46,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [showWarning, setShowWarning] = useState(false);
     // let token = localStorage.getItem('token');
     // const navigate = useNavigate('');
+    const [error, setErrorMessage] = useState([])
     const items = JSON.parse(localStorage.getItem('items'));
     // let headers = {
     //     Authorization: 'Bearer ' + token,
@@ -60,44 +61,44 @@ const Payment = ({ updatePaymentStatus }) => {
         setHasUnpaidInvoices(status !== 'paid');
     };
 
-    const getCardIcon = (cardType) => {
-        switch (cardType) {
-            case "Mastercard":
-                return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
-            case "American Express":
-                return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
-            case "visa":
-                return "https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"; // Example URL
-            default:
-                return "";
-        }
-        console.log('Card Type', cardType)
-    };
-    const fetchCardLogo = () => {
-        if (!cardType) {
-          setErrorMessage('Please enter a card type.');
-          return;
-        }
-      
-        const cardIconUrl = getCardIcon(cardType);
-        if (cardIconUrl) {
-          setLogoUrl(cardIconUrl);
-          setErrorMessage('');
-        } else {
-          const domain = cardType.toLowerCase().replace(/\s+/g, '') + '.com';
-          const clearbitUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
-      
-          axios.get(clearbitUrl)
-            .then(response => {
-              setLogoUrl(clearbitUrl);
-              setErrorMessage('');
-            })
-            .catch(error => {
-              setErrorMessage(`Failed to fetch logo for ${cardType}. Please try again.`);
-              setLogoUrl('');
-            });
-        }
-      };
+    // const getCardIcon = (cardType) => {
+    //     switch (cardType) {
+    //         case "Mastercard":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
+    //         case "American Express":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
+    //         case "visa":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"; // Example URL
+    //         default:
+    //             return "";
+    //     }
+    //     console.log('Card Type', cardType)
+    // };
+    // const fetchCardLogo = (cardType) => {
+    //     if (!cardType) {
+    //         setErrorMessage('Please enter a card type.');
+    //         return;
+    //     }
+
+    //     const cardIconUrl = getCardIcon(cardType);
+    //     if (cardIconUrl) {
+    //         setLogoUrl(cardIconUrl);
+    //         setErrorMessage('');
+    //     } else {
+    //         const domain = cardType.toLowerCase().replace(/\s+/g, '') + '.com';
+    //         const clearbitUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+
+    //         axios.get(clearbitUrl)
+    //             .then(response => {
+    //                 setLogoUrl(clearbitUrl);
+    //                 setErrorMessage('');
+    //             })
+    //             .catch(error => {
+    //                 setErrorMessage(`Failed to fetch logo for ${cardType}. Please try again.`);
+    //                 setLogoUrl('');
+    //             });
+    //     }
+    // };
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
@@ -604,7 +605,7 @@ const Payment = ({ updatePaymentStatus }) => {
         );
     };
 
-    
+
     // const PaymentModal = ({ showModal, handleClose }) => {
 
     //     return (
