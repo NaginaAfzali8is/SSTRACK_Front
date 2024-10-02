@@ -68,7 +68,7 @@ function Screenshot() {
                     alert(res.data.message)
                 }
             }
-            console.log('Employee setting ka message', response?.data?.message);
+            // console.log('Employee setting ka message', response?.data?.message);
         } catch (error) {
             if (error.response && error.response.data) {
                 if (error.response.status === 403 && error.response.data.success === false) {
