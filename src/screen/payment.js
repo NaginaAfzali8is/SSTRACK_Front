@@ -930,7 +930,11 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
                 if (response.data.success) {
-                    console.log('Payment successful:', response);
+                    console.log('Payment successful:', response.data.success);
+                    setResponseMessage('Payment successful!');
+                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                     enqueueSnackbar("Payment Successfully", {
                         variant: "success",
                         anchorOrigin: {
@@ -938,10 +942,6 @@ const Payment = ({ updatePaymentStatus }) => {
                             horizontal: "right"
                         }
                     })
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                 } else {
                     console.error('Payment failed:', response.data.error);
                     enqueueSnackbar('Payment failed: ' + response.data.error, {
