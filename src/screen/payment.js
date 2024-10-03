@@ -856,13 +856,72 @@ const Payment = ({ updatePaymentStatus }) => {
 
     // };
 
+    // const handlePayWithThisCard = async () => {
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     if (paycard) {
+    //         console.log('Pay with this card:', paycard);
+    //         setIsLoading(true);
+    //         setResponseMessage(null);
+    //         try {
+    //             const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
+    //                 cardNumber: paycard.cardNumber,
+    //                 expMonth: paycard.expMonth,
+    //                 expYear: paycard.expYear,
+    //                 tokenId: paycard.tokenId,
+    //                 cardType: paycard.cardType,
+    //             }, { headers });
+    //             if (response.data.success) {
+    //                 console.log('Payment successful:', response);
+    //                 enqueueSnackbar("Payment Successfully", {
+    //                     variant: "success",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+    //                 })
+    //                 // setResponseMessage('Payment successful!');
+    //                 handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+    //                 // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+    //                 // setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
+    //             } else {
+    //                 console.error('Payment failed:', response.data.error);
+    //                 setResponseMessage('Payment failed: ' + response.data.error);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error:', error);
+    //             // setResponseMessage('Error: ' + error.response.data.message);
+    //             console.log('Error ka messgae' + error.response.data.message)
+    //             enqueueSnackbar(error.response.data.message, {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+
+    //         } finally {
+    // setIsLoading(false);
+    //         }
+    //     }
+    // };
+
+    // const [buttonText, setButtonText] = useState("Pay with this card");
+
+    // useEffect(() => {
+    //     return () => {
+    //       setIsLoading(false);
+    //     };
+    //   }, []);
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
+            // setButtonText("Processing...");
             try {
+                // setIsLoading(true);
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
                     expMonth: paycard.expMonth,
@@ -872,24 +931,118 @@ const Payment = ({ updatePaymentStatus }) => {
                 }, { headers });
                 if (response.data.success) {
                     console.log('Payment successful:', response);
+                    enqueueSnackbar("Payment Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                     setResponseMessage('Payment successful!');
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
                     setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                 } else {
                     console.error('Payment failed:', response.data.error);
-                    setResponseMessage('Payment failed: ' + response.data.error);
+                    enqueueSnackbar('Payment failed: ' + response.data.error, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                 }
+                // if (res.status === 200) {
+                //     enqueueSnackbar("Payment Successfully", {
+                //         variant: "success",
+                //         anchorOrigin: {
+                //             vertical: "top",
+                //             horizontal: "right"
+                //         }
+                //     })
+                // }
+                // else {
+                //     if (res.status === 403) {
+                //         alert("Access denied. Please check your permissions.")
+                //     } else if (res.data.success === false) {
+                //         alert(res.data.message)
+                //     }
+                // }
             } catch (error) {
-                console.error('Error:', error);
-                setResponseMessage('Error: ' + error.response.data.message);
-            } finally {
-                setIsLoading(false);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400 && error.response.data.success === false) {
+                        // alert(error.response.data.message)
+                        enqueueSnackbar(error.response.data.message, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Add this line to set isLoading to false
+                            }
+                        })
+                        // console.log('Erorr agya', error.response.data.message)
+                        // alert(error.response.data.message)
+                    }
+                }
             }
+            finally {
+                setTimeout(() => {
+                    setIsLoading(false); // Add this line to set isLoading to false
+                }, 1000); // Wait for 2 seconds before setting isLoading to false
+            }
+            // finally {
+            //     // setIsLoading(false); // Add this line to set isLoading to false
+            //     if (error.response.data.message) {
+            //         enqueueSnackbar(error.response.data.message, {
+            //             variant: "error",
+            //             anchorOrigin: {
+            //                 vertical: "top",
+            //                 horizontal: "right"
+            //             }
+            //         })
+            //     }
+            // }
+            // setIsLoading(false);
+            // finally {
+            //     setIsLoading(false); // Add this line to set isLoading to false
+            //   }
+            // finally {
+
+            //     if (error.response && error.response.data) {
+            //         if (error.response.status === 400 && error.response.data.success === false) {
+            //             // alert(error.response.data.message)
+            //             setIsLoading(false);
+            //             enqueueSnackbar(error.response.data.message, {
+            //                 variant: "error",
+            //                 anchorOrigin: {
+            //                     vertical: "top",
+            //                     horizontal: "right"
+            //                 }
+            //             })
+
+
+            //             // console.log('Erorr agya', error.response.data.message)
+            //             // alert(error.response.data.message)
+            //         }
+            //     }
+            // }
+            // setIsLoading(false);
+            // setTimeout(() => {
+            //     enqueueSnackbar(error.response.data.message, {
+            //         variant: "error",
+            //         anchorOrigin: {
+            //             vertical: "top",
+            //             horizontal: "right"
+            //         }
+            //     })
+            // }, 100)
+
+            // setIsLoading(false);
         }
 
     };
-
 
     const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
@@ -931,7 +1084,6 @@ const Payment = ({ updatePaymentStatus }) => {
                         >
                             Upgrade to Paid Plan
                         </button> */}
-
                         <div className='container d-flex'>
                             <div className="row d-flex" style={{ width: '60rem' }}>
                                 <div className="col-md-6">
@@ -983,6 +1135,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 </div>
                             </div>
                         </div>
+                        <br />
                         <NewCardModal
                             paycard={paycard}
                             setpaycard={setpaycard}
@@ -1025,20 +1178,20 @@ const Payment = ({ updatePaymentStatus }) => {
                             onSelect={handleSelectCard}
                             onActionComplete={fetchTokenAndSuspendedStatus}
                         /> */}
-                        {responseMessage && (
-                            <div style={{
-                                marginTop: '50px',
-                                padding: '10px',
-                                borderRadius: '5px',
-                                backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                            }}>
-                                {responseMessage}
-                            </div>
-                        )}
-                        <br />
+                        {/* {responseMessage && (
+                                <div style={{
+                                    marginTop: '50px',
+                                    padding: '10px',
+                                    borderRadius: '5px',
+                                    backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                }}>
+                                    {responseMessage}
+                                </div>
+                            )} */}
+                        {/* <br /> */}
                         <PaymentCards />
                         {/* <PaymentPlans /> */}
                     </div>

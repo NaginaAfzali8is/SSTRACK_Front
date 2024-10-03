@@ -621,6 +621,67 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
+    // const handleDirectChangePlan = async () => {
+    // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    // if (paycard) {
+    //     console.log('Pay with this card:', paycard);
+    //     // setIsLoading(true);
+    //     setResponseMessage(null);
+    //         try {
+    //             const response = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
+    //                 {
+    //                     // tokenId: paymentMethod.id,
+    //                     // TotalAmount: selectedPlan.costPerUser,
+    //                     // planId: selectedPlan._id,
+
+    //                     planId: selectedPlan._id,
+    //                 }, { headers });
+    //             if (response.status === 200) {
+    //                 console.log('Payment successfully upgraded:', response.data.success);
+    //                 enqueueSnackbar(response.data.success, {
+    //                     variant: "success",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+    //                 })
+    //                 // setResponseMessage('Payment successful!');
+    //                 // handleUpdatePaymentStatus('paid'); 
+    //                 // setInvoice({ status: 'paid' });
+    //                 // setHasUnpaidInvoices(false) 
+    //             } else {
+    //                 console.error('Payment failed:', response.data.error);
+    //                 enqueueSnackbar(response.data.success, {
+    //                     variant: "error",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+    //                 })
+    //                 // setResponseMessage('Payment failed: ' + response.data.error);
+    //             }
+    // handleCloseModal2()
+    //         } catch (error) {
+    //             console.error('Error:', error.response.data.message);
+    //             if (error.response && error.response.data) {
+    //                 if (error.response.status === 403 && error.response.data.success === false) {
+    //                     alert(error.response.data.message)
+    //                     enqueueSnackbar(error.response.data.message, {
+    //                         variant: "error",
+    //                         anchorOrigin: {
+    //                             vertical: "top",
+    //                             horizontal: "right"
+    //                         }
+    //                     })
+    //                 }
+    //             }
+    //             // setResponseMessage('Error: ' + error.response.data.message);
+    // } finally {
+    //     // setIsLoading(false);
+    //     setShowModalwithoutcard(false);
+    // }
+    //     }
+    // };
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -628,42 +689,52 @@ const Payment = ({ updatePaymentStatus }) => {
             // setIsLoading(true);
             setResponseMessage(null);
             try {
-                const response = await axios.post(`${DirectPayApiUrl}/owner/upgrade`, {
-                    // tokenId: paymentMethod.id,
-                    // TotalAmount: selectedPlan.costPerUser,
-                    // planId: selectedPlan._id,
+                const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
+                    {
+                        planId: selectedPlan._id,
+                    }, { headers })
+                console.log('Response owner', res);
 
-                    planId: selectedPlan._id,
-                }, { headers });
-                if (response.data.success) {
-                    console.log('Payment successful:', response);
-                    enqueueSnackbar("Payment Successfully", {
+                if (res.status === 200) {
+                    console.log('Response', res.data.success)
+                    enqueueSnackbar("Plan Changed Successfully", {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
                         }
                     })
-                    // setResponseMessage('Payment successful!');
-                    // handleUpdatePaymentStatus('paid'); 
-                    // setInvoice({ status: 'paid' });
-                    // setHasUnpaidInvoices(false) 
-
-                } else {
-                    console.error('Payment failed:', response.data.error);
-                    // setResponseMessage('Payment failed: ' + response.data.error);
+                }
+                else {
+                    if (res.status === 403) {
+                        alert("Access denied. Please check your permissions.")
+                    } else if (res.data.success === false) {
+                        alert(res.data.message)
+                    }
                 }
                 handleCloseModal2()
+                // console.log('Employee setting ka message', response?.data?.message);
             } catch (error) {
-                console.error('Error:', error);
-                // setResponseMessage('Error: ' + error.response.data.message);
-            } finally {
+                console.error('Error:', error.response.data.message);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 403 && error.response.data.success === false) {
+                        // alert(error.response.data.message)
+                        enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            }
+                        })
+                    }
+                }
+            }
+            finally {
                 // setIsLoading(false);
                 setShowModalwithoutcard(false);
             }
         }
-
-    };
+    }
 
     const planchange = () => {
         if (paycard) {
@@ -788,6 +859,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                 <span></span>
                                                             )
                                                         )
+
                                                     ) : (
                                                         selectedPlan?._id === plan._id ? (
                                                             <button style={{
