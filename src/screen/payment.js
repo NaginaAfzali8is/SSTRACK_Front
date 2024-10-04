@@ -930,7 +930,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
                 if (response.data.success) {
-                    console.log('Payment successful:', response.data.success);
+                    console.log('Payment successful hogi:', response.data.success);
                     setResponseMessage('Payment successful!');
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
                     // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'

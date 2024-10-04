@@ -81,11 +81,11 @@ function UserDetails() {
     const [note, setNote] = useState('');
     const noteRef = useRef(note);
 
+
     const handleInputChange = (event) => {
         setNote(event.target.value);
         noteRef.current = event.target.value;
     };
-
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
@@ -147,7 +147,7 @@ function UserDetails() {
 
         const handleUpdateData = () => {
             // console.log('Received updateData event');
-            // fetchData();
+            fetchData();
         };
 
         socket.on('new-ss', handleUpdateData);
@@ -215,11 +215,11 @@ function UserDetails() {
     };
 
     const renderCalendar = () => {
+
+        const date = new Date(); // Make sure to initialize the date object
         const month = date.getMonth();
         const year = date.getFullYear();
         const firstDayOfMonth = new Date(year, month, 1);
-
-
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const daysInMonth = lastDayOfMonth.getDate();
         const weeks = [];
@@ -246,15 +246,21 @@ function UserDetails() {
 
         // Generate cells for each day in the current month
         for (let i = 0; i < daysInMonth; i++) {
-            const isWeekend = currentDay.getDay() === 0 || currentDay.getDay() === 6;
-            const isFirstDayOfWeek = currentDay.getDay() === 1;
-            const isLastDayOfWeek = currentDay.getDay() === 0 || i === daysInMonth - 1;
+            const dayOfWeek = currentDay.getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const isFirstDayOfWeek = dayOfWeek === 1;
+            const isLastDayOfWeek = dayOfWeek === 0 || i === daysInMonth - 1;
+
             const dayKey = currentDay.toString();
-            const isCurrentDate = currentDay.getDate() === new Date().getDate() && currentDay.getMonth() === new Date().getMonth();
+            const isCurrentDate = currentDay.getDate() === date.getDate() && currentDay.getMonth() === date.getMonth();
 
             const dayFormatted = `${currentDay.getFullYear()}-${(currentDay.getMonth() + 1).toString().padStart(2, '0')}-${currentDay.getDate().toString().padStart(2, '0')}`;
 
-            // Generate a unique key using the string representation of the date
+            let totalHours = 0;
+            if (totalPercentageByDay && totalPercentageByDay.find(tpbd => tpbd.date === dayFormatted)) {
+                totalHours = totalPercentageByDay.find(tpbd => tpbd.date === dayFormatted).totalMinutes;
+            }
+
             days.push(
                 <div
                     style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
@@ -264,7 +270,6 @@ function UserDetails() {
                 >
                     <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
                     <p className="Weekdate">{currentDay.getDate()}</p>
-                    {/* <p className="nonetaken">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p> */}
                     <div style={{ padding: "2px" }}>
                         <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
                     </div>
@@ -365,7 +370,8 @@ function UserDetails() {
         try {
             const response = await axios.get(items?.userType === "user" ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}` : `${apiUrl}/owner/hoursbyday/${params.id}?date=${activeMonth}`, { headers });
             const totalHours = response.data.data.totalHoursByDay;
-            console.log("totalHours of active month", response.data);
+            console.log('Totla HOurs ka data', totalHours)
+            console.log("totalHours of active month", totalHours);
             const currentDate = new Date();
             const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
             const currentYear = currentDate.getFullYear();
@@ -401,6 +407,36 @@ function UserDetails() {
                     });
                 });
             };
+            // const processMonth = (totalHours, month, year) => {
+            //     const filteredHours = totalHours.filter(th => {
+            //         const dateParts = th.date.split('-').map(part => part);
+            //         return (dateParts[1] === (month - 1).toString().padStart(2, '0')) && dateParts[0] === year;
+            //     });
+
+            //     console.log(`filteredHoursss for ${month}-${year}`, filteredHours);
+
+            //     filteredHours.forEach(th => {
+            //         const timeMatches = th.totalHours.match(/(\d+)h\s*(\d*)m/);
+            //         let totalMinutes = 0;
+
+            //         if (timeMatches) {
+            //             const hours = parseInt(timeMatches[1], 10) || 0;
+            //             const minutes = parseInt(timeMatches[2], 10) || 0;
+            //             totalMinutes = hours * 60 + minutes;
+            //         }
+
+            //         const totalHoursDecimal = totalMinutes / 60;
+            //         const widthPercentage = (totalMinutes / (maxHours * 60)) * 100;
+            //         const widthPercentageExact = (totalHoursDecimal / maxHours) * 100;
+
+            //         percentagesByDay.push({
+            //             date: th.date,
+            //             totalMinutes: totalMinutes,
+            //             percentage: Math.min(widthPercentage, 100),
+            //             percentageExact: Math.min(widthPercentageExact, 100),
+            //         });
+            //     });
+            // };
             let isFirstMonthProcessed = false;
             for (let year = currentDate.getFullYear(); year >= 2022; year--) {
                 for (let month = 12; month >= 1; month--) {
@@ -917,19 +953,19 @@ function UserDetails() {
                                         <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
                                         <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
                                         <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
                                             <div className="circular-progress" style={{
                                                 cursor: "pointer"
                                             }}>
-                                                <CircularProgressBar activityPercentage={data?.totalactivity} size={30} />
+                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
                                             </div>
                                         </OverlayTrigger>
-                                        <p className="timerClock">{data?.totalHours?.daily}</p>
+                                        <p className="timerClock">{totalActivityByDay?.totalHours?.daily}</p>
                                         <p className="weekTimer">Week</p>
-                                        <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                        <p className="weekTimerDigit">{totalActivityByDay?.totalHours?.weekly}</p>
                                         <img src={circleDot} alt="CircleDot.png" />
                                         <p className="weekTimer">Month</p>
-                                        <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
+                                        <p className="monthTimerDigit">{totalActivityByDay?.totalHours?.monthly}</p>
                                     </div>
                                 </div>
                                 <div className="activity-image-container">
@@ -967,11 +1003,11 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
-                                                                Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
-                                                                    Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
-                                                                        Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
-                                                                            Math.floor(data?.totalactivity) > 80 ? 75 : -108
+                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                                Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
+                                                                    Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
+                                                                        Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
+                                                                            Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
                                                                 }deg)`
                                                         }}>
                                                         <div className="needleContainerAlingment">

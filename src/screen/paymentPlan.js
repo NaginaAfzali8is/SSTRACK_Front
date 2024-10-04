@@ -363,10 +363,6 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-
-
-
-
     useEffect(() => {
         if (plans.length > 0) {
             setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
@@ -613,7 +609,13 @@ const Payment = ({ updatePaymentStatus }) => {
                         cursor: 'pointer',  // Pointer on hover
                         fontSize: '0.875rem'
                     }}
-                        onClick={handleDirectChangePlan}
+                        onClick={() => {
+                            handleDirectChangePlan();
+                            setPlanData(selectedPlan);
+                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                            handleCloseModal2()
+                        }}
+                    // onClick={handleDirectChangePlan}
                     >Pay Now</button>
                 </Modal.Footer>
             </Modal >
@@ -755,7 +757,8 @@ const Payment = ({ updatePaymentStatus }) => {
     const Cardetail = paycard?.cardNumber
     localStorage.setItem('billdetail', JSON.stringify(totalbill));
     localStorage.setItem('carddetail', JSON.stringify(Cardetail));
-    const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+    // const planData = JSON.parse(localStorage.getItem('planIdforHome'));
+    const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
     // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
     // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
 
@@ -841,20 +844,44 @@ const Payment = ({ updatePaymentStatus }) => {
                                                             <span style={{ color: 'green' }}> Current</span>
                                                         ) : (
                                                             selectedPlan?._id === plan._id ? (
-                                                                <button style={{
-                                                                    marginLeft: '10px',
-                                                                    padding: '5px 5px',  // Adjusting padding for a smaller size
-                                                                    backgroundColor: 'green',  // Green background
-                                                                    color: 'white',  // White text
-                                                                    border: 'none',  // Removing default border
-                                                                    borderRadius: '5px',  // Rounded corners
-                                                                    cursor: 'pointer',  // Pointer on hover
-                                                                    fontSize: '0.875rem'
-                                                                }}
-                                                                    onClick={planchange}
-                                                                >
-                                                                    {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
-                                                                </button>
+                                                                <>
+                                                                    <button style={{
+                                                                        marginLeft: '10px',
+                                                                        padding: '5px 5px',  // Adjusting padding for a smaller size
+                                                                        backgroundColor: 'green',  // Green background
+                                                                        color: 'white',  // White text
+                                                                        border: 'none',  // Removing default border
+                                                                        borderRadius: '5px',  // Rounded corners
+                                                                        cursor: 'pointer',  // Pointer on hover
+                                                                        fontSize: '0.875rem'
+                                                                    }}
+                                                                        onClick={() => {
+                                                                            planchange();
+                                                                            // setPlanData(plan);
+                                                                            localStorage.setItem('planIdforHome', JSON.stringify(plan));
+                                                                        }}
+                                                                    >
+                                                                        {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                                    </button>
+                                                                    {/* <a
+                                                                        href={receiptUrl}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        style={{
+                                                                            marginLeft: '10px',
+                                                                            padding: '5px 5px',  // Adjusting padding for a smaller size
+                                                                            backgroundColor: 'green',  // Green background
+                                                                            color: 'white',  // White text
+                                                                            border: 'none',  // Removing default border
+                                                                            borderRadius: '5px',  // Rounded corners
+                                                                            cursor: 'pointer',  // Pointer on hover
+                                                                            fontSize: '0.875rem',
+                                                                            textDecoration: 'none'  // Remove underline
+                                                                        }}
+                                                                    >
+                                                                        {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                                    </a> */}
+                                                                </>
                                                             ) : (
                                                                 <span></span>
                                                             )
@@ -872,7 +899,11 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                 cursor: 'pointer',  // Pointer on hover
                                                                 fontSize: '0.875rem'
                                                             }}
-                                                                onClick={planchange}
+                                                                onClick={() => {
+                                                                    planchange();
+                                                                    // setPlanData(plan);
+                                                                    localStorage.setItem('planIdforHome', JSON.stringify(plan));
+                                                                }}
                                                             >
                                                                 Upgrade
                                                             </button>
