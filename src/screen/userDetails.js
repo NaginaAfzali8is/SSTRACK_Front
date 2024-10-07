@@ -273,6 +273,7 @@ function UserDetails() {
                     <div style={{ padding: "2px" }}>
                         <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
                     </div>
+                    {console.log('Percentage total', totalPercentageByDay)}
                 </div>
             );
 
@@ -1132,10 +1133,8 @@ function UserDetails() {
                         </div>
                         <div>
                             {items.userType === "user" ? (
-
                                 <div>
                                     {data && (data?.groupedScreenshots?.map((element, elements) => {
-
                                         //   {offlineTime.filter((element) => element.timeentryId !== trimActivity.timeentryId).map((element, index) => {
                                         return (
                                             <div>

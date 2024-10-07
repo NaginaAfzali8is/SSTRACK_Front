@@ -228,6 +228,12 @@ function Home() {
     }
   };
 
+  const isButtonDisabled = (planId) => {
+    const buttonText = getButtonText(planId);
+    // return getButtonText(planId) === 'Downgrade'; // Disable if "Downgrade" text is shown
+    return buttonText === 'Downgrade' || buttonText === 'Current'; // Disable if "Downgrade" or "Current" text is shown
+  };
+  
   const handleUpgradeClicks = (selectedPlan) => {
     // Navigate to the payment page, passing along the relevant data
     navigate('/account', {
@@ -1036,7 +1042,7 @@ function Home() {
                 <br />
                   <div className="mt-auto">
                     <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'white', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
-                        disabled={true}
+                     onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
                     > {getButtonText(1)}</button>
                   </div>
                 {/* <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'grey', backgroundColor: "#e4eced", marginTop: '20px' }}>
@@ -1094,7 +1100,6 @@ function Home() {
             {/* ------------------------------ pricing card 3 ------------------------- */}
 
             <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid  #0E4772", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
-
               <div className="card-body px-3">
                 <h5 className="card-title text-center fw-bold fs-2" style={{ color: " #0E4772" }}>Premium</h5>
                 <div class="price-container new-price">
@@ -1138,14 +1143,12 @@ function Home() {
                 <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
               </div>
             </div>
-
           </div>
         </div>
         <br />
         <br />
 
         {/* ------------------- END PRICING SECTION ------------------------- */}
-
 
         {/* ------------------- CONTACT FORM SECTION -------------- */}
 
