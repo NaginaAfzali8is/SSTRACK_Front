@@ -214,7 +214,7 @@ function UserDashboardSection(params) {
                         </div>
                         <div>
                             <div className="d-flex amButton" role="search">
-                                <div className="ownerSectionUser" onClick={() => {
+                                <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/')
                                 }} >
                                     <p style={{ margin: 0 }} onClick={() => {
@@ -222,21 +222,21 @@ function UserDashboardSection(params) {
 
                                     }}>Home</p>
                                 </div>
-                                <div className="" onClick={() => {
+                                <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/download')
                                 }} >
-                                    <p className="ownerSectionUser" style={{ margin: 0 }} onClick={() => {
+                                    <p className="ownerSectionUser1 text-white" style={{ margin: 0 }} onClick={() => {
                                         navigate('/download')
                                     }}>Download</p>
                                 </div>
-                                <div className="ownerSectionUser" style={{ whiteSpace: 'nowrap' }} onClick={() => {
+                                <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }} onClick={() => {
                                     navigate('/workCards')
                                 }} >
                                     <p style={{ margin: 0 }} onClick={() => {
                                         navigate('/workCards')
                                     }}>How It Work</p>
                                 </div>
-                                <div className="ownerSectionUser" onClick={() => {
+                                <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/pricing')
                                 }} >
                                     <p style={{ margin: 0 }} onClick={() => {

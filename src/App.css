@@ -4939,6 +4939,26 @@ input.checkboxes:checked {
   font-weight: 500;
   cursor: pointer;
 }
+.ownerSectionUser1 {
+  padding: 8px 10px !important;
+  border-radius: 6px !important;
+  color: #7ACB59;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ownerSectionUser1:hover {
+  /* padding: 8px 10px !important;
+  border-radius: 6px !important; */
+  color: #7ACB59 !important;
+  /* font-size: 17px;
+  font-weight: 500;
+  cursor: pointer; */
+  transition: 1s;
+}
+
+
 
 .user-active-tabs {
   padding: 10px 20px !important;
