@@ -61,23 +61,23 @@ function OwnerReport() {
     setSelectedUsers(selectedUsers);
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
-  
+
     // Calculate total hours of selected users
     const totalHours = selectedUsers.reduce((acc, user) => {
       const hours = acc.hours + Math.floor(user.totalHours);
       const minutes = acc.minutes + (user.totalHours % 1) * 60;
       return { hours, minutes: minutes % 60 };
     }, { hours: 0, minutes: 0 });
-  
+
     // Parse existing totalHours value
     const [existingHours, existingMinutes] = reportData.totalHours.split('h ').map((val) => parseInt(val.replace('m', '')));
-  
+
     // Calculate new total hours
     const newHours = existingHours + totalHours.hours;
     const newMinutes = existingMinutes + totalHours.minutes;
-  
+
     const totalActivity = 0;
-    
+
     debugger
     // Update reportData state with total hours of selected users
     setReportData({
@@ -106,7 +106,7 @@ function OwnerReport() {
         let totalProjectHours = 0; // Initialize to 0
         let totalProjectActivity = 0; // Initialize to 0
         let projects = [];
-    
+
         if (user.projects && Array.isArray(user.projects)) {
           user.projects.forEach((project) => {
             totalProjectHours += project.projectHours;
@@ -118,10 +118,10 @@ function OwnerReport() {
             });
           });
         }
-    
+
         totalProjectHours += user.duration;
         totalProjectActivity += user.activity;
-    
+
         return {
           employee: user.label, // Display the employee name
           Duration: `${Math.floor(totalProjectHours)}h ${(totalProjectHours % 1) * 60}m`, // Display duration
@@ -208,14 +208,14 @@ function OwnerReport() {
   //   }
   // })
 
-  
+
 
   const getData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date(startDate).toLocaleDateString()}&endDate=${new Date(endDate).toLocaleDateString()}`, { headers })
+      const response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date(startDate).toLocaleDateString()}&endDate=${new Date(endDate).toLocaleDateString()}`, { headers })
       if (response.status === 200) {
-        console.log(response);
+        console.log('New Api response',response);
         setLoading(false)
         setReportData(response.data?.data)
       }
@@ -444,7 +444,7 @@ function OwnerReport() {
       setReportData(response.data.data);
     }
     if (response.status === 200) {
-      return response.data.data;  
+      return response.data.data;
     } else {
       throw new Error('Failed to fetch reports');
     }
@@ -723,10 +723,10 @@ function OwnerReport() {
   const user = users?.map(user => {
     const totalProjectHours = user.projects?.reduce((acc, project) => acc + (project.projectHours || 0), 0) || 0;
     const totalProjectActivity = user.projects?.reduce((acc, project) => acc + (project.projectActivity || 0), 0) || 0;
-  
+
     const userDuration = user.duration !== null && user.duration !== undefined ? user.duration : 0;
     const userActivity = user.activity !== null && user.activity !== undefined ? user.activity : 0;
-  
+
     return {
       label: user.name,
       value: user.email,
@@ -740,9 +740,9 @@ function OwnerReport() {
       })),
     };
   });
-  
-  console.log("main agya users ho main",users);
-{console.log("User showing...", user)}
+
+  console.log("main agya users ho main", users);
+  { console.log("User showing...", user) }
   const defaultValue = user.length > 0 ? [{ value: user[0].value }] : [];
 
   console.log(dateFilter);
@@ -916,13 +916,16 @@ function OwnerReport() {
             <div className="crossButtonDiv">
               <SelectBox
                 onChange={(e) => handleSelectUsers(e)}
-                options={allUsers.filter(user => user.label)} // Add this filter condition
+                options={allUsers.filter(user => user.label)}
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
                 isMulti={true}
+              // maxValues={1} // Limit the number of selections to 1
+              // isClearable={true} // Allow the user to clear the selection
+              // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
-              {console.log("User detials", user)}
+              {console.log("User  detials", user)}
             </div>
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}

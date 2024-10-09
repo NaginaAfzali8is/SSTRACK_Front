@@ -116,8 +116,8 @@ import PrivacyPolicy2 from '../screen/privacy-policy2'
 import Project from "../screen/Project";
 import Payment from "../screen/payment";
 import axios from "axios";
-
-
+import Pricing from '../screen/pricing'
+import WorkCards from "../screen/workCards";
 
 export default function AppRouter() {
   const [suspended, setSuspended] = useState(false);
@@ -215,6 +215,8 @@ export default function AppRouter() {
             <Route path="/company-owner-user" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserSignup />) : <Navigate to="/" />} />
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
+            <Route path="/pricing" element={token ? (suspended ? <Navigate to="/account" /> : <Pricing />) : <Navigate to="/" />} />
+            <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} />
             {/* <Route path="/privacy-policy" element={token ? <PrivacyPolicy /> : <Navigate to="/" />} /> */}
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}

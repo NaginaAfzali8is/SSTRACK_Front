@@ -552,6 +552,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     const Withoutcardpayment = ({ showModalwithoutcard, handleCloseModal2, selectedPlan }) => {
+
         return (
             <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
                 <Modal.Header closeButton>
@@ -696,6 +697,11 @@ const Payment = ({ updatePaymentStatus }) => {
                         planId: selectedPlan._id,
                     }, { headers })
                 console.log('Response owner', res);
+                const receiptUrl = res.data.data.receiptUrl; // Add this line
+                console.log('Receipt URL:', receiptUrl); // Add this line
+                window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+
+
 
                 if (res.status === 200) {
                     console.log('Response', res.data.success)
@@ -705,8 +711,11 @@ const Payment = ({ updatePaymentStatus }) => {
                             vertical: "top",
                             horizontal: "right"
                         }
+
                     })
+                    // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                 }
+                
                 else {
                     if (res.status === 403) {
                         alert("Access denied. Please check your permissions.")
@@ -767,6 +776,8 @@ const Payment = ({ updatePaymentStatus }) => {
     const handleOpenModal = () => {
         setIsOpen(true);
     };
+
+
 
     return (
         <>
@@ -859,6 +870,8 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                             planchange();
                                                                             // setPlanData(plan);
                                                                             localStorage.setItem('planIdforHome', JSON.stringify(plan));
+                                                                            // handleDirectChangePlan()
+                                                                            // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                                                                         }}
                                                                     >
                                                                         {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
@@ -902,6 +915,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                                 onClick={() => {
                                                                     planchange();
                                                                     // setPlanData(plan);
+                                                                    // handleDirectChangePlan()
                                                                     localStorage.setItem('planIdforHome', JSON.stringify(plan));
                                                                 }}
                                                             >

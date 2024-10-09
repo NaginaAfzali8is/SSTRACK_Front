@@ -80,7 +80,7 @@ function Screenshot() {
                             horizontal: "right"
                         }
                     })
-                } 
+                }
             }
         }
     }
@@ -197,7 +197,18 @@ function Screenshot() {
             }
             console.log(res);
         } catch (error) {
-            console.log(error);
+            if (error.response && error.response.data) {
+                if (error.response.status === 404 && error.response.data.success === false) {
+                    // alert(error.response.data.message)
+                    enqueueSnackbar(error.response.data.message, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -222,7 +233,18 @@ function Screenshot() {
             // })
         }
         catch (error) {
-            console.log(error);
+            if (error.response && error.response.data) {
+                if (error.response.status === 404 && error.response.data.success === false) {
+                    // alert(error.response.data.message)
+                    enqueueSnackbar(error.response.data.message, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -295,10 +317,11 @@ function Screenshot() {
                                     })
                                 }
                                 console.log(res);
-                            }catch (error) {
+                            } catch (error) {
                                 if (error.response && error.response.data) {
                                     if (error.response.status === 404 && error.response.data.success === false) {
                                         // alert(error.response.data.message)
+                                        console.log('setting response screenshots', error.response.data.message)
                                         enqueueSnackbar(error.response.data.message, {
                                             variant: "error",
                                             anchorOrigin: {
@@ -306,7 +329,7 @@ function Screenshot() {
                                                 horizontal: "right"
                                             }
                                         })
-                                    } 
+                                    }
                                 }
                             }
                         }}>
