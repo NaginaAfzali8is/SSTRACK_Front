@@ -199,7 +199,7 @@ function UserDashboardSection(params) {
                 {/* <HeaderOption /> */}
                 <nav className="navbar navbar-expand-lg navbar-dark" style={{
                     backgroundColor: "#0d3756",
-                    padding: "20px 5px",
+                    padding: "10px 0px",
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
                     margin: "0px 30px 0 30px",
