@@ -59,7 +59,7 @@ function UserDashboardSection(params) {
                 padding: "10px 20px",
                 borderBottomLeftRadius: "10px",
                 borderBottomRightRadius: "10px",
-                margin: "0 30px 0 30px",
+                margin: "0px 30px 0 30px",
             }}>
                 <div className="d-flex gap-1 align-items-center">
                     <div className={location.pathname === "/dashboard" ? "active-tab" : "ownerSectionUser"} onClick={() => {
@@ -70,7 +70,7 @@ function UserDashboardSection(params) {
                         }}>Dashboard</p>
                     </div>
                     {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
-                        <p style={{ margin: 0 }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
+                        <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
                     </div>}
                     {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>

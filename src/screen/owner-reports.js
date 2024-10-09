@@ -215,7 +215,7 @@ function OwnerReport() {
     try {
       const response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date(startDate).toLocaleDateString()}&endDate=${new Date(endDate).toLocaleDateString()}`, { headers })
       if (response.status === 200) {
-        console.log('New Api response',response);
+        console.log('New Api response', response);
         setLoading(false)
         setReportData(response.data?.data)
       }
@@ -329,7 +329,7 @@ function OwnerReport() {
       let response;
       if (userType === 'admin' || userType === 'owner') {
         // Fetch reports for all users
-        response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}`, { headers });
       } else if (user === 'manager') {
         // If user is a manager, filter managers based on the logged-in manager's ID
         const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
@@ -340,7 +340,7 @@ function OwnerReport() {
         }
       } else {
         // Fetch reports for a single user
-        response = await axios.get(`${apiUrl}/timetrack/totalDate?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${items._id}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${items._id}`, { headers });
       }
       if (response.status === 200) {
         console.log(response);
@@ -921,9 +921,9 @@ function OwnerReport() {
                 components={animatedComponents}
                 defaultValue={defaultValue}
                 isMulti={true}
-              // maxValues={1} // Limit the number of selections to 1
-              // isClearable={true} // Allow the user to clear the selection
-              // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
+                maxValues={1} // Limit the number of selections to 1
+                // isClearable={true} // Allow the user to clear the selection
+                // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
               {console.log("User  detials", user)}
             </div>
@@ -994,6 +994,21 @@ function OwnerReport() {
                 </div>
               )
             })}
+            {/* {reportData?.allUsers?.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    {selectedUsers.length === 0 && (
+                      <p><img src={addButton} /><span>{data?.employee}</span></p>
+                    )}
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data?.Duration}</p>
+                    <p>{Math.floor(data?.Activity)} %</p>
+                  </div>
+                </div>
+              )
+            })} */}
           </div>
         </div>
       </div>

@@ -320,8 +320,9 @@ nav li a {
 }
 
 .logo {
-  width: 200px;
+  width: 230px;
   cursor: pointer;
+  margin-left: 10px;
 }
 
 
@@ -4958,10 +4959,32 @@ input.checkboxes:checked {
   font-weight: 500;
   cursor: pointer;
 }
+.active-tab1 {
+  background-color: #FFF !important;
+  /* padding: 2px 2px 0px 2px !important; */
+  /* padding: 10px 20px !important; */
+  border-radius: 6px !important;
+  color: white;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+}
 
 .ownerSectionCompany {
   background-color: #28659C !important;
   padding: 10px 20px !important;
+  border-radius: 6px !important;
+  color: #7ACB59;
+  /* width: 200px; */
+  justify-content: center;
+  font-size: 17px;
+  gap: 23px;
+  /* cursor: none; */
+
+}
+.ownerSectionCompany1 {
+  /* background-color: #28659C !important; */
+  /* padding: 10px !important; */
   border-radius: 6px !important;
   color: #7ACB59;
   /* width: 200px; */
