@@ -62,6 +62,7 @@ function OwnerReport() {
     const userIds = selectedUsers.map((user) => user.id);
     setEmployeeId(userIds);
 
+
     // Calculate total hours of selected users
     const totalHours = selectedUsers.reduce((acc, user) => {
       const hours = acc.hours + Math.floor(user.totalHours);
@@ -213,7 +214,7 @@ function OwnerReport() {
   const getData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date(startDate).toLocaleDateString()}&endDate=${new Date(endDate).toLocaleDateString()}`, { headers })
+      const response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
       if (response.status === 200) {
         console.log('New Api response', response);
         setLoading(false)
@@ -322,6 +323,39 @@ function OwnerReport() {
   }, []);
 
 
+  // const getReports = async (type) => {
+
+  //   let response;
+  //   if (userType === 'admin' || userType === 'owner') {
+  //     if (employeeId) {
+  //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}&userId=${employeeId}`, { headers });
+  //     }
+  //     else {
+  //       response = await axios.get(`${apiUrl}/owner/day?daySpecifier=${type}`, { headers });
+  //     }
+  //   }
+  //   else if (user === 'manager') {
+  //     // If user is a manager, filter managers based on the logged-in manager's ID
+  //     const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
+  //     if (loggedInManager) {
+  //       return response.data.employees.filter(employee => employee.managerId === loggedInManager._id);
+  //     } else {
+  //       return [];
+  //     }
+  //   }
+  //   else {
+  //     response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}${type}&userId=${items._id}`, { headers });
+  //   }
+  //   if (response.status === 200) {
+  //     console.log(response);
+  //     setReportData(response.data.data);
+  //   }
+  //   if (response.status === 200) {
+  //     return response.data.data;
+  //   } else {
+  //     throw new Error('Failed to fetch reports');
+  //   }
+  // };
 
   const getReports = async () => {
     setLoading(true);
@@ -329,7 +363,7 @@ function OwnerReport() {
       let response;
       if (userType === 'admin' || userType === 'owner') {
         // Fetch reports for all users
-        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
       } else if (user === 'manager') {
         // If user is a manager, filter managers based on the logged-in manager's ID
         const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
@@ -766,7 +800,9 @@ function OwnerReport() {
 
               <div className="calenderInnerDiv">
                 <div className="dateDiv">
-                  <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate} onChange={date => setStartDate(date)} /></button>
+                  <div> <button> <DatePicker placeholderText={new Date().toLocaleDateString()} className="bg-transparent border-0 text-center " selected={startDate}
+                    onChange={date => setStartDate(date)}
+                  /></button>
                   </div>
                   <div>  ►  </div>
                   <div>
@@ -915,15 +951,17 @@ function OwnerReport() {
             </div>
             <div className="crossButtonDiv">
               <SelectBox
-                onChange={(e) => handleSelectUsers(e)}
+                onChange={(e) =>
+                  handleSelectUsers(e)
+                }
                 options={allUsers.filter(user => user.label)}
                 closeMenuOnSelect={true}
                 components={animatedComponents}
                 defaultValue={defaultValue}
                 isMulti={true}
-                maxValues={1} // Limit the number of selections to 1
-                // isClearable={true} // Allow the user to clear the selection
-                // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
+              // maxValues={1} // Limit the number of selections to 1
+              // isClearable={true} // Allow the user to clear the selection
+              // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
               {console.log("User  detials", user)}
             </div>
@@ -994,6 +1032,73 @@ function OwnerReport() {
                 </div>
               )
             })}
+            {/* {reportData?.allUsers?.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    <p>
+                      <img src={addButton} />
+                      <span>{data?.employee}</span>
+                    </p>
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data?.Duration}</p>
+                    <p>{Math.floor(data.Activity)} %</p>
+                  </div>
+                </div>
+              );
+            })} */}
+            {/* {filteredData.length > 0 ? (
+              filteredData.map((data, index) => {
+                return (
+                  <div className="asadMehmoodDiv">
+                    <div>
+                      <p>
+                        <img src={addButton} />
+                        <span>{data.employee}</span>
+                      </p>
+                    </div>
+                    <div className="durationDiv">
+                      <p>{data.Duration}</p>
+                      <p>{Math.floor(data.Activity)} %</p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              reportData?.allUsers?.map((data, index) => {
+                return (
+                  <div className="asadMehmoodDiv">
+                    <div>
+                      <p>
+                        <img src={addButton} />
+                        <span>{data?.employee}</span>
+                      </p>
+                    </div>
+                    <div className="durationDiv">
+                      <p>{data?.Duration}</p>
+                      <p>{Math.floor(data?.Activity)} %</p>
+                    </div>
+                  </div>
+                );
+              })
+            )} */}
+            {/* {filteredData.map((data, index) => {
+              return (
+                <div className="asadMehmoodDiv">
+                  <div>
+                    <p>
+                      <img src={addButton} />
+                      <span>{data.employee}</span>
+                    </p>
+                  </div>
+                  <div className="durationDiv">
+                    <p>{data.Duration}</p>
+                    <p>{Math.floor(data.Activity)} %</p>
+                  </div>
+                </div>
+              );
+            })} */}
             {/* {reportData?.allUsers?.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">
