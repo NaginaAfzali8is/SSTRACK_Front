@@ -12,7 +12,7 @@ import { useSocket } from '../../io'; // Correct import
 function UserDashboardSection(params) {
 
     // const navigate = useNavigate();
-    // const location = useLocation();
+    const location = useLocation();
     const items = JSON.parse(localStorage.getItem('items'));
 
     const user = JSON.parse(localStorage.getItem('items'));
@@ -69,6 +69,16 @@ function UserDashboardSection(params) {
     // )
     const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
     const capitalizedWord = user?.name?.charAt(0).toUpperCase();
+
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          window.scrollTo({
+            top: section.offsetTop,
+            behavior: 'smooth',
+          });
+        }
+      };
 
     return (
 
@@ -246,16 +256,12 @@ function UserDashboardSection(params) {
                                 <div className="ownerSectionUser1 text-white" style={{ whiteSpace: 'nowrap' }} onClick={() => {
                                     navigate('/workCards')
                                 }} >
-                                    <p style={{ margin: 0 }} onClick={() => {
-                                        navigate('/workCards')
-                                    }}>How It Work</p>
+                                    <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section4') : navigate("/")}>How It Work</p>
                                 </div>
                                 <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/pricing')
                                 }} >
-                                    <p style={{ margin: 0 }} onClick={() => {
-                                        navigate('/pricing')
-                                    }}>Pricing</p>
+                                    <p style={{ margin: 0 }} onClick={() => location.pathname === "/" ? scrollToSection('section3') : navigate("/")}>Pricing</p>
                                 </div>
                                 {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
                                             <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>

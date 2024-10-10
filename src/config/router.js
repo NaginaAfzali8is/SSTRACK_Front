@@ -124,11 +124,11 @@ export default function AppRouter() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  
+
   useEffect(() => {
     const fetchTokenAndSuspendedStatus = async () => {
       if (token) {
-        console.log('++++++++++++++++++++',token)
+        console.log('++++++++++++++++++++', token)
         try {
           const headers = {
             Authorization: `Bearer ${token}`,
@@ -136,12 +136,12 @@ export default function AppRouter() {
           const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
-          const  planindex = response?.data.data[0].planId.length -1;
+          const planindex = response?.data.data[0].planId.length - 1;
           const planId = response?.data.data[0].planId[planindex].id;
-          console.log('me yaha hnnnnnnnnnnnn',response?.data.data[0].planId[planindex])
-          console.log('mera hn length - 1',planindex)
-          console.log('mera hn length',response?.data.data[0].planId.length)
-          
+          console.log('me yaha hnnnnnnnnnnnn', response?.data.data[0].planId[planindex])
+          console.log('mera hn length - 1', planindex)
+          console.log('mera hn length', response?.data.data[0].planId.length)
+
           // Save to localStorage after converting to a string
           localStorage.setItem('planId', JSON.stringify(planId));
           localStorage.setItem('planIdforHome', JSON.stringify(planId));
@@ -201,7 +201,8 @@ export default function AppRouter() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
-
+            {/* <Route path="/pricing" element={<Pricing />} /> */}
+            {/* <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} /> */}
             {/* Private Routes */}
 
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />

@@ -777,7 +777,7 @@ function Account() {
                     }
                 }}>
                     <p style={{ marginBottom: "20px", fontWeight: "600", fontSize: "20px" }}>Change password</p>
-                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Old password</p>
+                    <p style={{ marginBottom: "0", fontWeight: "500", fontSize: "16px" }}>Current password</p>
                     <input
                         value={currentPassword}
                         placeholder="Current password"

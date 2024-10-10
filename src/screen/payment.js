@@ -697,7 +697,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
         const handleSelectCard = (card) => {
             setSelectedCard(card._id);
-            setpaycard(card); // update paycard state
+            // setpaycard(card); // update paycard state
             // console.log('Selected Card Full Info:', card);
         };
 

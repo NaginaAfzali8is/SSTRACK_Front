@@ -140,6 +140,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete ,onSetD
                                                     <button
                                                         className="btn btn-primary btn-sm mr-2"
                                                         onClick={() => handleSetDefaultCard(card)}
+                                                        disabled={cards.length === 1} // Add this prop
                                                     >
                                                         Default
                                                     </button>

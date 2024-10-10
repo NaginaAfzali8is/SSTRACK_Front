@@ -365,22 +365,17 @@ function BillingComponent() {
                                 </Link>
                             </div>
                         </div>
-                        <div style={{ paddingTop: '10px' }}>
+                        {/* <div style={{ paddingTop: '10px' }}>
                             <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
                             <p style={{ margin: '5px 0' }}>
                                 Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${billing && storedPlanId ? Math.floor(billing * 100) / 100 : 0}</span>
-                                {/* Your balance: <span style={{ color: 'green', fontWeight: 'bold' }}>${0}</span> */}
-
-                                {/* <a href="#add-credit" style={{ color: '#007bff', textDecoration: 'none', marginLeft: '5px' }}>Add credit</a> */}
                             </p>
-                            {/* <p style={{ margin: '5px 0' }}>
-                        Next payment due: 09/24/2024 (for 08/25/2024 – 09/24/2024)
-                    </p> */}
+                            
                             <p style={{ margin: '5px 0' }}>
                                 Billing method: <span style={{ marginRight: '5px' }}>💳•••• {Cardetail && storedPlanId ? Cardetail : '****'}</span>
-                                {/* <a href="#edit-billing" style={{ color: '#007bff', textDecoration: 'none' }}>Edit</a> */}
+                              
                             </p>
-                        </div>
+                        </div> */}
                     </div>
                 )}
             </>
