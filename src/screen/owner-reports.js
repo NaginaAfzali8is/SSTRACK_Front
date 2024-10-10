@@ -214,7 +214,7 @@ function OwnerReport() {
   const getData = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
+      const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       if (response.status === 200) {
         console.log('New Api response', response);
         setLoading(false)
