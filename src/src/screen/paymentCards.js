@@ -9,8 +9,12 @@ import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 // import Modal from 'react-bootstrap/Modal';
-const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
+// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+
+// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
+// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
 
 const Payment = ({ updatePaymentStatus }) => {
@@ -228,30 +232,56 @@ const Payment = ({ updatePaymentStatus }) => {
                     }, { headers });
 
                     console.log('Payment Response:', response);
-
                     if (response.data.success) {
+                        console.log('me chalaaaaaaa')
                         setSuccess(true);
+                        setTimeout(() => {
+                            setshowNewCardModal(false);
+                        }, 1000); // Close the modal after 0.5 seconds
                     } else {
                         setError(`Payment failed: ${response.data.message}`);
                     }
                 } catch (error) {
                     setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
                 }
+    
                 setLoading(false);
             }
         };
 
+        useEffect(() => {
+            if (success) {
+                console.log("paymentv...................")
+                setTimeout(() => {
+                    setShowModal(false);
+                    console.log("paymentv...................")
+                }, 500); // Close the modal after 2 seconds
+            }
+        }, [success, setShowModal]);
+
         return (
-            <form onSubmit={handleSubmit} className="payment-form">
-                <CardElement className="card-element" />
-                {error && <div className="error-message">{error}</div>}
-                {success && <div className="success-message">Card Added successful!</div>}
-                <button type="submit" disabled={!stripe || loading} className="submit-button">
-                    {loading ? 'Adding...' : 'Add Card'}
-                </button>
-            </form>
+
+            success ? (
+                <div>
+                    <div className="success-message">Card Added successful!</div>
+                    {setShowModal(false)}
+                </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="payment-form">
+                    <CardElement className="card-element" />
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">Card Added successful!</div>
+                    }
+                    {/* {setShowModal(false)} */}
+                    <button type="submit" disabled={!stripe || loading} className="submit-button">
+                        {loading ? 'Adding...' : 'Add Card'}
+                    </button>
+                </form>
+
+            )
         );
     };
+
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -393,12 +423,12 @@ const Payment = ({ updatePaymentStatus }) => {
                         {/* <h5 className="owner-name">Owner Name</h5> */}
                         {/* <h5 className="employee-count">Number of employees: 5</h5> */}
 
-
                         {selectedPlan && (
                             <Elements stripe={stripePromise}>
                                 <div className="payment-container mt-4">
                                     <p className="mb-4">Complete Your Payment</p>
                                     <CheckoutForm />
+                                    {setShowModal(false)}
                                 </div>
                             </Elements>
                         )}
@@ -443,7 +473,7 @@ const Payment = ({ updatePaymentStatus }) => {
             <CustomModal
                 show={showNewCardModal}
                 onClose={handleClose}
-                title="Enter your new Card"
+                title="Enter your new card"
             >
                 <div className="text-left mb-12">
                     <div style={{ display: 'flex', marginBottom: '1rem', }}>
@@ -486,11 +516,13 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
 
+    /////////// add card close the modal/////////////
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
 
     };
 
+    /////////// add card close the modal/////////////
     const handleCloseNewModal = () => {
         setshowNewCardModal(false);
     };
@@ -615,6 +647,7 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -690,7 +723,7 @@ const Payment = ({ updatePaymentStatus }) => {
         <>
             <div className='container'>
                 <div className='row' style={{ marginLeft: '2px', gap: '50px' }}>
-                  
+
                     <div className="card" style={{ width: '22rem' }}>
                         <div className="card-body text-center">
                             <h3 className='text-center'

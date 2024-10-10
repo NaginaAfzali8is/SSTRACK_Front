@@ -9,10 +9,15 @@ import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 import PaymentCards from './paymentCards'
 import PaymentPlans from './paymentPlan'
-const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-// import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
+// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+
+const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+
+// publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
+// secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
 const Payment = ({ updatePaymentStatus }) => {
 
@@ -46,6 +51,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [showWarning, setShowWarning] = useState(false);
     // let token = localStorage.getItem('token');
     // const navigate = useNavigate('');
+    const [error, setErrorMessage] = useState([])
     const items = JSON.parse(localStorage.getItem('items'));
     // let headers = {
     //     Authorization: 'Bearer ' + token,
@@ -60,19 +66,44 @@ const Payment = ({ updatePaymentStatus }) => {
         setHasUnpaidInvoices(status !== 'paid');
     };
 
-    const getCardIcon = (cardType) => {
-        switch (cardType) {
-            case "Mastercard":
-                return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
-            case "American Express":
-                return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
-            case "visa":
-                return "https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"; // Example URL
-            default:
-                return "";
-        }
-    };
+    // const getCardIcon = (cardType) => {
+    //     switch (cardType) {
+    //         case "Mastercard":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
+    //         case "American Express":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
+    //         case "visa":
+    //             return "https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg"; // Example URL
+    //         default:
+    //             return "";
+    //     }
+    //     console.log('Card Type', cardType)
+    // };
+    // const fetchCardLogo = (cardType) => {
+    //     if (!cardType) {
+    //         setErrorMessage('Please enter a card type.');
+    //         return;
+    //     }
 
+    //     const cardIconUrl = getCardIcon(cardType);
+    //     if (cardIconUrl) {
+    //         setLogoUrl(cardIconUrl);
+    //         setErrorMessage('');
+    //     } else {
+    //         const domain = cardType.toLowerCase().replace(/\s+/g, '') + '.com';
+    //         const clearbitUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+
+    //         axios.get(clearbitUrl)
+    //             .then(response => {
+    //                 setLogoUrl(clearbitUrl);
+    //                 setErrorMessage('');
+    //             })
+    //             .catch(error => {
+    //                 setErrorMessage(`Failed to fetch logo for ${cardType}. Please try again.`);
+    //                 setLogoUrl('');
+    //             });
+    //     }
+    // };
     const fetchInvoices = async () => {
         try {
             const res = await fetch(`${apiUrl}/owner/getInvoice`, {
@@ -178,9 +209,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     }, [headers]);
 
-
-
-
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {
             try {
@@ -237,7 +265,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const firstBillingPeriodEnd = billingDate ? addMonth(firstBillingPeriodStart) : null;
 
 
-   
+
     const CheckoutForm2 = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -251,7 +279,7 @@ const Payment = ({ updatePaymentStatus }) => {
         };
 
         const handleSubmit = async (event) => {
-          
+
             event.preventDefault();
             setLoading(true);
 
@@ -385,7 +413,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         planId: selectedPlan._id,
                     }, { headers });
 
-                    console.log('Payment Response:', response);
+                    console.log('Payment1111 Response:', response);
 
                     if (response.data.success) {
                         setSuccess(true);
@@ -398,7 +426,6 @@ const Payment = ({ updatePaymentStatus }) => {
                 setLoading(false);
             }
         };
-
         return (
             <form onSubmit={handleSubmit} className="payment-form">
                 <CardElement className="card-element" />
@@ -434,11 +461,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
 
-
-
-
-
-
     useEffect(() => {
         if (plans.length > 0) {
             setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
@@ -458,30 +480,161 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const PaymentModal = ({ showModal, handleClose }) => {
 
+        const [showAnotherModal, setShowAnotherModal] = useState(false);
+        const token = localStorage.getItem('token');
+        const headers = {
+            Authorization: "Bearer " + token,
+        };
+        const [upgradeResponse, setUpgradeResponse] = useState(null);
+
+
+        // const handleOkClick = async () => {
+        //     handleClose(); // Add this line to close the modal
+        //     setShowAnotherModal(false);
+
+        //     try {
+        //         const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
+        //             cardType: paycard.cardType,
+        //             expMonth: paycard.expMonth,
+        //             expYear: paycard.expYear,
+        //             cardNumber: paycard.cardNumber,
+        //             TotalAmount: '58.88',
+        //             dueDate: '2024-07-30',
+        //             planId: selectedPlan._id,
+        //         }, { headers });
+
+        //         console.log('upgrade repsonose:', cardType);
+
+        //         if (response.data.success) {
+        // enqueueSnackbar("Payment Successfully", {
+        //     variant: "success",
+        //     anchorOrigin: {
+        //         vertical: "top",
+        //         horizontal: "right"
+        //     }
+        // })
+        //         } else {
+        //             enqueueSnackbar(`Payment failed: ${response.data.message}`, {
+        //                 variant: "error",
+        //                 anchorOrigin: {
+        //                     vertical: "top",
+        //                     horizontal: "right"
+        //                 }
+        //             })
+        //         }
+        //     } catch (error) {
+        //         enqueueSnackbar(`Payment failed: ${error.response ? error.response.data.message : error.message}`, {
+        //             variant: "error",
+        //             anchorOrigin: {
+        //                 vertical: "top",
+        //                 horizontal: "right"
+        //             }
+        //         })
+        //     }
+        // };
+
+        const [error, setError] = useState(null); // Define the error variable
+        const [success, setSuccess] = useState(false);
+
+        const handleOkClick = async (event) => {
+            event.preventDefault();
+            setLoading(true);
+
+            try {
+                const response = await axios.post(`https://myuniversallanguages.com:9093/api/v1/owner/upgrade`, {
+                    cardType: paycard.cardType,
+                    expMonth: paycard.expMonth,
+                    expYear: paycard.expYear,
+                    cardNumber: paycard.cardNumber,
+                    TotalAmount: '58.88',
+                    dueDate: '2024-07-30',
+                    planId: selectedPlan._id,
+                }, { headers });
+
+                console.log('Payment ka reponse:', response);
+
+                if (response.data.success) {
+                    setSuccess(true);
+                } else {
+                    setError(`Payment failed: ${response.data.message}`);
+                }
+            } catch (error) {
+                setError(`Payment failed: ${error.response ? error.response.data.message : error.message}`);
+            }
+            setLoading(false);
+        };
+
         return (
-            <Modal show={showModal} onHide={handleClose} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Payment Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="text-left mb-4">
-                        {/* <h5 className="owner-name">Owner Name</h5> */}
-                        {/* <h5 className="employee-count">Number of employees: 5</h5> */}
-
-
-                        {selectedPlan && (
-                            <Elements stripe={stripePromise}>
-                                <div className="payment-container mt-4">
-                                    <p className="mb-4">Complete Your Payment</p>
-                                    <CheckoutForm />
-                                </div>
-                            </Elements>
+            <div>
+                <Modal show={showModal && (!paycard || !paycard.cardNumber)} onHide={handleClose} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Payment Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="text-left mb-4">
+                            {/* <h5 className="owner-name">Owner Name</h5> */}
+                            {/* <h5 className="employee-count">Number of employees: 5</h5> */}
+                            {selectedPlan && (
+                                <Elements stripe={stripePromise}>
+                                    <div className="payment-container mt-4">
+                                        <p className="mb-4">Complete Your Payment</p>
+                                        <CheckoutForm />
+                                    </div>
+                                </Elements>
+                            )}
+                        </div>
+                    </Modal.Body>
+                </Modal>
+                <Modal show={showModal && paycard && paycard.cardNumber} onHide={() => setShowAnotherModal(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Payment</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>are sure you want to change plan?</p>
+                        {upgradeResponse && (
+                            <div>
+                                <h5>Upgrade Response:</h5>
+                                <pre>{JSON.stringify(upgradeResponse, null, 2)}</pre>
+                            </div>
                         )}
-                    </div>
-                </Modal.Body>
-            </Modal>
+                        <form onSubmit={handleOkClick} className="payment-form">
+                            {error && <div className="error-message">{error}</div>}
+                            {success && <div className="success-message">Payment successful!</div>}
+                            <button type="submit" disabled={loading} className="submit-button">
+                                {loading ? 'Processing...' : 'Pay'}
+                            </button>
+                        </form>
+                    </Modal.Body>
+                </Modal>
+            </div>
         );
     };
+
+
+    // const PaymentModal = ({ showModal, handleClose }) => {
+
+    //     return (
+    //       <Modal show={showModal} onHide={handleClose} centered>
+    //         <Modal.Header closeButton>
+    //           <Modal.Title>Payment Details</Modal.Title>
+    //         </Modal.Header>
+    //         <Modal.Body>
+    //           <div className="text-left mb-4">
+    //             {selectedPlan ? (
+    //               <Elements stripe={stripePromise}>
+    //                 <div className="payment-container mt-4">
+    //                   <p className="mb-4">Complete Your Payment</p>
+    //                   <CheckoutForm />
+    //                 </div>
+    //               </Elements>
+    //             ) : (
+    //               <p>Please enter your card number to proceed with payment.</p>
+    //             )}
+    //           </div>
+    //         </Modal.Body>
+    //       </Modal>
+    //     );
+    //   };
 
     // const handleSetDefaultCard = async (cards) => {
     //     const token = localStorage.getItem('token');
@@ -498,13 +651,13 @@ const Payment = ({ updatePaymentStatus }) => {
 
     //         if (response.data.success) {
     //             console.log('Default card set successfully:', response);
-    //             enqueueSnackbar("Default card set successfully", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right"
-    //                 }
-    //             })
+    // enqueueSnackbar("Default card set successfully", {
+    //     variant: "success",
+    //     anchorOrigin: {
+    //         vertical: "top",
+    //         horizontal: "right"
+    //     }
+    // })
     //             setpaycard(cards); // update paycard state
     //             // onActionComplete();
     //         } else {
@@ -588,11 +741,6 @@ const Payment = ({ updatePaymentStatus }) => {
     };
 
 
-
-
-
-
-
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
 
@@ -606,6 +754,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const handleShowModal = () => {
         setShowModal(true);
     };
+
     const handleCloseModal = () => {
         setShowModal(false);
     };
@@ -707,13 +856,72 @@ const Payment = ({ updatePaymentStatus }) => {
 
     // };
 
+    // const handlePayWithThisCard = async () => {
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     if (paycard) {
+    //         console.log('Pay with this card:', paycard);
+    //         setIsLoading(true);
+    //         setResponseMessage(null);
+    //         try {
+    //             const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
+    //                 cardNumber: paycard.cardNumber,
+    //                 expMonth: paycard.expMonth,
+    //                 expYear: paycard.expYear,
+    //                 tokenId: paycard.tokenId,
+    //                 cardType: paycard.cardType,
+    //             }, { headers });
+    //             if (response.data.success) {
+    //                 console.log('Payment successful:', response);
+    //                 enqueueSnackbar("Payment Successfully", {
+    //                     variant: "success",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+    //                 })
+    //                 // setResponseMessage('Payment successful!');
+    //                 handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+    //                 // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+    //                 // setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
+    //             } else {
+    //                 console.error('Payment failed:', response.data.error);
+    //                 setResponseMessage('Payment failed: ' + response.data.error);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error:', error);
+    //             // setResponseMessage('Error: ' + error.response.data.message);
+    //             console.log('Error ka messgae' + error.response.data.message)
+    //             enqueueSnackbar(error.response.data.message, {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             })
+
+    //         } finally {
+    // setIsLoading(false);
+    //         }
+    //     }
+    // };
+
+    // const [buttonText, setButtonText] = useState("Pay with this card");
+
+    // useEffect(() => {
+    //     return () => {
+    //       setIsLoading(false);
+    //     };
+    //   }, []);
+
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
+            // setButtonText("Processing...");
             try {
+                // setIsLoading(true);
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
                     expMonth: paycard.expMonth,
@@ -722,25 +930,119 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
                 if (response.data.success) {
-                    console.log('Payment successful:', response);
+                    console.log('Payment successful hogi:', response.data.success);
                     setResponseMessage('Payment successful!');
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
                     setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
+                    enqueueSnackbar("Payment Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                 } else {
                     console.error('Payment failed:', response.data.error);
-                    setResponseMessage('Payment failed: ' + response.data.error);
+                    enqueueSnackbar('Payment failed: ' + response.data.error, {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    })
                 }
+                // if (res.status === 200) {
+                //     enqueueSnackbar("Payment Successfully", {
+                //         variant: "success",
+                //         anchorOrigin: {
+                //             vertical: "top",
+                //             horizontal: "right"
+                //         }
+                //     })
+                // }
+                // else {
+                //     if (res.status === 403) {
+                //         alert("Access denied. Please check your permissions.")
+                //     } else if (res.data.success === false) {
+                //         alert(res.data.message)
+                //     }
+                // }
             } catch (error) {
-                console.error('Error:', error);
-                setResponseMessage('Error: ' + error.response.data.message);
-            } finally {
-                setIsLoading(false);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400 && error.response.data.success === false) {
+                        // alert(error.response.data.message)
+                        enqueueSnackbar(error.response.data.message, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Add this line to set isLoading to false
+                            }
+                        })
+                        // console.log('Erorr agya', error.response.data.message)
+                        // alert(error.response.data.message)
+                    }
+                }
             }
+            finally {
+                setTimeout(() => {
+                    setIsLoading(false); // Add this line to set isLoading to false
+                }, 1000); // Wait for 2 seconds before setting isLoading to false
+            }
+            // finally {
+            //     // setIsLoading(false); // Add this line to set isLoading to false
+            //     if (error.response.data.message) {
+            //         enqueueSnackbar(error.response.data.message, {
+            //             variant: "error",
+            //             anchorOrigin: {
+            //                 vertical: "top",
+            //                 horizontal: "right"
+            //             }
+            //         })
+            //     }
+            // }
+            // setIsLoading(false);
+            // finally {
+            //     setIsLoading(false); // Add this line to set isLoading to false
+            //   }
+            // finally {
+
+            //     if (error.response && error.response.data) {
+            //         if (error.response.status === 400 && error.response.data.success === false) {
+            //             // alert(error.response.data.message)
+            //             setIsLoading(false);
+            //             enqueueSnackbar(error.response.data.message, {
+            //                 variant: "error",
+            //                 anchorOrigin: {
+            //                     vertical: "top",
+            //                     horizontal: "right"
+            //                 }
+            //             })
+
+
+            //             // console.log('Erorr agya', error.response.data.message)
+            //             // alert(error.response.data.message)
+            //         }
+            //     }
+            // }
+            // setIsLoading(false);
+            // setTimeout(() => {
+            //     enqueueSnackbar(error.response.data.message, {
+            //         variant: "error",
+            //         anchorOrigin: {
+            //             vertical: "top",
+            //             horizontal: "right"
+            //         }
+            //     })
+            // }, 100)
+
+            // setIsLoading(false);
         }
 
     };
-
 
     const totalbill = selectedPlan?.costPerUser * TotalUsers
     console.log('_____________________', paycard?.cardNumber)
@@ -750,7 +1052,9 @@ const Payment = ({ updatePaymentStatus }) => {
 
 
     return (
+
         <div>
+            <SnackbarProvider />
             <div className="container">
                 <div className="userHeader">
                     <div>
@@ -762,6 +1066,24 @@ const Payment = ({ updatePaymentStatus }) => {
                         <h3 className="card-title mb-4">Selected Plan</h3>
                         <PaymentPlans />
                         <br />
+                        {/* <button
+                            onClick={
+                                handleShowModal
+                            }
+                            style={{
+                                display: "inline-block",
+                                padding: "8px 16px", // Reduced padding
+                                backgroundColor: "#7CCB58",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "5px",
+                                fontSize: "0.9em", // Reduced font size
+                                cursor: "pointer",
+                                transition: "background-color 0.3s ease",
+                            }}
+                        >
+                            Upgrade to Paid Plan
+                        </button> */}
                         <div className='container d-flex'>
                             <div className="row d-flex" style={{ width: '60rem' }}>
                                 <div className="col-md-6">
@@ -813,6 +1135,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 </div>
                             </div>
                         </div>
+                        <br />
                         <NewCardModal
                             paycard={paycard}
                             setpaycard={setpaycard}
@@ -855,20 +1178,20 @@ const Payment = ({ updatePaymentStatus }) => {
                             onSelect={handleSelectCard}
                             onActionComplete={fetchTokenAndSuspendedStatus}
                         /> */}
-                        {responseMessage && (
-                            <div style={{
-                                marginTop: '50px',
-                                padding: '10px',
-                                borderRadius: '5px',
-                                backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                            }}>
-                                {responseMessage}
-                            </div>
-                        )}
-                        <br />
+                        {/* {responseMessage && (
+                                <div style={{
+                                    marginTop: '50px',
+                                    padding: '10px',
+                                    borderRadius: '5px',
+                                    backgroundColor: responseMessage.includes('successful') ? '#7CCB58' : '#ff4d4d',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                }}>
+                                    {responseMessage}
+                                </div>
+                            )} */}
+                        {/* <br /> */}
                         <PaymentCards />
                         {/* <PaymentPlans /> */}
                     </div>
@@ -880,7 +1203,7 @@ const Payment = ({ updatePaymentStatus }) => {
                 />
             </div>
 
-        </div>
+        </div >
     );
 };
 
