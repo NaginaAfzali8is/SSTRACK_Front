@@ -263,6 +263,7 @@
   background-color: #ccc !important;
   /* cursor: not-allowed; */
 }
+
 /* .pricingButton2:hover {
   background-color: #ccd3d4 !important;
   transition: 0.5s;
@@ -320,9 +321,21 @@ nav li a {
 }
 
 .logo {
-  width: 230px;
+  width: 330px;
   cursor: pointer;
   margin-left: 10px;
+  /* margin-top: -70px; */
+  /* margin-bottom: -30%;
+  z-index: 40px !important; */
+}
+
+.logo1 {
+  width: 330px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: -70px;
+  /* margin-bottom: -30%;
+  z-index: 40px !important; */
 }
 
 
@@ -4939,6 +4952,7 @@ input.checkboxes:checked {
   font-weight: 500;
   cursor: pointer;
 }
+
 .ownerSectionUser1 {
   padding: 8px 10px !important;
   border-radius: 6px !important;
@@ -4979,6 +4993,7 @@ input.checkboxes:checked {
   font-weight: 500;
   cursor: pointer;
 }
+
 .active-tab1 {
   background-color: #FFF !important;
   /* padding: 2px 2px 0px 2px !important; */
@@ -5002,6 +5017,7 @@ input.checkboxes:checked {
   /* cursor: none; */
 
 }
+
 .ownerSectionCompany1 {
   /* background-color: #28659C !important; */
   /* padding: 10px !important; */
@@ -5969,8 +5985,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 .pricingButton,
-.pricingButton1
- {
+.pricingButton1 {
   color: #fff;
   font-size: 18px;
   font-weight: 600;
@@ -5980,7 +5995,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   border-radius: 5.52px
 }
 
-.pricingButton2{
+.pricingButton2 {
   color: #ccc;
   font-size: 18px;
   font-weight: 600;
@@ -6293,5 +6308,3 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 
 }
-
-

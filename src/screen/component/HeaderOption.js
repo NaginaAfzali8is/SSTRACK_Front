@@ -1,18 +1,31 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import menu from "../../images/menu.webp";
 import loader from "../../images/Rectangle.webp";
 import check from "../../images/check.webp";
 import circle from "../../images/circle.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from '../../images/ss-track-logo.svg';
+import { useDispatch } from "react-redux";
+import { useSocket } from '../../io'; // Correct import
 
 
 function UserDashboardSection(params) {
 
-    const navigate = useNavigate();
-    const location = useLocation();
+    // const navigate = useNavigate();
+    // const location = useLocation();
     const items = JSON.parse(localStorage.getItem('items'));
 
+    const user = JSON.parse(localStorage.getItem('items'));
+    const [showContent, setShowContent] = useState(false);
+    const [userType, setUserType] = useState(user?.userType);
+    const navigate = useNavigate("");
+    const dispatch = useDispatch()
+    const socket = useSocket()
+    let token = localStorage.getItem('token');
+    let headers = {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json'
+    }
     console.log(items);
 
     // return (
@@ -54,6 +67,9 @@ function UserDashboardSection(params) {
     //         </div>
     //     </div>
     // )
+    const wordsAfterSpace = user?.name?.split(" ")[1] ? user?.name?.split(" ")[1].charAt(0).toUpperCase() : "";
+    const capitalizedWord = user?.name?.charAt(0).toUpperCase();
+
     return (
 
         // <div className="cursor-pointer">
@@ -193,8 +209,6 @@ function UserDashboardSection(params) {
         // </div>
         <div className="cursor-pointer mt-3">
             {/* <Header /> */}
-
-
             <>
                 {/* <HeaderOption /> */}
                 <nav className="navbar navbar-expand-lg navbar-dark" style={{
@@ -207,13 +221,13 @@ function UserDashboardSection(params) {
                     {/* <HeaderOption /> */}
                     <div className="container-fluid" style={{ position: "relative" }}>
                         <div>
-                            <img onClick={() => navigate('/')} className="logo" src={logo} />
+                            {/* <img onClick={() => navigate('/')} className="logo" src={logo} /> */}
                             {/* <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span className="navbar-toggler-icon"></span>
                             </button> */}
                         </div>
                         <div>
-                            <div className="d-flex amButton" role="search">
+                            <div className="d-flex amButton justify-content-end" role="search">
                                 <div className="ownerSectionUser1 text-white" onClick={() => {
                                     navigate('/')
                                 }} >
@@ -257,6 +271,13 @@ function UserDashboardSection(params) {
 
                         </div>
                     </div>
+
+                {/* <div className="container-fluid d-flex align-items-center justify-content-end">
+                    <p>{user?.name.charAt(0).toUpperCase() + user?.name.slice(1)} ({userType})</p>
+                    <button onClick={() => setShowContent(!showContent)} className="userName">
+                        {capitalizedWord + wordsAfterSpace}
+                    </button>
+                </div> */}
                 </nav>
                 {/* <UserDashboardSection /> */}
                 {/* <img className="line" src={line} /> */}
