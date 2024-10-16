@@ -127,8 +127,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 });
 
                 return {
-                    id: invoiceInfo.invoice.invoiceNumber,
-                    date: new Date(invoiceInfo.invoiceDate).toLocaleDateString(),
+                    id: invoice.invoiceNumber,
+                    date: new Date(invoice.invoiceDate).toLocaleDateString(),
                     description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
                         invoice.employee[0].periodEnd
                     ).toLocaleDateString()}`,
