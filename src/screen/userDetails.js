@@ -1473,7 +1473,7 @@ function UserDetails() {
                                                                 </OverlayTrigger>
                                                             </div>
                                                             <div style={{ display: "flex" }}>
-                                                                {elements?.screenshot?.blur === false && allowBlur === true && (
+                                                                {elements?.screenshot?.blur === false && (
                                                                     <img
                                                                         width={25}
                                                                         src={brushIcon}
@@ -1488,7 +1488,7 @@ function UserDetails() {
                                                                         }}
                                                                     />
                                                                 )}
-                                                                {elements?.screenshot?.blur === false && allowBlur === false && (
+                                                                {elements?.screenshot?.blur === false && allowBlur && (
                                                                     <img
                                                                         width={25}
                                                                         src={brushIcon}
