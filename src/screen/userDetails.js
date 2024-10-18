@@ -105,7 +105,7 @@ function UserDetails() {
                 });
             }
             console.log(res);
-            const employeeId = ssId; // Assuming ssId corresponds to employee ID
+            // const employeeId = ssId; // Assuming ssId corresponds to employee ID
             const updatedAllowBlur = true; // Set to true since the screenshot is blurred
              // Dispatch the action to update the Redux state
              dispatch(setEmployessSetting({
@@ -787,7 +787,7 @@ function UserDetails() {
                         allowBlur: updatedAllowBlur
                     }));
                     setAllowBlur(updatedAllowBlur); // Update local state
-                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+                    // props.updateAllowBlur(updatedAllowBlur); // Update parent component state
 
                     // Call handleApplySettings function to update employee settings
                     handleApplySetting(employeeId, "setting3", true);
@@ -836,7 +836,7 @@ function UserDetails() {
                         allowBlur: updatedAllowBlur
                     }));
                     setAllowBlur(updatedAllowBlur); // Update local state
-                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+                    // props.updateAllowBlur(updatedAllowBlur); // Update parent component state
                 }
             } catch (error) {
                 console.log(error);
