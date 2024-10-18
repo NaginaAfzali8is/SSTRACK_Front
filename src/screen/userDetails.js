@@ -42,8 +42,18 @@ function UserDetails() {
 
 
     const employees = useSelector((state) => state.adminSlice.employess);
-    const allowBlur = employees.some(employee => employee.effectiveSettings.screenshots?.allowBlur);
+    // const employees = useSelector((state) => state?.adminSlice?.employess?.effectiveSettings?.screenshots?.allowBlur)
+    // console.log('Employees ka blur dekhna hai mujhyy', employees)
+    const [allowBlur, setAllowBlur] = useState(true);
+    // const allowBlur = employees.some(employee => employee.effectiveSettings.screenshots?.allowBlur);
+    console.log("Allow Blur agyaaa", allowBlur)
     // const { employee, allowBlur } = props;
+
+    useEffect(() => {
+        // Set allowBlur based on the Redux store
+        const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
+        setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+    }, [employees]);
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -57,35 +67,25 @@ function UserDetails() {
         }
     }, []);
 
-    const handleApplySettings = async (employee, type, setting) => {
-        const settings = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                enabled: setting
-            }
-        }
-        const settings2 = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                frequency: `${setting}/hr`
-            }
-        }
-        const settings3 = {
-            ...employee.effectiveSettings,
-            screenshots: {
-                ...employee.effectiveSettings.screenshots,
-                allowBlur: setting
-            }
-        }
+    async function handleApplySetting(data) {
+
+        console.log(data);
+        const findUser = employees.find((f) => f.effectiveSettings[data.key] === false)
         try {
-            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
+            const res = await axios.patch(
+                `https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${data.employee._id}`,
                 {
-                    userId: employee._id,
-                    effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
-                }, { headers })
-            console.log('Response owner', res);
+                    userId: data.employee._id,
+                    effectiveSettings: {
+                        ...findUser?.effectiveSettings,
+                        [data.key]: data.isSelected,
+                        userId: data.employee._id
+                    }
+                },
+                {
+                    headers
+                }
+            );
 
             if (res.status === 200) {
                 enqueueSnackbar("Employee settings updated", {
@@ -94,29 +94,36 @@ function UserDetails() {
                         vertical: "top",
                         horizontal: "right"
                     }
-                })
+                });
+            } else {
+                enqueueSnackbar("Failed to update employee settings", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
             }
-            else {
-                if (res.status === 403) {
-                    alert("Access denied. Please check your permissions.")
-                } else if (res.data.success === false) {
-                    alert(res.data.message)
-                }
-            }
-            // console.log('Employee setting ka message', response?.data?.message);
+            console.log(res);
+            const employeeId = ssId; // Assuming ssId corresponds to employee ID
+            const updatedAllowBlur = true; // Set to true since the screenshot is blurred
+             // Dispatch the action to update the Redux state
+             dispatch(setEmployessSetting({
+                id: data.employee._id,
+                checked: data.isSelected, // For enabling/disabling
+                allowBlur: data.isSelected // Update allowBlur
+            }));
+            setAllowBlur(data.isSelected); // Update local state
+
         } catch (error) {
-            if (error.response && error.response.data) {
-                if (error.response.status === 403 && error.response.data.success === false) {
-                    // alert(error.response.data.message)
-                    enqueueSnackbar(error.response.data.message, {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        }
-                    })
+            console.error("Error updating employee settings:", error);
+            enqueueSnackbar("An error occurred while updating employee settings", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
                 }
-            }
+            });
         }
     }
 
@@ -125,8 +132,6 @@ function UserDetails() {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [ssData, setSSData] = useState(null);
     const [totalActivityByDay, setTotalActivityByDay] = useState(null);
-    // const [totalHoursByDay, setTotalHoursByDay] = useState(null);
-
     const [selectedImage, setSelectedImage] = useState(null);
     const [activeButton, setActiveButton] = useState(null);
     const [date, setDate] = useState(new Date());
@@ -173,7 +178,6 @@ function UserDetails() {
         setNote(event.target.value);
         noteRef.current = event.target.value;
     };
-
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
@@ -368,11 +372,11 @@ function UserDetails() {
                         <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
                     </div>
                     {/* <div style={{ padding: "2px" }}>
-                        <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
-                        {dayHasTotalHours && (
-                            <div style={{ width: "100%", background: "green", height: "2px" }}></div>
-                        )}
-                    </div> */}
+                            <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
+                            {dayHasTotalHours && (
+                                <div style={{ width: "100%", background: "green", height: "2px" }}></div>
+                            )}
+                        </div> */}
                 </div>
             );
             {/* <div style={{ width: `${totalHoursByDay === null ? 0 : totalHoursByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div> */ }
@@ -750,16 +754,16 @@ function UserDetails() {
                                                 ...ss.screenshot,
                                                 blur: true
                                             }
-                                        }
+                                        };
                                     }
-                                    return ss
+                                    return ss;
                                 })
-                            }
+                            };
                         }
-                        return groupSS
+                        return groupSS;
                     })
-                }
-            })
+                };
+            });
             try {
                 const response = await axios.post(`${apiUrl}/timetrack/blur/${ssId}/TimeTracking/${data?.TimeTrackingId}`, {}, {
                     headers: {
@@ -767,21 +771,31 @@ function UserDetails() {
                     }
                 });
                 if (response.status === 200) {
-                    enqueueSnackbar("screenshot blur successfully", {
+                    enqueueSnackbar("Screenshot blurred successfully", {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
                         }
-                    })
-                    dispatch(setEmployessSetting({ allowBlur: true }));
+                    });
+
+                    // Update allowBlur state for this employee
+                    const employeeId = ssId; // Assuming ssId corresponds to employee ID
+                    const updatedAllowBlur = true; // Set to true since the screenshot is blurred
+                    dispatch(setEmployessSetting({
+                        id: employeeId,
+                        allowBlur: updatedAllowBlur
+                    }));
+                    setAllowBlur(updatedAllowBlur); // Update local state
+                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
+
+                    // Call handleApplySettings function to update employee settings
+                    handleApplySetting(employeeId, "setting3", true);
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.log(error);
             }
-        }
-        else {
+        } else {
             setTimeEntries((prevData) => {
                 return prevData.map((f) => {
                     return {
@@ -794,13 +808,13 @@ function UserDetails() {
                                         ...ss.screenshot,
                                         blur: true
                                     }
-                                }
+                                };
                             }
-                            return ss
+                            return ss;
                         })
-                    }
-                })
-            })
+                    };
+                });
+            });
             try {
                 const response = await axios.post(`${apiUrl}/timetrack/blur/${ssId}/TimeTracking/${timeTrackingId}`, {}, {
                     headers: {
@@ -808,16 +822,23 @@ function UserDetails() {
                     }
                 });
                 if (response.status === 200) {
-                    enqueueSnackbar("screenshot blur successfully", {
+                    enqueueSnackbar("Screenshot blurred successfully", {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
                         }
-                    })
+                    });
+                    // Update allowBlur state for this employee if needed
+                    const updatedAllowBlur = true; // Set to true since the screenshot is blurred
+                    dispatch(setEmployessSetting({
+                        id: ssId, // Assuming ssId corresponds to employee ID
+                        allowBlur: updatedAllowBlur
+                    }));
+                    setAllowBlur(updatedAllowBlur); // Update local state
+                    props.updateAllowBlur(updatedAllowBlur); // Update parent component state
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.log(error);
             }
         }
@@ -872,14 +893,14 @@ function UserDetails() {
                         </div>
                         <p className="sevenAm">eg 7am to 9:10am or 17:30 to 22:00</p>
                         {/* <div>
-                            <select className="projectOption" defaultValue="">
-                                <option>Infiniti Solutions</option>
-                                <option>Y8HR</option>
-                                <option>Peel HR</option>
-                                <option>Geox HR</option>
-                                <option>Click HR</option>
-                            </select>
-                        </div> */}
+                                <select className="projectOption" defaultValue="">
+                                    <option>Infiniti Solutions</option>
+                                    <option>Y8HR</option>
+                                    <option>Peel HR</option>
+                                    <option>Geox HR</option>
+                                    <option>Click HR</option>
+                                </select>
+                            </div> */}
                         <textarea
                             placeholder="Note (optional)"
                             rows="5"
@@ -964,9 +985,9 @@ function UserDetails() {
                             <select className="projectOption">
                                 <option>I8IS</option>
                                 {/* <option>Y8HR</option>
-                                <option>Peel HR</option>
-                                <option>Geox HR</option>
-                                <option>Click HR</option> */}
+                                    <option>Peel HR</option>
+                                    <option>Geox HR</option>
+                                    <option>Click HR</option> */}
                             </select>
                         </div>
                         <textarea placeholder="Note (optional)" rows="5" ></textarea>
@@ -1014,8 +1035,8 @@ function UserDetails() {
                                 <img src={right} onClick={nextMonth} alt="Next Month" />
                             </div>
                             {/* <div>
-                                <button onClick={() => navigate(`/activity/${params.id}`)}>View activity</button>
-                            </div> */}
+                                    <button onClick={() => navigate(`/activity/${params.id}`)}>View activity</button>
+                                </div> */}
                         </div>
                         <div className="days-weeks">{renderCalendar()}</div>
                         {items.userType === "user" ? (
@@ -1102,28 +1123,28 @@ function UserDetails() {
                             </div>
                         ) : <div className="timerAndTracking">
                             {/* <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
-                                <div>
-                                    <img width={120} src={logo} alt="" />
-                                </div>
-                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                                    <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
-                                    <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
-                                    <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                    <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
-                                        <div className="circular-progress" style={{
-                                            cursor: "pointer"
-                                        }}>
-                                            <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
-                                        </div>
-                                    </OverlayTrigger>
-                                    <p className="timerClock">{data?.totalHours?.daily}</p>
-                                    <p className="weekTimer">Week</p>
-                                    <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
-                                    <img src={circleDot} alt="CircleDot.png" />
-                                    <p className="weekTimer">Month</p>
-                                    <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
-                                </div>
-                            </div> */}
+                                    <div>
+                                        <img width={120} src={logo} alt="" />
+                                    </div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                                        <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
+                                        <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
+                                        <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
+                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                            <div className="circular-progress" style={{
+                                                cursor: "pointer"
+                                            }}>
+                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                            </div>
+                                        </OverlayTrigger>
+                                        <p className="timerClock">{data?.totalHours?.daily}</p>
+                                        <p className="weekTimer">Week</p>
+                                        <p className="weekTimerDigit">{data?.totalHours?.weekly}</p>
+                                        <img src={circleDot} alt="CircleDot.png" />
+                                        <p className="weekTimer">Month</p>
+                                        <p className="monthTimerDigit">{data?.totalHours?.monthly}</p>
+                                    </div>
+                                </div> */}
                             <div style={{ margin: "0 10px 0 0" }} className="timerLeft">
                                 <div>
                                     <img width={120} src={logo} alt="" />
@@ -1252,12 +1273,12 @@ function UserDetails() {
                                                     <p className="timeDuration">{element?.description}</p>
                                                     {console.log("Des Name", element?.description)}
                                                     {/* <div>
-                                                        <OverlayTrigger placement="top" overlay={<Tooltip>{elements?.description}</Tooltip>}>
-                                                            <p className="notes">
-                                                                <a className="websiteLink" href="#">{elements?.time} {element?.description}</a>
-                                                            </p>
-                                                        </OverlayTrigger>
-                                                    </div> */}
+                                                            <OverlayTrigger placement="top" overlay={<Tooltip>{elements?.description}</Tooltip>}>
+                                                                <p className="notes">
+                                                                    <a className="websiteLink" href="#">{elements?.time} {element?.description}</a>
+                                                                </p>
+                                                            </OverlayTrigger>
+                                                        </div> */}
                                                     {/* <a className="websiteLink" href="#">{element?.time} {element?.description}</a> */}
                                                     {/* <a className="websiteLink" href="#">{element?.time} {element?.description ? element?.description : <Skeleton width="100px" />} Hello</a> */}
 
@@ -1293,6 +1314,11 @@ function UserDetails() {
                                                 }}>
                                                     {element?.screenshots && (element?.screenshots?.map((elements, index) => {
                                                         console.log(elements);
+                                                        // Check if the current employee's allowBlur setting is true
+                                                        const allowBlur = employees.some(employee =>
+                                                            employee._id === userId &&
+                                                            employee.effectiveSettings.screenshots?.allowBlur
+                                                        );
                                                         return loading ? (
                                                             <Skeleton count={1} width="364px" height="248.44px" style={{ margin: "20px 0 12px 0" }} />
                                                         ) : (
@@ -1306,7 +1332,7 @@ function UserDetails() {
                                                                         </OverlayTrigger>
                                                                     </div>
                                                                     <div style={{ display: "flex" }}>
-                                                                        {isLoggedIn && elements?.screenshot?.blur === false && allowBlur && (
+                                                                        {elements?.screenshot?.blur === false && (
                                                                             <img
                                                                                 width={25}
                                                                                 src={brushIcon}
@@ -1460,6 +1486,11 @@ function UserDetails() {
                                             gap: "20px",
                                         }}>
                                             {element?.screenshots && (element?.screenshots?.map((elements, index) => {
+                                                // Check if the current employee's allowBlur setting is true
+                                                const allowBlur = employees.some(employee =>
+                                                    employee._id === userId &&
+                                                    employee.effectiveSettings.screenshots?.allowBlur
+                                                );
                                                 return loading ? (
                                                     <Skeleton count={1} width="364px" height="248.44px" style={{ margin: "20px 0 12px 0" }} />
                                                 ) : (
@@ -1473,7 +1504,7 @@ function UserDetails() {
                                                                 </OverlayTrigger>
                                                             </div>
                                                             <div style={{ display: "flex" }}>
-                                                                {elements?.screenshot?.blur === false && (
+                                                                {elements?.screenshot?.blur === false && allowBlur && (
                                                                     <img
                                                                         width={25}
                                                                         src={brushIcon}
@@ -1488,14 +1519,14 @@ function UserDetails() {
                                                                         }}
                                                                     />
                                                                 )}
-                                                                {elements?.screenshot?.blur === false && allowBlur && (
-                                                                    <img
-                                                                        width={25}
-                                                                        src={brushIcon}
-                                                                        alt=""
-                                                                        style={{ opacity: 0.5, cursor: "not-allowed" }}
-                                                                    />
-                                                                )}
+                                                                {/* {elements?.screenshot?.blur === false && allowBlur && (
+                                                                        <img
+                                                                            width={25}
+                                                                            src={brushIcon}
+                                                                            alt=""
+                                                                            style={{ opacity: 0.5, cursor: "not-allowed" }}
+                                                                        />
+                                                                    )} */}
                                                                 <img src={deleteIcon} alt="" style={{ margin: "0 10px" }} onClick={() => handleOpenDeleteModal(element, elements)} />
                                                                 {elements?.visitedUrls?.length === 0 ?
                                                                     <OverlayTrigger placement="top" overlay={<Tooltip>0 %</Tooltip>}>
@@ -1557,7 +1588,6 @@ function UserDetails() {
                                     </div>
                                 )
                             })}
-
                         </div>
                     </div>
                 </div>

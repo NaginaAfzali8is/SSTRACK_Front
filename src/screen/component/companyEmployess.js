@@ -23,6 +23,12 @@ const CompanyEmployess = (props) => {
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
 
+    useEffect(() => {
+        // Set allowBlur based on the Redux store
+        const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
+        setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
+    }, [employees]);
+    
     const activeTab = useSelector((state) => state?.adminSlice?.activeTab)
     const dispatch = useDispatch()
     const token = localStorage.getItem('token');
@@ -33,7 +39,7 @@ const CompanyEmployess = (props) => {
     const updateAllowBlur = (allowBlur) => {
         setAllowBlur(allowBlur);
     };
-    
+
     async function handleApplySetting(data) {
 
         console.log(data);
@@ -72,14 +78,15 @@ const CompanyEmployess = (props) => {
                 });
             }
             console.log(res);
+            const employeeId = ssId; // Assuming ssId corresponds to employee ID
+            const updatedAllowBlur = true; // Set to true since the screenshot is blurred
             if (data.key === "allowBlur") {
                 dispatch(setEmployessSetting({
-                    id: data.employee._id,
-                    allowBlur: data.isSelected
-                    // Update the allowBlur flag
+                    id: employeeId,
+                    allowBlur: updatedAllowBlur
                 }));
-                setAllowBlur(data.isSelected); // Update the allowBlur state based on selection
-                props.updateAllowBlur(data.isSelected); // Update the allowBlur state in the parent component
+                setAllowBlur(updatedAllowBlur); // Update local state
+                props.updateAllowBlur(updatedAllowBlur); // Update parent component state
             }
 
         } catch (error) {

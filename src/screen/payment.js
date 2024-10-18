@@ -965,7 +965,13 @@ const Payment = ({ updatePaymentStatus }) => {
                     tokenId: paycard.tokenId,
                     cardType: paycard.cardType,
                 }, { headers });
-                if (response.data.success) {
+                 
+                if (response.data.success === 200) {
+                    console.log('Payment successful:', response.data.success);
+                    setResponseMessage('Payment successful!');
+                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
                     enqueueSnackbar("Payment Successfully", {
                         variant: "success",
                         anchorOrigin: {
@@ -973,12 +979,8 @@ const Payment = ({ updatePaymentStatus }) => {
                             horizontal: "right"
                         }
                     })
-                    console.log('Payment successful hogi:', response.data.success);
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
-                } else {
+                } 
+                else {
                     console.error('Payment failed:', response.data.error);
                     enqueueSnackbar('Payment failed: ' + response.data.error, {
                         variant: "error",
@@ -1167,6 +1169,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                                 <span></span>
                                             )}
                                         </div>
+                                        
                                     </div>
                                 </div>
                             </div>

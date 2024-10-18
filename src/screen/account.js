@@ -76,11 +76,14 @@ function Account() {
             // Transform paymentsInfo similar to invoiceInfo
             const transformedPayments = data.data.paymentsInfo.map((payment) => {
                 console.log('Payment Total Amount:', payment.TotalAmount);
+                console.log('Payment Receipt Id agyi:', payment.receiptId);
 
                 return {
-                    id: payment.id, // Assuming each payment has a unique id
+
+                    receiptId: payment.receiptId, // Assuming each payment has a unique id
                     amount: parseFloat(payment.TotalAmount).toFixed(2), // Format the total amount
                     payDate: new Date(payment.payDate).toLocaleDateString(), // Format payment date
+                    paymentIntentId: payment.paymentIntentId, // Assuming each payment has a unique id
                     // invoiceNumber: payment.invoiceNumber, // Reference to associated invoice
                     status: payment.status // Payment status
                 };
@@ -1000,9 +1003,9 @@ function Account() {
                                         <tbody>
                                             {payments.map((payment) => (
                                                 <tr key={payment.id}>
-                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.id}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
                                                     <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
-                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.description}</td>
+                                                    <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.paymentIntentId}</td>
                                                     <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
                                                     <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                         <a
