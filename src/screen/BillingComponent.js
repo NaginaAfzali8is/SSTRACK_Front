@@ -1325,6 +1325,7 @@ const BillingComponent = () => {
     // }
     //     }
     // };
+
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -1435,7 +1436,6 @@ const BillingComponent = () => {
     const handleOpenModal = () => {
         setIsOpen(true);
     };
-
 
     return (
         <>

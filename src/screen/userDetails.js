@@ -286,7 +286,7 @@ function UserDetails() {
 
         const handleUpdateData = () => {
             // console.log('Received updateData event');
-            // fetchData();
+            fetchData();
         };
 
         socket.on('new-ss', handleUpdateData);
@@ -1213,11 +1213,11 @@ function UserDetails() {
                                         <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
                                         <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
                                         <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
                                             <div className="circular-progress" style={{
                                                 cursor: "pointer"
                                             }}>
-                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
+                                                <CircularProgressBar activityPercentage={data?.totalactivity} size={30} />
                                             </div>
                                         </OverlayTrigger>
                                         <p className="timerClock">{data?.totalHours?.daily}</p>
@@ -1264,17 +1264,17 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
-                                                                Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
-                                                                    Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
-                                                                        Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
-                                                                            Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
+                                                            transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
+                                                                Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
+                                                                    Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
+                                                                        Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
+                                                                            Math.floor(data?.totalactivity) > 80 ? 75 : -108
                                                                 }deg)`
                                                         }}>
                                                         <div className="needleContainerAlingment">
                                                             <div className="diamond"></div>
                                                             <div className="needlePointerMain"></div>
-                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
+                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
                                                                 <div className="needleScrewMain"></div>
                                                             </OverlayTrigger>
                                                         </div>
