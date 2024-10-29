@@ -12,7 +12,7 @@ import deleteIcon from "../images/deleteIcon.webp";
 import line from "../images/line.webp";
 import Footer from "./component/footer";
 import UserDashboardSection from "./component/userDashboardsection";
-import { json, useNavigate } from "react-router-dom";
+import { json, useNavigate, useLocation } from "react-router-dom";
 import { loadStripe } from '@stripe/stripe-js';
 import Modal from 'react-bootstrap/Modal';
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
@@ -26,6 +26,8 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { Link } from 'react-router-dom'
 // import { link}
 // import BillingComponent from "./BillingComponent";
+import CustomModal from './component/CustomModal'
+import CardSelection from './component/CardSelection';
 import Payment from './payment'
 
 
@@ -34,6 +36,8 @@ const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvi
 
 
 const BillingComponent = () => {
+
+    const location = useLocation();
     const [show, setShow] = useState(false);
     const [plans, setPlans] = useState(location.state?.plans || []);
     const [deleteAccount, setDeleteAccount] = useState(false);

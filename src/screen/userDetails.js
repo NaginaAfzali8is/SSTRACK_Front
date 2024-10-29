@@ -367,27 +367,27 @@ function UserDetails() {
         // const [totalHoursByDay, setTotalHoursByDay] = useState({}); // State for total hours by day
 
         // Fetch total hours for the month
-        useEffect(() => {
-            const fetchTotalHours = async () => {
-                try {
-                    const response = await axios.get(items?.userType === "user"
-                        ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
-                        : `${apiUrl}/owner/hoursbyday/${params.id}?date=${activeMonth}`,
-                        { headers });
+        // useEffect(() => {
+        //     const fetchTotalHours = async () => {
+        //         try {
+        //             const response = await axios.get(items?.userType === "user"
+        //                 ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
+        //                 : `${apiUrl}/owner/hoursbyday/${params.id}?date=${activeMonth}`,
+        //                 { headers });
 
-                    // const totalHours = response.data.data.totalHoursByDay;
-                    // Log each date and its corresponding total hours
+        //             // const totalHours = response.data.data.totalHoursByDay;
+        //             // Log each date and its corresponding total hours
 
-                    const hoursData = response.data.data.totalHoursByDay.forEach(item => {
-                        console.log(`Date: ${item.date}, Total Hours: ${item.totalHours}`);
-                    });
-                    setTotalHoursByDay(hoursData);
-                } catch (error) {
-                    console.error("Error fetching total hours:", error);
-                }
-            };
-            fetchTotalHours();
-        }, [activeMonth]); // Fetch data when activeMonth changes
+        //             const hoursData = response.data.data.totalHoursByDay.forEach(item => {
+        //                 console.log(`Date: ${item.date}, Total Hours: ${item.totalHours}`);
+        //             });
+        //             setTotalHoursByDay(hoursData);
+        //         } catch (error) {
+        //             console.error("Error fetching total hours:", error);
+        //         }
+        //     };
+        //     fetchTotalHours();
+        // }, [activeMonth]); // Fetch data when activeMonth changes
 
 
         const handleClick = (key) => {

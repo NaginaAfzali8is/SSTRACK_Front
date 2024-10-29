@@ -17,6 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import axios from "axios";
 import moment from "moment-timezone";
+import { loadStripe } from '@stripe/stripe-js';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from '../../src/public/tracking.png';
@@ -24,14 +25,18 @@ import paidStamp from '../images/paid.png';
 import { Link } from 'react-router-dom'
 // import { link}
 import BillingComponent from "./BillingComponent";
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import Payment from './payment'
 import CardSelection from './component/CardSelection';
+import { useLocation } from 'react-router-dom';
 
 
+const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
 function Account() {
 
+    const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
     const [show, setShow] = useState(false);
     const [deleteAccount, setDeleteAccount] = useState(false);
@@ -48,6 +53,7 @@ function Account() {
     const [invoices, setInvoices] = useState([]);
     const [payments, setPayments] = useState([]);
     const [defaultPlanIndex] = useState(location.state?.defaultPlanIndex || 0);
+    const [showNewCardModal, setshowNewCardModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
     const [activeTab, setActiveTab] = useState('invoices');
@@ -65,6 +71,9 @@ function Account() {
     console.log('usercompany==============', items);
     const storedPlanId = JSON.parse(localStorage.getItem('planId'))
     // const premiumPlan = plans.find((plan) => plan.planType === 'premium');
+   
+    const planapiUrl = "https://myuniversallanguages.com:9093/api/v1";
+   
     const fetchPlans = async () => {
         try {
             const response = await axios.get(`${planapiUrl}/owner/getPlans`);
