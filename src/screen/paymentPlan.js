@@ -620,7 +620,7 @@ const Payment = ({ updatePaymentStatus }) => {
             </Modal >
         );
     };
-
+    
     // const handleDirectChangePlan = async () => {
     // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     // if (paycard) {
@@ -736,8 +736,6 @@ const Payment = ({ updatePaymentStatus }) => {
                         })
                     }
                 }
-                setResponseMessage('Payment failed: ' + response.data.error);
-
             }
             finally {
                 // setIsLoading(false);
@@ -781,7 +779,7 @@ const Payment = ({ updatePaymentStatus }) => {
     return (
         <>
             <SnackbarProvider />
-
+            
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -960,7 +958,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </div>
             </div>
-
+            
             {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',
