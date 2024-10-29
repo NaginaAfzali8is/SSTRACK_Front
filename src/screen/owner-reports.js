@@ -212,28 +212,33 @@ function OwnerReport() {
 
 
   const getData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
-      console.log('API Request URL:', `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`);
+      const url = employeeId 
+        ? `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`
+        : `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`;
+
+      const response = await axios.get(url, { headers });
+
+      console.log('API Request URL:', url);
       if (response.status === 200) {
         console.log('New Api response', response);
-        setLoading(false)
-        setReportData(response.data?.data)
+        setReportData(response.data?.data);
       }
-    }
-    catch (error) {
-      setLoading(false)
+    } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
 
 
   useEffect(() => {
     if (startDate && endDate) {
       getData();
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate,employeeId]);
 
   const animatedComponents = makeAnimated();
 
@@ -365,7 +370,7 @@ function OwnerReport() {
       let response;
       if (userType === 'admin' || userType === 'owner') {
         // Fetch reports for all users
-        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       } else if (user === 'manager') {
         // If user is a manager, filter managers based on the logged-in manager's ID
         const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
@@ -376,7 +381,7 @@ function OwnerReport() {
         }
       } else {
         // Fetch reports for a single user
-        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       }
       if (response.status === 200) {
         console.log(response);
