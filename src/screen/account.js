@@ -1474,7 +1474,7 @@ function Account({ suspended }) {
                         ) : (
                             <div>
                                 {/* Regular account content goes here */}
-                                <h1>Your Account</h1>
+                                <h1></h1>
                                 {/* Other account details */}
                             </div>
                         )}
