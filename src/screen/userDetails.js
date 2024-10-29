@@ -288,7 +288,7 @@ function UserDetails() {
 
         const handleUpdateData = () => {
             // console.log('Received updateData event');
-            fetchData();
+            // fetchData();
         };
 
         socket.on('new-ss', handleUpdateData);
