@@ -189,89 +189,91 @@ function UserDetails() {
     const apiUrl2 = "https://ss-track.vercel.app/api/v1/owner";
     const userId = params.id;
 
-    // const fetchData = async () => {
-    //     setLoading(true);
-    //     try {
-    //         if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
-    //             const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
-    //                 axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
-    //                 axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
-    //                 axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
-    //             ]);
-    //             const screenshotsData = screenshotsResponse.data;
-    //             const activitiesData = activitiesResponse.data;
-    //             const hoursData = hoursResponse.data;
-    //             setData(hoursData.data);
-    //             setTotalActivityByDay(activitiesData.data);
-    //             setTimeEntryId(hoursData.data.TimeTrackingId);
-    //             setTimeTrackingId(hoursData.data.TimeTrackingId);
-    //             setTimeEntries(screenshotsData.data.groupedScreenshots || []);
-    //             setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
-    //         } else {
-    //             const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
-    //             if (response.data) {
-
-    //                 console.log(response);
-    //                 setData(response.data.data);
-    //                 setTimeEntryId(response.data.data.TimeTrackingId);
-    //                 setTimeTrackingId(response.data.data.TimeTrackingId);
-    //                 setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-    //                 setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily });
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
     const fetchData = async () => {
-        if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
-            try {
-                const response = await axios.get(`${apiUrl}/owner/sorted-datebased/${params.id}?date=${encodeURIComponent(formattedDate)}`, { headers });
-                setLoading(true)
+        setLoading(true);
+        try {
+            if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
+                const [screenshotsResponse, activitiesResponse, hoursResponse] = await Promise.all([
+                    axios.get(`${apiUrl}/owner/sorted-screenshots/${userId}?date=${formattedDate}`, { headers }),
+                    axios.get(`${apiUrl}/owner/sorted-activities/${userId}?date=${formattedDate}`, { headers }),
+                    axios.get(`${apiUrl}/owner/sorted-hours/${userId}?date=${formattedDate}`, { headers })
+                ]);
+                const screenshotsData = screenshotsResponse.data;
+                const activitiesData = activitiesResponse.data;
+                const hoursData = hoursResponse.data;
+                setData(hoursData.data);
+                setTotalActivityByDay(activitiesData.data);
+                setTimeEntryId(hoursData.data.TimeTrackingId);
+                setTimeTrackingId(hoursData.data.TimeTrackingId);
+                setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+                setTrimActivity({ ...trimActivity, totalHours: hoursData.data.totalHours.daily });
+            } else {
+                const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
                 if (response.data) {
-                    setTimeout(() => {
-                        setLoading(false)
-                    }, 2000);
-                    setData(response.data.data);
-                    setTimeEntryId(response.data.data.TimeTrackingId)
-                    setTimeTrackingId(response.data.data.TimeTrackingId)
-                    setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-                    setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
+
                     console.log(response);
+                    setData(response.data.data);
+                    setTimeEntryId(response.data.data.TimeTrackingId);
+                    setTimeTrackingId(response.data.data.TimeTrackingId);
+                    setTimeEntries(response?.data?.data?.groupedScreenshots || []);
+                    setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily });
                 }
             }
-            catch (error) {
-                setTimeout(() => {
-                    setLoading(false)
-                }, 2000);
-                console.log(error);
-            }
-            return;
-        }
-        try {
-            const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
-            setLoading(true)
-            if (response.data) {
-                setTimeout(() => {
-                    setLoading(false)
-                }, 3000);
-                setData(response.data.data);
-                setTimeEntryId(response.data.data.TimeTrackingId)
-                setTimeTrackingId(response.data.data.TimeTrackingId)
-                setTimeEntries(response?.data?.data?.groupedScreenshots || []);
-                setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
-                console.log(response);
-            }
-        }
-        catch (error) {
-            setTimeout(() => {
-                setLoading(false)
-            }, 3000);
+        } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
+    // const fetchData = async () => {
+    //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
+    //         try {
+    //             const response = await axios.get(`${apiUrl}/owner/sorted-datebased/${params.id}?date=${encodeURIComponent(formattedDate)}`, { headers });
+    //             setLoading(true)
+    //             if (response.data) {
+    //                 setTimeout(() => {
+    //                     setLoading(false)
+    //                 }, 2000);
+    //                 const screenshotsData = screenshotsResponse.data;
+    //                 const activitiesData = activitiesResponse.data;
+    //                 setData(response.data.data);
+    //                 setTimeEntryId(response.data.data.TimeTrackingId)
+    //                 setTimeTrackingId(response.data.data.TimeTrackingId)
+    //                 setTimeEntries(screenshotsData.data.groupedScreenshots || []);
+    //                 setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
+    //                 console.log(response);
+    //             }
+    //         }
+    //         catch (error) {
+    //             setTimeout(() => {
+    //                 setLoading(false)
+    //             }, 2000);
+    //             console.log(error);
+    //         }
+    //         return;
+    //     }
+    //     try {
+    //         const response = await axios.get(`${apiUrl}/timetrack/sorted-screenshot?date=${encodeURIComponent(formattedDate)}`, { headers });
+    //         setLoading(true)
+    //         if (response.data) {
+    //             setTimeout(() => {
+    //                 setLoading(false)
+    //             }, 3000);
+    //             setData(response.data.data);
+    //             setTimeEntryId(response.data.data.TimeTrackingId)
+    //             setTimeTrackingId(response.data.data.TimeTrackingId)
+    //             setTimeEntries(response?.data?.data?.groupedScreenshots || []);
+    //             setTrimActivity({ ...trimActivity, totalHours: response?.data?.data?.totalHours.daily })
+    //             console.log(response);
+    //         }
+    //     }
+    //     catch (error) {
+    //         setTimeout(() => {
+    //             setLoading(false)
+    //         }, 3000);
+    //         console.log(error);
+    //     }
+    // };
 
     useEffect(() => {
         if (!socket) {
@@ -367,28 +369,6 @@ function UserDetails() {
         let currentDay = new Date(firstDayOfMonth);
         // const [totalHoursByDay, setTotalHoursByDay] = useState({}); // State for total hours by day
 
-        // Fetch total hours for the month
-        // useEffect(() => {
-        //     const fetchTotalHours = async () => {
-        //         try {
-        //             const response = await axios.get(items?.userType === "user"
-        //                 ? `${apiUrl}/timetrack/hoursbyday?date=${activeMonth}`
-        //                 : `${apiUrl}/owner/hoursbyday/${params.id}?date=${activeMonth}`,
-        //                 { headers });
-
-        //             // const totalHours = response.data.data.totalHoursByDay;
-        //             // Log each date and its corresponding total hours
-
-        //             const hoursData = response.data.data.totalHoursByDay.forEach(item => {
-        //                 console.log(`Date: ${item.date}, Total Hours: ${item.totalHours}`);
-        //             });
-        //             setTotalHoursByDay(hoursData);
-        //         } catch (error) {
-        //             console.error("Error fetching total hours:", error);
-        //         }
-        //     };
-        //     fetchTotalHours();
-        // }, [activeMonth]); // Fetch data when activeMonth changes
 
 
         const handleClick = (key) => {
@@ -417,27 +397,27 @@ function UserDetails() {
                 ? data?.totalHours?.daily.find(item => item.date === dayFormatted)?.data?.totalHours?.daily
                 : 0; // Default to 0 if not an array or if no match is found
             days.push(
-                // <OverlayTrigger
-                //     key={dayKey}
-                //     placement="top"
-                //     overlay={
-                //         <Tooltip>
-                //             {totalHoursForDate}
-                //         </Tooltip>
-                //     }
-                // >
-                <div
-                    style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
-                    className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
-                    onClick={() => handleClick(dayKey)}
+                <OverlayTrigger
+                    key={dayKey}
+                    placement="top"
+                    overlay={
+                        <Tooltip>
+                            {totalHoursForDate}
+                        </Tooltip>
+                    }
                 >
-                    <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
-                    <p className="Weekdate">{currentDay.getDate()}</p>
-                    <div style={{ padding: "2px" }}>
-                        <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
+                    <div
+                        style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
+                        className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
+                        onClick={() => handleClick(dayKey)}
+                    >
+                        <p className="weekName">{currentDay.toLocaleString("en-US", { weekday: "short" })}</p>
+                        <p className="Weekdate">{currentDay.getDate()}</p>
+                        <div style={{ padding: "2px" }}>
+                            <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
+                        </div>
                     </div>
-                </div>
-                // </OverlayTrigger>
+                </OverlayTrigger>
             );
 
             currentDay.setDate(currentDay.getDate() + 1);
@@ -903,7 +883,7 @@ function UserDetails() {
         }
     }
 
-    console.log('', timeEntries);
+    console.log('Admin Ka data', timeEntries);
 
     return (
         <>
@@ -1213,11 +1193,11 @@ function UserDetails() {
                                         <p className="weekDayTimer">{formattedDate == todayDate ? days[currentDay] : days[clickDay]} </p>
                                         <p className="weekDayTimer">{formattedDate && formattedDate.split('-')[2]}</p>
                                         <p className="weekDateTimer">{formattedDate == todayDate ? months[currentMonth] : months[month]}</p>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                        <OverlayTrigger placement="top" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
                                             <div className="circular-progress" style={{
                                                 cursor: "pointer"
                                             }}>
-                                                <CircularProgressBar activityPercentage={data?.totalactivity} size={30} />
+                                                <CircularProgressBar activityPercentage={totalActivityByDay?.totalactivity} size={30} />
                                             </div>
                                         </OverlayTrigger>
                                         <p className="timerClock">{data?.totalHours?.daily}</p>
@@ -1264,17 +1244,17 @@ function UserDetails() {
                                                     <div
                                                         className="needleContainerMainAlingment"
                                                         style={{
-                                                            transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
-                                                                Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
-                                                                    Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
-                                                                        Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
-                                                                            Math.floor(data?.totalactivity) > 80 ? 75 : -108
+                                                            transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                                Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
+                                                                    Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
+                                                                        Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
+                                                                            Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
                                                                 }deg)`
                                                         }}>
                                                         <div className="needleContainerAlingment">
                                                             <div className="diamond"></div>
                                                             <div className="needlePointerMain"></div>
-                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(data?.totalactivity)} %</Tooltip>}>
+                                                            <OverlayTrigger placement="bottom" overlay={<Tooltip>{Math.floor(totalActivityByDay?.totalactivity)} %</Tooltip>}>
                                                                 <div className="needleScrewMain"></div>
                                                             </OverlayTrigger>
                                                         </div>
@@ -1330,7 +1310,6 @@ function UserDetails() {
                                                             </div>
                                                         </OverlayTrigger>
                                                         <p className="projectName">{element?.project}</p>
-
                                                         <p className="timeDuration">{element?.description}</p>
                                                         {console.log("Des Name", element?.description)}
                                                         {/* <div>
