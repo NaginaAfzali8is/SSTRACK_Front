@@ -397,15 +397,15 @@ function UserDetails() {
                 ? data?.totalHours?.daily.find(item => item.date === dayFormatted)?.data?.totalHours?.daily
                 : 0; // Default to 0 if not an array or if no match is found
             days.push(
-                <OverlayTrigger
-                    key={dayKey}
-                    placement="top"
-                    overlay={
-                        <Tooltip>
-                            {totalHoursForDate}
-                        </Tooltip>
-                    }
-                >
+                // <OverlayTrigger
+                //     key={dayKey}
+                //     placement="top"
+                //     overlay={
+                //         <Tooltip>
+                //             {totalHoursForDate}
+                //         </Tooltip>
+                //     }
+                // >
                     <div
                         style={{ cursor: "pointer", border: "1px solid #ebeaea" }}
                         className={`col cell ${isWeekend ? "week day week first" : "day"} ${dayKey === activeButton ? "active" : isCurrentDate ? "active2" : ""}`}
@@ -417,7 +417,7 @@ function UserDetails() {
                             <div style={{ width: `${totalPercentageByDay === null ? 0 : totalPercentageByDay[i]?.percentage}%`, background: 'linear-gradient(180deg,#cdeb8e 0,#a5c956)', height: '10px' }}></div>
                         </div>
                     </div>
-                </OverlayTrigger>
+                // </OverlayTrigger>
             );
 
             currentDay.setDate(currentDay.getDate() + 1);
