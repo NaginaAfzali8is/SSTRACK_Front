@@ -137,10 +137,11 @@ export default function AppRouter() {
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
           const planindex = response?.data.data[0].planId.length - 1;
-          const planId = response?.data.data[0].planId[planindex].id;
-          console.log('me yaha hnnnnnnnnnnnn', response?.data.data[0].planId[planindex])
-          console.log('mera hn length - 1', planindex)
-          console.log('mera hn length', response?.data.data[0].planId.length)
+          const planId = response?.data.data[0].planId?.slice(-1)[0]?.id || null;
+          // const planId = response?.data.data[0].planId[planindex].id;
+          console.log('', response?.data.data[0].planId[planindex])
+          console.log('', planindex)
+          console.log('', response?.data.data[0].planId.length)
 
           // Save to localStorage after converting to a string
           localStorage.setItem('planId', JSON.stringify(planId));
@@ -173,15 +174,9 @@ export default function AppRouter() {
     }
   }, [token]);
 
-
   // if (loading) {
   //   return <div>Loading...</div>;
   // }
-
-
-
-
-
 
   return (
     <>
@@ -210,7 +205,6 @@ export default function AppRouter() {
             {/* <Route path="/pricing" element={<Pricing />} /> */}
             {/* <Route path="/workCards" element={token ? (suspended ? <Navigate to="/account" /> : <WorkCards />) : <Navigate to="/" />} /> */}
             {/* Private Routes */}
-
             <Route path="/dashboard" element={token ? (suspended ? <Navigate to="/account" /> : <UserDashboard />) : <Navigate to="/" />} />
             <Route path="/timeline" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
             <Route path="/timeline/:id" element={token ? (suspended ? <Navigate to="/account" /> : <UserDetails />) : <Navigate to="/" />} />
@@ -227,7 +221,6 @@ export default function AppRouter() {
             {/* <Route path="/privacy-policy" element={token ? <PrivacyPolicy /> : <Navigate to="/" />} /> */}
             {/* <Route path="/privacy-policy1" element={<PrivacyPolicy1/>} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
-
           </Route>
           <Route path="*" element={<Navigate to="/signin" />} />
         </Routes>

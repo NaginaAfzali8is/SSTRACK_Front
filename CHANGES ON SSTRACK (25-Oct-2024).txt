@@ -1,0 +1,12 @@
+Today Task: (25-Oct-2024)
+
+
+
+///////////////SSTRACK/////////////////
+- My Account sections combined the section plan and account but display the loggedIn admin account, then look at the Pay with this card and CardSelection component (10mins)
+- My Account sections integrate the condition items?.userType !== 'admin' (30mins)
+- userDashboardSection.js file add the condition Project section only show the owner,admin account but integrate logic items?.userType !== manager and items?,userType !== user (45mins)
+- userDashboardSection checked the condition is properly working or not , open the another tab owner account and loggedIn the manager, user, admin accounts (25mins)
+- owner-report.js display the project individual users,  add the icon FaPlus and FaMinus (15mins)
+- apply the condition FaPlus press the plus icon show the project and FaMinus icon hidden the projects (40mins)
+- push the updated code on drive and github (15mins)
