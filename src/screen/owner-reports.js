@@ -1021,7 +1021,7 @@ function OwnerReport() {
             {console.log("reportData:", reportData)}
             {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
 
-            {(userType === "admin" || userType === "owner" || userType === 'user') && reportData && reportData.allUsers ? (
+            {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
               reportData.allUsers.map((data, index) => (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="asadMehmoodDiv" key={index}>
@@ -1093,14 +1093,14 @@ function OwnerReport() {
                   )}
                 </div>
               ) : (
-                userType === 'manager' ? (
+                userType === 'manager' && reportData ? (
                   <>
                     {reportData ? (
                       reportData.allUsers.map((data, index) => (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <div className="asadMehmoodDiv" key={index}>
                             <div onClick={() => handleExpand(data?.employee)}>
-                              <p><img src={addButton} alt="Add" /><span>{data?.employee}</span></p>
+                              <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
                             </div>
                             <div className="durationDiv">
                               <p>{data?.Duration}</p>
