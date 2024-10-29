@@ -29,13 +29,14 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import Payment from './payment'
 import CardSelection from './component/CardSelection';
 import { useLocation } from 'react-router-dom';
-
+import CustomModal from './component/CustomModal'
 
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
 function Account() {
 
+    const [responseMessage, setResponseMessage] = useState(null);
     const location = useLocation();
     const [plans, setPlans] = useState(location.state?.plans || []);
     const [show, setShow] = useState(false);
