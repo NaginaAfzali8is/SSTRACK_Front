@@ -940,7 +940,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         }
                     });
     
-                    console.log('Snackbar should now be shown with message:', successMessage);
+                    // console.log('Snackbar should now be shown with message:', successMessage);
     
                     setResponseMessage(response.data.message);
                     handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
