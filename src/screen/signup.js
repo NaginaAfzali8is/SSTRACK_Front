@@ -36,10 +36,10 @@ function Signup() {
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
-   
+
     async function handleCreateAccount() {
         console.log(model);
-        if (model?.name === "" || model?.company === "" || model?.email === "" || model?.password === "" || model?.timezone === "" || model?.timezoneOffset === "") {
+        if (model?.name === "" || model?.company === "" || model?.email === "" || model?.timezone === "" || model?.timezoneOffset === "") {
             enqueueSnackbar("Please fill all fields", {
                 variant: "error",
                 anchorOrigin: {
@@ -62,7 +62,7 @@ function Signup() {
         else {
             setLoading(true)
             try {
-                const response = await axios.post(`${apiUrl}/signup`, {
+                const response = await axios.post(`${apiUrl}/signup/ownerSignUp`, {
                     company: model?.company,
                     email: model?.email,
                     name: model?.name,
@@ -98,7 +98,7 @@ function Signup() {
             }
         }
     }
-    
+
 
 
 
@@ -234,11 +234,11 @@ function Signup() {
                             <div><img src={email} /></div>
                             <input className="autofill" value={model.email} onChange={(e) => fillModel("email", e.target.value)} placeholder="Email" />
                         </div>
-                        <div className="inputDiv">
+                        {/* <div className="inputDiv">
                             <div><img src={password} /></div>
                             <input className="autofill" type={showPassword ? 'text' : 'password'} value={model.password} onChange={(e) => fillModel("password", e.target.value)} placeholder="Password (8 or more characters)" />
                             {model.password !== "" && <img style={{ cursor: "pointer" }} width={30} src={showPassword ? showPasswordIcon : hidePasswordIcon} alt="Password" onClick={() => setShowPassword(!showPassword)} />}
-                        </div>
+                        </div> */}
                         <div className="inputDiv2">
                             {/* <div><img src={clock} /></div> */}
                             {/* <div> */}
