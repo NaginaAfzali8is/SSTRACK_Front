@@ -122,7 +122,7 @@ const Payment = ({ updatePaymentStatus }) => {
             const data = await res.json();
             console.log('invoices', data);
 
-            console.log("Invoices ka data agya", data.data.invoiceInfo.map(invoice => invoice.invoiceNumber));
+            console.log("", data.data.invoiceInfo.map(invoice => invoice.invoiceNumber));
 
 
             // Transform the API data to the desired structure
@@ -258,10 +258,8 @@ const Payment = ({ updatePaymentStatus }) => {
                 const response = await axios.get(`${apiUrl1}/owner/getCompanyInfo`, { headers });
                 const fetchedCards = response?.data.data[0].cardInfo;
                 console.log('Fetched Cards:', fetchedCards);
-
                 // Set the cards
                 setCards(fetchedCards);
-
                 // Set the default card as the selected card
                 const defaultCard = fetchedCards.find(card => card.defaultCard);
                 if (defaultCard) {
@@ -276,18 +274,11 @@ const Payment = ({ updatePaymentStatus }) => {
         setLoading(false);
     };
 
-
-
-
-
-
     useEffect(() => {
         getData();
         fetchTokenAndSuspendedStatus();
         console.log('selectedPlan=========jjjjjjjjjjjj', selectedPlan);
-
     }, []);
-
 
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -306,7 +297,6 @@ const Payment = ({ updatePaymentStatus }) => {
     const addNewCard = (newCard) => {
         setCards((prevCards) => [...prevCards, newCard]);
         setSelectedCard(newCard._id);
-
     };
 
     // addNewCard(newCard); // Call the function to update the state
@@ -378,7 +368,7 @@ const Payment = ({ updatePaymentStatus }) => {
 
                     console.log('Payment Response:', response);
                     if (response.data.success) {
-                        console.log('me chalaaaaaaa')
+                        console.log('me')
                         setSuccess(true);
                         setTimeout(() => {
                             setshowNewCardModal(false);
@@ -924,9 +914,8 @@ const Payment = ({ updatePaymentStatus }) => {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
-            // setButtonText("Processing...");
+
             try {
-                // setIsLoading(true);
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
                     expMonth: paycard.expMonth,
@@ -934,51 +923,46 @@ const Payment = ({ updatePaymentStatus }) => {
                     tokenId: paycard.tokenId,
                     cardType: paycard.cardType,
                 }, { headers });
-
-                if (response.data.success) {
-                    console.log('Payment successful:', response.data.success);
-                    setResponseMessage('Payment successful!');
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    // setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false) // Set hasUnpaidInvoices to false when payment is successful
-                    enqueueSnackbar("Payment Successfully", {
+    
+                console.log('API Response:', response.data); // Log the response data
+    
+                // Handle success response
+                if (response.status === 200 && response.data.success === true) {
+                    
+                    enqueueSnackbar('Payment Successfull', {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
                         }
-                    })
-                }
-                else {
-                    console.error('Payment failed:', response.data.error);
-                    enqueueSnackbar('Payment failed: ' + response.data.error, {
+                    });
+    
+                    console.log('Snackbar should now be shown with message:', successMessage);
+    
+                    setResponseMessage(response.data.message);
+                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                    setHasUnpaidInvoices(false); // Set hasUnpaidInvoices to false when payment is successful
+                } else {
+                    // Handle unexpected response status
+                    console.error('Unexpected response status:', response.status);
+                    enqueueSnackbar('Unexpected response status: ' + response.status, {
                         variant: "error",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
                         }
-                    })
+                    });
                 }
-                // if (res.status === 200) {
-                //     enqueueSnackbar("Payment Successfully", {
-                //         variant: "success",
-                //         anchorOrigin: {
-                //             vertical: "top",
-                //             horizontal: "right"
-                //         }
-                //     })
-                // }
-                // else {
-                //     if (res.status === 403) {
-                //         alert("Access denied. Please check your permissions.")
-                //     } else if (res.data.success === false) {
-                //         alert(res.data.message)
-                //     }
-                // }
-            } catch (error) {
+            }catch (error) {
                 if (error.response && error.response.data) {
                     if (error.response.status === 400 && error.response.data.success === false) {
-                        // alert(error.response.data.message)
                         enqueueSnackbar(error.response.data.message, {
                             variant: "error",
                             anchorOrigin: {
@@ -986,69 +970,17 @@ const Payment = ({ updatePaymentStatus }) => {
                                 horizontal: "right"
                             },
                             onExited: () => {
-                                setIsLoading(false); // Add this line to set isLoading to false
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
                             }
-                        })
-                        // console.log('Erorr agya', error.response.data.message)
-                        // alert(error.response.data.message)
+                        });
                     }
                 }
-            }
-            finally {
+            } finally {
                 setTimeout(() => {
-                    setIsLoading(false); // Add this line to set isLoading to false
-                }, 1000); // Wait for 2 seconds before setting isLoading to false
+                    setIsLoading(false); // Set isLoading to false after a delay
+                }, 1000); // Wait for 1 second before setting isLoading to false
             }
-            // finally {
-            //     // setIsLoading(false); // Add this line to set isLoading to false
-            //     if (error.response.data.message) {
-            //         enqueueSnackbar(error.response.data.message, {
-            //             variant: "error",
-            //             anchorOrigin: {
-            //                 vertical: "top",
-            //                 horizontal: "right"
-            //             }
-            //         })
-            //     }
-            // }
-            // setIsLoading(false);
-            // finally {
-            //     setIsLoading(false); // Add this line to set isLoading to false
-            //   }
-            // finally {
-
-            //     if (error.response && error.response.data) {
-            //         if (error.response.status === 400 && error.response.data.success === false) {
-            //             // alert(error.response.data.message)
-            //             setIsLoading(false);
-            //             enqueueSnackbar(error.response.data.message, {
-            //                 variant: "error",
-            //                 anchorOrigin: {
-            //                     vertical: "top",
-            //                     horizontal: "right"
-            //                 }
-            //             })
-
-
-            //             // console.log('Erorr agya', error.response.data.message)
-            //             // alert(error.response.data.message)
-            //         }
-            //     }
-            // }
-            // setIsLoading(false);
-            // setTimeout(() => {
-            //     enqueueSnackbar(error.response.data.message, {
-            //         variant: "error",
-            //         anchorOrigin: {
-            //             vertical: "top",
-            //             horizontal: "right"
-            //         }
-            //     })
-            // }, 100)
-
-            // setIsLoading(false);
         }
-
     };
 
     const handleDirectChangePlan = async () => {

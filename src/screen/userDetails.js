@@ -883,7 +883,7 @@ function UserDetails() {
         }
     }
 
-    console.log('Admin Ka data', timeEntries);
+    console.log('', timeEntries);
 
     return (
         <>

@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import PaymentCard from "../paymentCards";
 
-const CardSelection = ({ selectedCard, onSelect, onActionComplete, onSetDefaultCard, onAddCard }) => {
+const CardSelection = ({cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, onAddCard }) => {
 
     const [defaultCardId, setDefaultCardId] = useState(() => localStorage.getItem('defaultCardId') || '');
     const [orderedCards, setOrderedCards] = useState([]); // State to manage ordered cards
 
-    const [cards, setCards] = useState([]);
+    const [card, setCards] = useState([]);
 
     useEffect(() => {
         // This effect runs when the defaultCardId changes
@@ -25,18 +25,11 @@ const CardSelection = ({ selectedCard, onSelect, onActionComplete, onSetDefaultC
         }
     }, []);
 
-    useEffect(() => {
-        // Set the ordered cards when the component mounts or when cards prop changes
-        if (cards.length > 0) {
-            const defaultCard = cards.find(card => card._id === defaultCardId);
-            if (defaultCard) {
-                setOrderedCards([defaultCard, ...cards.filter(card => card._id !== defaultCardId)]); // Default card first
-            } else {
-                setOrderedCards(cards); // If no default card, just use the original order
-            }
-        }
-    }, [cards, defaultCardId]); // Depend on defaultCardId to re-run when it changes
+    const [selectedCards, setSelectedCard] = useState(
+        cards.find(card => card.defaultCard)?._id || null
+    );
 
+   
     const handleAddCard = (newCard) => {
         onAddCard(newCard); // Call the parent function to add the card
         enqueueSnackbar("Card added successfully", {
@@ -50,6 +43,8 @@ const CardSelection = ({ selectedCard, onSelect, onActionComplete, onSetDefaultC
 
     const addNewCard = (newCard) => {
         setCards((prevCards) => [...prevCards, newCard]);
+        setSelectedCard(newCard);
+        onAddCard(newCard); // Call the parent function to add the card
     };
 
     const handleSetDefaultCard = async (cards) => {

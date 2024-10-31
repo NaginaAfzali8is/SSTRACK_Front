@@ -90,6 +90,7 @@ const BillingComponent = () => {
                     amount: parseFloat(payment.TotalAmount).toFixed(2), // Format the total amount
                     payDate: new Date(payment.payDate).toLocaleDateString(), // Format payment date
                     paymentIntentId: payment.paymentIntentId, // Assuming each payment has a unique id
+                    cardType: payment.cardType,
                     // invoiceNumber: payment.invoiceNumber, // Reference to associated invoice
                     status: payment.status // Payment status
                 };
@@ -104,7 +105,7 @@ const BillingComponent = () => {
                 const bDate = new Date(b.payDate).setHours(0, 0, 0, 0); // Resetting time for comparison
                 return bDate - aDate; // Sort by payDate in descending order
             });
-            
+
             setPayments(transformedPayments);
 
             console.log("Payment ka data agya", transformedPayments);
@@ -1557,7 +1558,7 @@ const BillingComponent = () => {
                                             <tr key={payment.id}>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.receiptId}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.payDate}</td>
-                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.paymentIntentId}</td>
+                                                <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>{payment.cardType}, Transaction#{payment.paymentIntentId}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>${payment.amount}</td>
                                                 <td style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>
                                                     <a
