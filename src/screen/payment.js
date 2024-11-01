@@ -910,11 +910,12 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+        
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
-
+    
             try {
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
@@ -924,11 +925,47 @@ const Payment = ({ updatePaymentStatus }) => {
                     cardType: paycard.cardType,
                 }, { headers });
     
-                console.log('API Response:', response.data); // Log the response data
+                console.log('API Response:', response.data); // Log the entire response data
     
-                // Handle success response
-                if (response.status === 200 && response.data.success === true) {
-                    
+                // Check for successful response
+                if (response.data.status == 200) {
+                    const successMessage = response.data.message || "Payment Successful"; // Default success message
+                    console.log("Response Payment", successMessage);
+    
+                    // Check if the API indicates success
+                    if (success.response.data.status === 200 && success.response.data.success === true) {
+                        // Display success message in snackbar
+                        enqueueSnackbar(successMessage, { 
+                            variant: "success",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                        setResponseMessage(successMessage); // Update response message with success message
+                        handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
+                        setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
+                        setHasUnpaidInvoices(false); // Set hasUnpaidInvoices to false when payment is successful
+                    } else {
+                        // Handle case where response indicates failure even if status is 200
+                        const errorMessage = response.data.message || "Payment failed";
+                        enqueueSnackbar(errorMessage, {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
+                    }
+                } else {
+                    // Handle unexpected response status
+                    // console.error('Unexpected response status:', response.status);
                     enqueueSnackbar('Payment Successfull', {
                         variant: "success",
                         anchorOrigin: {
@@ -939,28 +976,9 @@ const Payment = ({ updatePaymentStatus }) => {
                             setIsLoading(false); // Set isLoading to false when the snackbar exits
                         }
                     });
-    
-                    // console.log('Snackbar should now be shown with message:', successMessage);
-    
-                    setResponseMessage(response.data.message);
-                    handleUpdatePaymentStatus('unpaid'); // Update paymentStatus and hasUnpaidInvoices states
-                    setInvoice({ status: 'unpaid' }); // Update invoice status to 'paid'
-                    setHasUnpaidInvoices(false); // Set hasUnpaidInvoices to false when payment is successful
-                } else {
-                    // Handle unexpected response status
-                    console.error('Unexpected response status:', response.status);
-                    enqueueSnackbar('Unexpected response status: ' + response.status, {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        },
-                        onExited: () => {
-                            setIsLoading(false); // Set isLoading to false when the snackbar exits
-                        }
-                    });
                 }
-            }catch (error) {
+            } catch (error) {
+                console.error('Error occurred during payment:', error);
                 if (error.response && error.response.data) {
                     if (error.response.status === 400 && error.response.data.success === false) {
                         enqueueSnackbar(error.response.data.message, {
@@ -973,7 +991,31 @@ const Payment = ({ updatePaymentStatus }) => {
                                 setIsLoading(false); // Set isLoading to false when the snackbar exits
                             }
                         });
+                    } else {
+                        // Handle other types of errors
+                        enqueueSnackbar('An error occurred. Please try again.', {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            },
+                            onExited: () => {
+                                setIsLoading(false); // Set isLoading to false when the snackbar exits
+                            }
+                        });
                     }
+                } else {
+                    // Handle cases where there is no response
+                    enqueueSnackbar('Network error. Please check your connection.', {
+                        variant: "error",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        },
+                        onExited: () => {
+                            setIsLoading(false); // Set isLoading to false when the snackbar exits
+                        }
+                    });
                 }
             } finally {
                 setTimeout(() => {
@@ -998,8 +1040,6 @@ const Payment = ({ updatePaymentStatus }) => {
                 const receiptUrl = res.data.data.receiptUrl; // Add this line
                 console.log('Receipt URL:', receiptUrl); // Add this line
                 window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
-
-
 
                 if (res.status === 200) {
                     console.log('Response', res.data.success)

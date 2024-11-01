@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import PaymentCard from "../paymentCards";
 
-const CardSelection = ({cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, onAddCard }) => {
+const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, onAddCard }) => {
 
     const [defaultCardId, setDefaultCardId] = useState(() => localStorage.getItem('defaultCardId') || '');
     const [orderedCards, setOrderedCards] = useState([]); // State to manage ordered cards
@@ -29,7 +29,7 @@ const CardSelection = ({cards, selectedCard, onSelect, onActionComplete, onSetDe
         cards.find(card => card.defaultCard)?._id || null
     );
 
-   
+
     const handleAddCard = (newCard) => {
         onAddCard(newCard); // Call the parent function to add the card
         enqueueSnackbar("Card added successfully", {
@@ -80,7 +80,6 @@ const CardSelection = ({cards, selectedCard, onSelect, onActionComplete, onSetDe
                 onActionComplete();
             } else {
                 console.error('Failed to set default card:', response.data.error);
-
             }
         } catch (error) {
             console.error('Error:', error);
