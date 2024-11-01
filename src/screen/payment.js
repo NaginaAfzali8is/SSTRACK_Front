@@ -933,7 +933,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     console.log("Response Payment", successMessage);
     
                     // Check if the API indicates success
-                    if (success.response.data.status === 200 && success.response.data.success === true) {
+                    if (response.data.status === 200) {
                         // Display success message in snackbar
                         enqueueSnackbar(successMessage, { 
                             variant: "success",
