@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import PaymentCard from "../paymentCards";
 
-const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, onAddCard }) => {
+const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetDefaultCard, paycard, onAddCard }) => {
 
     const [defaultCardId, setDefaultCardId] = useState(() => localStorage.getItem('defaultCardId') || '');
     const [orderedCards, setOrderedCards] = useState([]); // State to manage ordered cards
@@ -136,76 +136,91 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
 
             {/* <h3 className="text-center">Select a Card</h3> */}
             <div className="row">
-                {cards.map((card) => (
-                    <div
-                        key={card._id}
-                        className={`col-md-${cards.length === 1 ? 4 : 4} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
-                    >
-                        <div className="card align-item-center justify-content-center p-2">
-                            <input
-                                id={card._id}
-                                type="radio"
-                                name="selectedCard"
-                                value={card._id}
-                                checked={selectedCard === card._id}
-                                onChange={() => onSelect(card)}
-                                className="form-check-input align-items-center mt-3"
-                            />
-                            <label htmlFor={card._id} className="w-100 align-items-center justify-content-center">
-                                <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}>
-                                    <div className="d-flex align-items-center mb-2 gap-2">
-                                        <span className="mr-2">{card.cardType}</span>
-                                        **** {card.cardNumber}
-                                        <img
-                                            src={getCardIcon(card.cardType)}
-                                            alt={card.cardType} style={{ maxWidth: '8%' }}
-                                            className="img-fluid"
-                                        />
-                                    </div>
-                                    <div className="gap-2">
-                                        <span className="font-weight-bold">{card.cardHolder}</span>
-                                        <br />
-                                        <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
-                                        <br />
-                                        <span className="text-warning">⚠️ Unverified</span>
-                                    </div>
-                                    {selectedCard === card._id && cards.length > 1 && (
-                                        <div className="d-flex justify-content-end gap-1">
-                                            {/* Only show buttons if the selected card is not the default */}
-                                            {defaultCardId !== card._id ? (
-                                                <>
-                                                    <button
-                                                        className="btn btn-primary btn-sm mr-2"
-                                                        onClick={() => handleSetDefaultCard(card)}
-                                                        disabled={defaultCardId === card._id} // Disable if it's the default card
-                                                    >
-                                                        Default
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() => handleDeleteCard(card)}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                // <span className="text-success">Default Card</span>
-                                                <button
-                                                    className="btn btn-secondary btn-sm" style={{ borderRadius: '10%', cursor: 'none' }}
-                                                    disabled
-                                                >
-                                                    Default
-                                                </button>
-                                            )}
+                {cards.map((card) => {
+                    // Check if the card number matches the paycard's card number
+                    const isPayCard = paycard && paycard.cardNumber === card.cardNumber;
+                    return (
+                        <div key={card._id} className={`col-md-${cards.length === 1 ? 4 : 4} col-sm-12 col-12 mb-3 ${selectedCard === card._id ? "border-primary" : ""}`}
+                        >
+                            <div className="card p-2">
+                                <input
+                                    id={card._id}
+                                    type="radio"
+                                    name="selectedCard"
+                                    value={card._id}
+                                    checked={selectedCard === card._id}
+                                    onChange={() => onSelect(card)}
+                                    className="form-check-input mt-3"
+                                />
+                                <label htmlFor={card._id} className="w-100 align-items-center justify-content-center">
+                                    <div className="card-body gap-2 align-items-center" style={{ minHeight: '164px' }}>
+                                        <div className="d-flex align-items-center mb-2 gap-2">
+                                            <span className="mr-2">{card.cardType}</span>
+                                            **** {card.cardNumber}
+                                            <img
+                                                src={getCardIcon(card.cardType)}
+                                                alt={card.cardType} style={{ maxWidth: '8%' }}
+                                                className="img-fluid"
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                                        <div className="gap-2">
+                                            <span className="font-weight-bold">{card.cardHolder}</span>
+                                            <br />
+                                            <span style={{ color: 'grey', fontSize: '15px', marginLeft: '1%' }}>Expires on {card.expMonth}/{card.expYear}</span>
+                                            <br />
+                                            <span className="text-warning">⚠️ Unverified</span>
+                                        </div>
+                                        {selectedCard === card._id && cards.length > 1 && (
+                                            <div className="d-flex justify-content-end gap-1">
+                                                {defaultCardId !== card._id ? (
+                                                    <>
+                                                        <button
+                                                            className="btn btn-primary btn-sm mr-2"
+                                                            onClick={() => handleSetDefaultCard(card)}
+                                                            disabled={isPayCard} // Disable if this card matches the paycard
+                                                        >
+                                                            Default
+                                                        </button>
+                                                        {!isPayCard && (
 
+                                                            <button
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() => handleDeleteCard(card)}
+                                                                disabled={isPayCard} // Disable if this card matches the paycard
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            className="btn btn-primary btn-sm"
+                                                            style={{ borderRadius: '10%', cursor: 'not-allowed' }}
+                                                            disabled={isPayCard} // Disable if this card matches the paycard
+                                                        >
+                                                            Default
+                                                        </button>
+                                                        {!isPayCard && (
+                                                            <button
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() => handleDeleteCard(card)}
+                                                                disabled={isPayCard} // Disable if this card matches the paycard
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
             {/* <PaymentCard onAddCard={handleAddCard} /> */}
         </>
     );

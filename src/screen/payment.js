@@ -7,9 +7,10 @@ import axios from 'axios';
 import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
-import PaymentCards from './paymentCards'
+import PaymentCards from './paymentCards1'
 import PaymentPlans from './paymentPlan'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import PayPalButton from './PayPalButton'
 
 
 // const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
@@ -38,6 +39,7 @@ const Payment = ({ updatePaymentStatus }) => {
     const [responseMessage, setResponseMessage] = useState(null);
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
+    const [showPayPal, setShowPayPal] = useState(false);  // To toggle PayPal button visibility
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
     const [show, setShow] = useState(false);
     const [deleteAccount, setDeleteAccount] = useState(false);
@@ -73,6 +75,8 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModalwithoutcard(false);
     };
 
+
+    const amount = selectedPlan?.costPerUser * TotalUsers;
 
 
     // const getCardIcon = (cardType) => {
@@ -690,7 +694,7 @@ const Payment = ({ updatePaymentStatus }) => {
                         // onAddCard={handleAddCard} // Pass the function to add a new card
                         onAddCard={addNewCard} // Pass the function to add a new card
                         onActionComplete={fetchTokenAndSuspendedStatus}
-                    // setpaycard={setpaycard} // add this prop
+                        paycard={paycard} // Pass the paycard
                     />
                     {/* <Elements stripe={stripePromise}>
                             <div className="payment-container mt-4">
@@ -754,10 +758,13 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModal(false);
     };
 
+    // const handlePayPalClick = () => {
+    //     const amount = selectedPlan.costPerUser * TotalUsers;
+    //     const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
+    //     window.open(paypalUrl, '_blank');
+    // };
     const handlePayPalClick = () => {
-        const amount = selectedPlan.costPerUser * TotalUsers;
-        const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
-        window.open(paypalUrl, '_blank');
+        setShowPayPal(prevState => !prevState);
     };
 
     // const handleSubmit = async (event) => {
@@ -910,12 +917,12 @@ const Payment = ({ updatePaymentStatus }) => {
 
     const handlePayWithThisCard = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-        
+
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setIsLoading(true);
             setResponseMessage(null);
-    
+
             try {
                 const response = await axios.post(`${DirectPayApiUrl}/owner/payNow`, {
                     cardNumber: paycard.cardNumber,
@@ -924,18 +931,18 @@ const Payment = ({ updatePaymentStatus }) => {
                     tokenId: paycard.tokenId,
                     cardType: paycard.cardType,
                 }, { headers });
-    
+
                 console.log('API Response:', response.data); // Log the entire response data
-    
+
                 // Check for successful response
                 if (response.data.status == 200) {
                     const successMessage = response.data.message || "Payment Successful"; // Default success message
                     console.log("Response Payment", successMessage);
-    
+
                     // Check if the API indicates success
                     if (response.data.status === 200) {
                         // Display success message in snackbar
-                        enqueueSnackbar(successMessage, { 
+                        enqueueSnackbar(successMessage, {
                             variant: "success",
                             anchorOrigin: {
                                 vertical: "top",
@@ -1334,36 +1341,31 @@ const Payment = ({ updatePaymentStatus }) => {
                                 >
                                     or Pay with PayPal
                                 </h3>
-                                <button className='align-items-center text-center'
+                                <button
+                                    className="mt-2"
                                     onClick={handlePayPalClick}
                                     style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '10px 20px',
-                                        backgroundColor: '#FFB730', // Yellow background color
-                                        border: '2px solid #FFB730', // Border to match the background
-                                        borderRadius: '50px', // Rounded corners
-                                        cursor: 'pointer',
-                                        textDecoration: 'none',
+                                        display: 'inline-block',
+                                        padding: '5px 10px',
+                                        backgroundColor: '#FFB730',
+                                        // color: '#0070BA',
+                                        border: 'none',
+                                        borderRadius: '10px',
                                         fontSize: '1em',
-                                        fontWeight: 'bold',
-                                        color: '#0070BA', // PayPal blue color for text
-                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Slight shadow for effect
+                                        cursor: 'pointer',
                                         transition: 'background-color 0.3s ease',
-                                        margin: '10px',
+                                        // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                                     }}
                                 >
                                     <img
                                         src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
                                         alt="PayPal"
-                                        style={{
-                                            width: '24px',
-                                            height: 'auto',
-                                            marginRight: '8px', // Space between icon and text
-                                        }}
+                                        style={{ width: '24px', marginRight: '8px' }}
                                     />
-                                    PayPal
+                                    PayPal  {/* <PayPalButton amount={amount} /> */}
+                                    {showPayPal &&
+                                        <PayPalButton amount={amount} />
+                                    }
                                 </button>
                                 <p style={{ fontSize: "0.9em", marginBottom: "0" }}> {/* Reduced font size and margin */}
                                     PayPal will <strong>NOT</strong> be charged monthly automatically, we
@@ -1407,6 +1409,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             </div>
                         </div>
                     </div>
+                    {/* <PaymentCards /> */}
                     {/* <PaymentModal
                         showModal={showModal}
                         handleClose={handleCloseModal}
