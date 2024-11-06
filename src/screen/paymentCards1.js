@@ -819,7 +819,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             />
                             PayPal  {/* <PayPalButton amount={amount} /> */}
 
-                            {showpaypal &&
+                            {showPayPal &&
                                 <PayPalButton amount={amount} />
                             }
                         </button>

@@ -1499,15 +1499,15 @@ const BillingComponent = () => {
     }
 
     // Example function to fetch or set merchantId
-    const fetchMerchantId = async () => {
-        // Logic to fetch or set merchantId from API or context
-        const fetchedMerchantId = await getMerchantIdFromApi(); // Replace with your actual fetching logic
-        setMerchantId(fetchedMerchantId);
-    };
+    // const fetchMerchantId = async () => {
+    //     // Logic to fetch or set merchantId from API or context
+    //     const fetchedMerchantId = await getMerchantIdFromApi(); // Replace with your actual fetching logic
+    //     setMerchantId(fetchedMerchantId);
+    // };
 
-    useEffect(() => {
-        fetchMerchantId(); // Fetch merchantId when component mounts
-    }, []);
+    // useEffect(() => {
+    //     fetchMerchantId(); // Fetch merchantId when component mounts
+    // }, []);
 
     const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
 
