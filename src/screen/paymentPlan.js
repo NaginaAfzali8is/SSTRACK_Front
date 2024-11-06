@@ -554,7 +554,7 @@ const Payment = ({ updatePaymentStatus }) => {
         return (
             <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Change Your Plan</Modal.Title>
+                    {/* <Modal.Title>Change Your Plan</Modal.Title> */}
                 </Modal.Header>
                 <Modal.Body>
                     <div className="text-left mb-4" >
@@ -597,25 +597,8 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <button style={{
-                        alignSelf: "center",
-                        marginLeft: '10px',
-                        padding: '5px 10px',  // Adjusting padding for a smaller size
-                        backgroundColor: 'green',  // Green background
-                        color: 'white',  // White text
-                        border: 'none',  // Removing default border
-                        borderRadius: '5px',  // Rounded corners
-                        cursor: 'pointer',  // Pointer on hover
-                        fontSize: '0.875rem'
-                    }}
-                        onClick={() => {
-                            handleDirectChangePlan();
-                            setPlanData(selectedPlan);
-                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-                            handleCloseModal2()
-                        }}
-                    // onClick={handleDirectChangePlan}
-                    >Pay Now</button>
+                   
+                    
                 </Modal.Footer>
             </Modal >
         );

@@ -174,6 +174,8 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                             <div className="d-flex justify-content-end gap-1">
                                                 {defaultCardId !== card._id ? (
                                                     <>
+                                                   
+
                                                         <button
                                                             className="btn btn-primary btn-sm mr-2"
                                                             onClick={() => handleSetDefaultCard(card)}
@@ -181,6 +183,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                                         >
                                                             Default
                                                         </button>
+                                             
                                                         {!isPayCard && (
 
                                                             <button
@@ -194,14 +197,17 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
                                                     </>
                                                 ) : (
                                                     <>
+                                             
                                                         <button
                                                             className="btn btn-primary btn-sm"
-                                                            style={{ borderRadius: '10%', cursor: 'not-allowed' }}
+                                                            style={{ borderRadius: '10%' }}
+                                                            onClick={() => handleSetDefaultCard(card)}
                                                             disabled={isPayCard} // Disable if this card matches the paycard
                                                         >
                                                             Default
                                                         </button>
-                                                        {!isPayCard && (
+                                           
+                                                       {!isPayCard && (
                                                             <button
                                                                 className="btn btn-danger btn-sm"
                                                                 onClick={() => handleDeleteCard(card)}

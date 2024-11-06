@@ -34,6 +34,73 @@ import Payment from './payment'
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
+const PayPalButton = ({ amount, setMerchantId, selectedPlan }) => {
+    useEffect(() => {
+        // Load the PayPal SDK script
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?client-id=AbjWITfwZjHD0s6nwfnGmZFpRKnhKLet_QEaADR6xkZ4LiBjI2niy3U6sHRvYi6zCKgaCA4H4RX3mIPh&currency=USD&disable-funding=credit,card`;
+        script.async = true;
+        document.body.appendChild(script);
+
+        script.onload = () => {
+            window.paypal.Buttons({
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { value: amount.toString() }, // Ensure it's a string
+                        }],
+                    });
+                },
+
+                onApprove: async (data, actions) => {
+                    return actions.order.capture().then(async details => {
+                        console.log("Transaction completed by:", details.payer.name.given_name);
+                        const transactionId = details.purchase_units[0].payments.captures[0].id;
+                        setMerchantId(transactionId);
+                        const requestData = {
+                            planId: selectedPlan?._id,
+                            transactionId: transactionId
+                        };
+                        console.log("Sending API request with:", requestData);
+
+                        if (!requestData.planId || !requestData.transactionId) {
+                            alert("Missing required parameters: planId or transactionId.");
+                            return;
+                        }
+
+                        try {
+                            const res = await axios.post("https://myuniversallanguages.com:9093/api/v1/owner/upgradePayPal", requestData, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                }
+                            });
+                            console.log('API Response:', res.data);
+                            if (res.status === 200) {
+                                alert("Payment processed successfully!");
+                            } else {
+                                alert("Error: " + (res.data.message || 'Unknown error.'));
+                            }
+                        } catch (error) {
+                            alert("Payment processed successfully!");
+                        }
+                    });
+                },
+
+                onError: (err) => {
+                    console.error('PayPal Checkout onError', err);
+                    alert("An error occurred with PayPal. Please try again.");
+                },
+            }).render('#paypal-button-container');
+        };
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, [amount, selectedPlan]);
+
+    return <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>; // Set desired width
+};
+
 
 const BillingComponent = () => {
 
@@ -425,11 +492,11 @@ const BillingComponent = () => {
                 const doc = new jsPDF('p', 'pt', 'a4');
                 const width = doc.internal.pageSize.getWidth();
                 const margin = 40;
-    
+
                 // Define the maximum width and height for the logo image
                 const maxLogoWidth = 100;
                 const maxLogoHeight = 50;
-    
+
                 // Calculate the new width and height while maintaining the aspect ratio
                 if (logoWidth > maxLogoWidth || logoHeight > maxLogoHeight) {
                     const aspectRatio = logoWidth / logoHeight;
@@ -442,22 +509,22 @@ const BillingComponent = () => {
                         logoWidth = maxLogoHeight * aspectRatio;
                     }
                 }
-    
+
                 // Define header parameters
                 const headerHeight = 60;
                 const headerY = 20;
                 const logoX = margin;
                 const companyDetailsX = logoX + logoWidth + 20; // Position company details to the right of the logo
-    
+
                 // Add the header line
                 doc.setLineWidth(5);
                 doc.setDrawColor(211, 211, 211);
                 const headerLineY = headerY + headerHeight;
                 doc.line(margin, headerLineY, width - margin, headerLineY);
-    
+
                 // Add the logo
                 doc.addImage(logoBase64, 'PNG', logoX, headerY, logoWidth, logoHeight);
-    
+
                 // Add company details
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
@@ -467,7 +534,7 @@ const BillingComponent = () => {
                 doc.text('SSTRACK', companyDetailsX, headerY + 20);
                 doc.text('4370 Steeles Avenue West', companyDetailsX, headerY + 35);
                 doc.text('Unit 204 Vaughan ON L4L 4Y4', companyDetailsX, headerY + 50);
-    
+
                 // Adding the "Customer" section
                 doc.setFont("helvetica", "bold");
                 doc.text('Customer:', margin, 100);
@@ -476,7 +543,7 @@ const BillingComponent = () => {
                 doc.text('Kamran', margin, 135);
                 doc.text('kamrantariq@hotmail.com', margin, 150);
                 doc.text('Canada', margin, 165);
-    
+
                 // Adding the "Payment Receipt" section
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(18);
@@ -489,17 +556,17 @@ const BillingComponent = () => {
                 // doc.text({payment.cardType}, Transaction#{payment.paymentIntentId}, margin, 290);
                 doc.setFont("helvetica", "normal");
                 doc.text(`Total paid: `, margin, 310);
-                
+
                 // Set font to bold for the amount
                 doc.setFont("helvetica", "bold");
                 doc.text(`$${parseFloat(payment.amount).toFixed(2)}`, margin + doc.getTextWidth(`Total Paid: `), 310); // Positioning the amount right after the text
-                
+
                 doc.setFont("helvetica", "normal");
                 doc.text(`Your current balance: ($${payment.amount})`, margin, 330);
-    
+
                 // Optionally add a paid stamp if needed
                 // doc.addImage(paidStampBase64, 'PNG', width - 140, 20, 100, 50); // Position and size as needed
-    
+
                 // Download the PDF
                 doc.save(`Payment_${payment.receiptId}.pdf`);
             });
@@ -1013,6 +1080,21 @@ const BillingComponent = () => {
         }
     };
 
+    // const handlePayPalClick = () => {
+    //     const amount = selectedPlan.costPerUser * TotalUsers;
+    //     const paypalUrl = `https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount=${amount}&currency_code=USD`;
+    //     window.open(paypalUrl, '_blank');
+    // };
+    const [showPayPal, setShowPayPal] = useState(false);
+    const amount = 10.00; // Set your amount here
+
+    const handlePayPalClick = () => {
+        handleDirectChangePlan(); // Pass the captureId directly
+        setPlanData(selectedPlan);
+        localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+        handleCloseModal2();
+        setShowPayPal(true); // Show the PayPal button
+    };
 
     useEffect(() => {
         if (plans.length > 0) {
@@ -1246,25 +1328,44 @@ const BillingComponent = () => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <button style={{
-                        alignSelf: "center",
-                        marginLeft: '10px',
-                        padding: '5px 10px',  // Adjusting padding for a smaller size
-                        backgroundColor: 'green',  // Green background
-                        color: 'white',  // White text
-                        border: 'none',  // Removing default border
-                        borderRadius: '5px',  // Rounded corners
-                        cursor: 'pointer',  // Pointer on hover
-                        fontSize: '0.875rem'
-                    }}
-                        onClick={() => {
-                            handleDirectChangePlan();
-                            setPlanData(selectedPlan);
-                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-                            handleCloseModal2()
+                    <div className='d-flex' style={{ justifyContent: 'space-between', width: '100%' }}>
+                        <button style={{
+                             alignSelf: "center",
+                     
+                             border: 'none',  // Removing default border
+                             cursor: 'pointer',  // Pointer on hover
                         }}
-                    // onClick={handleDirectChangePlan}
-                    >Pay Now</button>
+                            onClick={() => {
+                                handleDirectChangePlan1();
+                                setPlanData(selectedPlan);
+                                localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                                handleCloseModal2()
+                            }}
+                        // onClick={handleDirectChangePlan}
+                        >
+                            <PayPalButton amount={amount} selectedPlan={selectedPlan} setMerchantId={setMerchantId} />
+                        </button>
+
+                        <button style={{
+                            alignSelf: "center",
+                            marginLeft: '10px',
+                            padding: '5px 10px',  // Adjusting padding for a smaller size
+                            backgroundColor: 'green',  // Green background
+                            color: 'white',  // White text
+                            border: 'none',  // Removing default border
+                            borderRadius: '5px',  // Rounded corners
+                            cursor: 'pointer',  // Pointer on hover
+                            fontSize: '0.875rem'
+                        }}
+                            onClick={() => {
+                                handleDirectChangePlan();
+                                setPlanData(selectedPlan);
+                                localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                                handleCloseModal2()
+                            }}
+                        // onClick={handleDirectChangePlan}
+                        >Pay Now</button>
+                    </div>
                 </Modal.Footer>
             </Modal >
         );
@@ -1334,6 +1435,7 @@ const BillingComponent = () => {
     //     }
     // };
 
+
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
@@ -1395,6 +1497,76 @@ const BillingComponent = () => {
             }
         }
     }
+
+    // Example function to fetch or set merchantId
+    const fetchMerchantId = async () => {
+        // Logic to fetch or set merchantId from API or context
+        const fetchedMerchantId = await getMerchantIdFromApi(); // Replace with your actual fetching logic
+        setMerchantId(fetchedMerchantId);
+    };
+
+    useEffect(() => {
+        fetchMerchantId(); // Fetch merchantId when component mounts
+    }, []);
+
+    const [merchantId, setMerchantId] = useState(''); // Or whatever method you are using to get the ID
+
+    const handleDirectChangePlan1 = async () => {
+        const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+
+        if (paycard) { // Check if merchantId is available
+            console.log('Pay with this card:', paycard);
+            // console.log('Merchant ID:', merchantId);
+            setResponseMessage(null);
+
+            try {
+                const res = await axios.post(`${DirectPayApiUrl}/owner/upgradePayPal`, {
+                    planId: selectedPlan._id,
+                    transactionId: merchantId // Use the merchantId from props
+                }, { headers });
+
+                console.log('Response owner', res);
+                const receiptUrl = res.data.data.receiptUrl;
+                console.log('Receipt URL:', receiptUrl);
+                window.open(receiptUrl, '_blank');
+
+                if (res.status === 200) {
+                    enqueueSnackbar("Plan Changed Successfully", {
+                        variant: "success",
+                        anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "right"
+                        }
+                    });
+                } else {
+                    if (res.status === 403) {
+                        alert("Access denied. Please check your permissions.");
+                    } else if (res.data.success === false) {
+                        alert(res.data.message);
+                    }
+                }
+                handleCloseModal2();
+            } catch (error) {
+                console.error('Error:', error.response?.data?.message);
+                if (error.response && error.response.data) {
+                    if (error.response.status === 403 && error.response.data.success === false) {
+                        enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
+                            variant: "error",
+                            anchorOrigin: {
+                                vertical: "top",
+                                horizontal: "right"
+                            }
+                        });
+                    }
+                }
+            } finally {
+                setShowModalwithoutcard(false);
+            }
+        }
+    };
+
+
+
 
     const getBase64Image = (imgUrl, callback) => {
         const img = new Image();

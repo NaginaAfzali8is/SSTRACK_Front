@@ -796,32 +796,34 @@ const Payment = ({ updatePaymentStatus }) => {
                             or Pay with PayPal
                         </h3>
                         {/* Trigger PayPal Payment on Button Click */}
-                            <button
-                                className="mt-2"
-                                onClick={handlePayPalClick}
-                                style={{
-                                    display: 'inline-block',
-                                    padding: '5px 10px',
-                                    backgroundColor: '#FFB730',
-                                    // color: '#0070BA',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    fontSize: '1em',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease',
-                                    // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                                }}
-                            >
-                                <img
-                                    src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
-                                    alt="PayPal"
-                                    style={{ width: '24px', marginRight: '8px' }}
-                                />
-                                PayPal  {/* <PayPalButton amount={amount} /> */}
-                                {showPayPal &&
-                                    <PayPalButton amount={amount} />
-                                }
-                            </button>
+                        <button
+                            className="mt-2"
+                            onClick={handlePayPalClick}
+                            style={{
+                                display: 'inline-block',
+                                padding: '5px 10px',
+                                backgroundColor: '#FFB730',
+                                // color: '#0070BA',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontSize: '1em',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s ease',
+                                // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                            }}
+                        >
+                            <img
+                                src="https://www.paypalobjects.com/webstatic/icon/pp258.png"
+                                alt="PayPal"
+                                style={{ width: '24px', marginRight: '8px' }}
+                            />
+                            PayPal  {/* <PayPalButton amount={amount} /> */}
+
+                            {showpaypal &&
+                                <PayPalButton amount={amount} />
+                            }
+                        </button>
+
                         {/* <PayPalButton amount={amount} /> PayPalButton included inside the button */}
 
                         <p style={{ fontSize: '0.9em', marginBottom: '0' }}>
