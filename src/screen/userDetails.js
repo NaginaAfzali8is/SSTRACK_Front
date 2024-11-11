@@ -39,8 +39,6 @@ function UserDetails() {
 
 
     const dispatch = useDispatch();
-
-
     const employees = useSelector((state) => state.adminSlice.employess);
     // const employees = useSelector((state) => state?.adminSlice?.employess?.effectiveSettings?.screenshots?.allowBlur)
     // console.log('Employees ka blur dekhna hai mujhyy', employees)
@@ -1140,11 +1138,11 @@ function UserDetails() {
                                                         <div
                                                             className="needleContainerMainAlingment"
                                                             style={{
-                                                                transform: `translateY(-50%) rotate(${Math.floor(data?.totalactivity) <= 20 ? -75 :
-                                                                    Math.floor(data?.totalactivity) > 20 && Math.floor(data?.totalactivity) <= 40 ? -38 :
-                                                                        Math.floor(data?.totalactivity) > 40 && Math.floor(data?.totalactivity) <= 60 ? 0 :
-                                                                            Math.floor(data?.totalactivity) > 60 && Math.floor(data?.totalactivity) <= 80 ? 35 :
-                                                                                Math.floor(data?.totalactivity) > 80 ? 75 : -108
+                                                                transform: `translateY(-50%) rotate(${Math.floor(totalActivityByDay?.totalactivity) <= 20 ? -75 :
+                                                                    Math.floor(totalActivityByDay?.totalactivity) > 20 && Math.floor(totalActivityByDay?.totalactivity) <= 40 ? -38 :
+                                                                        Math.floor(totalActivityByDay?.totalactivity) > 40 && Math.floor(totalActivityByDay?.totalactivity) <= 60 ? 0 :
+                                                                            Math.floor(totalActivityByDay?.totalactivity) > 60 && Math.floor(totalActivityByDay?.totalactivity) <= 80 ? 35 :
+                                                                                Math.floor(totalActivityByDay?.totalactivity) > 80 ? 75 : -108
                                                                     }deg)`
                                                             }}>
                                                             <div className="needleContainerAlingment">
