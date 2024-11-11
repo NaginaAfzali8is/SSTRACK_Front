@@ -11,6 +11,8 @@ import leftArrow from "../../images/Leftarrow.webp";
 import rightArrow from "../../images/Rightarrow.webp";
 import dean from "../../images/manage.svg";
 import { Modal, Form } from 'react-bootstrap';
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
+
 
 
 const Pricing = () => {
@@ -35,6 +37,23 @@ const Pricing = () => {
         { id: 3, name: 'Premium' }
     ];
 
+    const handleApply = () => {
+        // Here you can handle the API call to apply for the plan
+        // For example: await api.applyForPlan({ email, phoneNo, companyName, userCount, joinTiming });
+
+        // Show Snackbar message
+        // enqueueSnackbar('Your application has been successfully submitted', { variant: 'success' });
+        enqueueSnackbar("Your application has been successfully submitted", { variant: "success", anchorOrigin: { vertical: "top", horizontal: "right" } });
+
+        
+        // Reset form fields
+        setEmail('');
+        setPhone('');
+        setCompanyName('');
+        setUserCount('');
+        setJoinTiming('');
+        handleCloseModal(); // Close the modal after applying
+    };
 
     // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
     // Retrieve the stored plan from localStorage and set the selected package
@@ -105,6 +124,8 @@ const Pricing = () => {
 
     return (
         <>
+            <SnackbarProvider />
+
             <div className='container' id="section3">
                 <p className="how-it-works-title text-center">Company Plans & Pricing</p>
                 <p className="text-center">These monthly plans are for Companies to track their employees or for freelancers to track their own time.
@@ -335,7 +356,7 @@ const Pricing = () => {
                             }} onClick={() => {
                                 // Handle the apply action here
                                 // For example, you could call an API to apply for the plan
-                                handleCloseModal(); // Close the modal after applying
+                                handleApply(); // Close the modal after applying
                             }}>
                                 Apply
                             </button>
