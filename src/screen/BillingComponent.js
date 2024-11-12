@@ -29,12 +29,14 @@ import { Link } from 'react-router-dom'
 import CustomModal from './component/CustomModal'
 import CardSelection from './component/CardSelection';
 import Payment from './payment'
-import jwtDecode from 'jwt-decode';
+
 
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
 
 
-const PayPalButton = ({ amount, setMerchantId, selectedPlan }) => {
+const PayPalButton = ({ setMerchantId, selectedPlan }) => {
+
+    const amount = selectedPlan?.costPerUser; // Dynamically set amount based on selectedPlan
     useEffect(() => {
         // Load the PayPal SDK script
         const script = document.createElement('script');
@@ -47,17 +49,17 @@ const PayPalButton = ({ amount, setMerchantId, selectedPlan }) => {
                 createOrder: (data, actions) => {
                     return actions.order.create({
                         purchase_units: [{
-                            amount: { value: amount.toString() }, // Ensure it's a string
+                            amount: { value: amount?.toString() }, // Use dynamic amount here
                         }],
                     });
                 },
-            
+
                 onApprove: async (data, actions) => {
                     return actions.order.capture().then(async details => {
                         console.log("Transaction completed by:", details.payer.name.given_name);
                         const transactionId = details.purchase_units[0].payments.captures[0].id;
                         setMerchantId(transactionId);
-                    
+
                         const requestData = {
                             planId: selectedPlan?._id,
                             transactionId: transactionId
@@ -91,7 +93,7 @@ const PayPalButton = ({ amount, setMerchantId, selectedPlan }) => {
                         }
                     });
                 },
-                
+
                 onError: (err) => {
                     console.error('PayPal Checkout onError', err);
                     alert("An error occurred with PayPal. Please try again.");
@@ -138,8 +140,12 @@ const BillingComponent = () => {
     const [paymentStatus, setPaymentStatus] = useState('');
     const [cards, setCards] = useState([]);
 
+
     const items = JSON.parse(localStorage.getItem('items'));
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
+
+
+
 
     const fetchInvoices = async () => {
         try {
@@ -149,7 +155,7 @@ const BillingComponent = () => {
             const data = await res.json();
             console.log('invoices', data);
 
-            console.log("Payment ka data agya", data.data.paymentsInfo.map(payment => payment.TotalAmount));
+            console.log("Payment", data.data.paymentsInfo.map(payment => payment.TotalAmount));
 
 
             // Transform paymentsInfo similar to invoiceInfo
@@ -181,7 +187,7 @@ const BillingComponent = () => {
 
             setPayments(transformedPayments);
 
-            console.log("Payment ka data agya", transformedPayments);
+            console.log("Payment", transformedPayments);
 
             // Transform the API data to the desired structure
             const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
@@ -191,9 +197,7 @@ const BillingComponent = () => {
                 return {
                     id: invoice.invoiceNumber,
                     date: new Date(invoice.invoiceDate).toLocaleDateString(),
-                    description: `For ${new Date(invoice.employee[0].periodStart).toLocaleDateString()}–${new Date(
-                        invoice.employee[0].periodEnd
-                    ).toLocaleDateString()}`,
+                    description: `From ${new Date(invoice.billingPeriodStart).toLocaleDateString()} to ${new Date(invoice.billingPeriodEnd).toLocaleDateString()}`,
                     amount: parseFloat(invoice.subTotal).toFixed(2),
                     balance: parseFloat(invoice.balance).toFixed(2),
                     status: (invoice.status),
@@ -205,6 +209,7 @@ const BillingComponent = () => {
                     })),
                 };
             });
+            console.log("Invoices", transformedInvoices);
 
             // const transformedInvoice = data.data.paymentInfo.map((payment) => {
             //     // Log the status of each invoice
@@ -239,7 +244,6 @@ const BillingComponent = () => {
 
             setInvoices(transformedInvoices);
             // setInvoices(transformedInvoice);
-
             // Check if there is any unpaid invoice
             const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
             // const hasUnpaidInvoices = transformedInvoice.some(invoice => invoice.status === 'unpaid');
@@ -864,12 +868,6 @@ const BillingComponent = () => {
 
     }, []);
 
-
-
-
-
-
-
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(date).toLocaleDateString(undefined, options);
@@ -975,6 +973,8 @@ const BillingComponent = () => {
 
     const [modalData, setModalData] = useState({});
 
+
+
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -1004,6 +1004,8 @@ const BillingComponent = () => {
                 card: elements.getElement(CardElement),
             });
 
+            debugger
+
             if (error) {
                 setError(error.message);
                 setLoading(false);
@@ -1021,15 +1023,12 @@ const BillingComponent = () => {
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
-                        // TotalAmount: selectedPlan.costPerUser,
                         // planId: selectedPlan._id,
                         cardType: paymentMethod.card.brand,
                         expMonth: paymentMethod.card.exp_month,
                         expYear: paymentMethod.card.exp_year,
                         cardNumber: paymentMethod.card.last4,
                         tokenId: paymentMethod.id,
-                        TotalAmount: '58.88',
-                        dueDate: '2024-07-30',
                         planId: selectedPlan._id,
                     }, { headers });
 
@@ -1075,7 +1074,7 @@ const BillingComponent = () => {
             const plans = response.data.data;
             console.log('plansssss====>', plans)
             setPlans(plans)
-            setSelectedPlan(plans[0]);
+            setSelectedPlan(plans[1]);
             // Store plans in localStorage
             // localStorage.setItem('plans', JSON.stringify(plans));
             setLoading(false);
@@ -1092,7 +1091,8 @@ const BillingComponent = () => {
     //     window.open(paypalUrl, '_blank');
     // };
     const [showPayPal, setShowPayPal] = useState(false);
-    const amount = 10.00; // Set your amount here
+    const amount = selectedPlan === 'premium' ? 4.99 : 3.99; // Default to 3.99 for standard, 4.99 for premium
+
 
     const handlePayPalClick = () => {
         handleDirectChangePlan(); // Pass the captureId directly
@@ -1104,7 +1104,8 @@ const BillingComponent = () => {
 
     useEffect(() => {
         if (plans.length > 0) {
-            setSelectedPlan(plans[0]);
+            setSelectedPlan(plans[defaultPlanIndex - 1] || plans[1]);
+
         } else {
             fetchPlans();
             // setSelectedPlan(plans[0])
@@ -1193,7 +1194,6 @@ const BillingComponent = () => {
                         >
                             Add New Card
                         </button>
-
                     </div>
 
                     {activeTab === 'cardSelection' && (
@@ -1227,12 +1227,10 @@ const BillingComponent = () => {
         const storedPlanId = JSON.parse(localStorage.getItem('planId'));
         if (storedPlanId?.planType === 'free') {
             setSelectedPackage(1); // Basic
-        } 
-        // else if (storedPlanId?.planType === 'standard') {
-        //     setSelectedPackage(2); // Standard
-        // } 
-        else if (storedPlanId?.planType === 'premium') {
-            setSelectedPackage(2); // Premium
+        } else if (storedPlanId?.planType === 'standard') {
+            setSelectedPackage(2); // Standard
+        } else if (storedPlanId?.planType === 'premium') {
+            setSelectedPackage(3); // Premium
         }
     }, []); // Empty dependency array to run only once on component mount
 
@@ -1343,7 +1341,7 @@ const BillingComponent = () => {
                             cursor: 'pointer',  // Pointer on hover
                         }}
                             onClick={() => {
-                                handleDirectChangePlan1();
+                                handleDirectChangePlan();
                                 setPlanData(selectedPlan);
                                 localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
                                 handleCloseModal2()
@@ -1458,9 +1456,6 @@ const BillingComponent = () => {
                 const receiptUrl = res.data.data.receiptUrl; // Add this line
                 console.log('Receipt URL:', receiptUrl); // Add this line
                 window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
-
-
-
                 if (res.status === 200) {
                     console.log('Response', res.data.success)
                     enqueueSnackbar("Plan Changed Successfully", {
@@ -1520,15 +1515,15 @@ const BillingComponent = () => {
 
     const handleDirectChangePlan1 = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
-    
+
         if (paycard) {
             console.log('Pay with this card:', paycard);
             setResponseMessage(null);
-    
+
             try {
                 // Retrieve the token from localStorage
                 const token = localStorage.getItem('token'); // Make sure the token is stored in localStorage
-    
+
                 // Make the request, including planId, transactionId, and token in the data
                 const res = await axios.post(`${DirectPayApiUrl}/owner/upgradePayPal`, {
                     planId: selectedPlan._id,
@@ -1539,7 +1534,7 @@ const BillingComponent = () => {
                         'Content-Type': 'application/json'
                     },
                 });
-    
+
                 // If you get a new token in the response, decode and store it
                 const newToken = res.data.token;
                 if (newToken) {
@@ -1548,12 +1543,12 @@ const BillingComponent = () => {
                     localStorage.setItem("token", newToken); // Update the token if needed
                 }
                 console.log('Response owner', res);
-    
+
                 // Handle receipt URL if available
                 const receiptUrl = res.data.data.receiptUrl;
                 console.log('Receipt URL:', receiptUrl);
                 window.open(receiptUrl, '_blank');
-    
+
                 // Display success message
                 if (res.status === 200) {
                     enqueueSnackbar("Plan Changed Successfully", {
@@ -1589,7 +1584,7 @@ const BillingComponent = () => {
             }
         }
     };
-    
+
 
     const getBase64Image = (imgUrl, callback) => {
         const img = new Image();
@@ -1614,7 +1609,6 @@ const BillingComponent = () => {
         if (paycard) {
             setShowModalwithoutcard(true);  // For when the paycard is not available
             console.log('card is available', showModalwithoutcard);
-
         } else {
             console.log('card is not available');
             handleShowModal();
@@ -1635,6 +1629,16 @@ const BillingComponent = () => {
     // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
 
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
+
+    useEffect(() => {
+        // Set the selected plan to the current plan (planData) when component mounts
+        if (planData) {
+            const currentPlan = plans.find(plan => plan.planType === planData.planType);
+            if (currentPlan) {
+                setSelectedPlan(currentPlan);
+            }
+        }
+    }, [plans, planData]);
 
     const handleOpenModal = () => {
         setIsOpen(true);
@@ -1919,7 +1923,6 @@ const BillingComponent = () => {
                                                                     <span></span>
                                                                 )
                                                             )
-
                                                         ) : (
                                                             selectedPlan?._id === plan._id ? (
                                                                 <button style={{
@@ -1954,6 +1957,8 @@ const BillingComponent = () => {
                                 ))
                         )}
                     </div>
+
+
                     <div className='card mt-4'>
                         <div className='card-body'>
                             <h3 className="card-title mt-4">Estimated payments</h3>
@@ -1987,6 +1992,7 @@ const BillingComponent = () => {
                         showModalwithoutcard={showModalwithoutcard}
                         handleCloseModal2={handleCloseModal2}
                         selectedPlan={selectedPlan}
+
                     />
                     {/* <div style={{ paddingTop: '10px' }}>
                             <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
