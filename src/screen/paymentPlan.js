@@ -204,7 +204,6 @@ const Payment = ({ updatePaymentStatus }) => {
                     expMonth: paymentMethod.card.exp_month,
                     expYear: paymentMethod.card.exp_year,
                     cardNumber: paymentMethod.card.last4,
-
                 });
                 const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {

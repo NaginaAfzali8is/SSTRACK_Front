@@ -25,7 +25,7 @@ const CompanyEmployess = (props) => {
 
     useEffect(() => {
         // Set allowBlur based on the Redux store
-        const employeeWithBlur = employees.find(employee => employee.effectiveSettings.screenshots?.allowBlur);
+        const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
         setAllowBlur(!!employeeWithBlur); // Use double negation to convert to boolean
     }, [employees]);
 

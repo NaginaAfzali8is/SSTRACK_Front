@@ -1500,7 +1500,8 @@ function Account({ suspended }) {
                             UTC {formattedOffset}
                         </p>
                         <div className="accountDiv">
-                            <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div>
+                            <div onClick={() => navigate("/profile", { state: { fromAccount: true } })} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div>
+                            {/* <div onClick={() => navigate('/profile')} className="accountEditDiv"><div><img src={edit} /></div><p>Edit Profile</p></div> */}
                             <div onClick={() => setUpdatePassword(true)} className="accountEditDiv"><div><img src={passwords} /></div><p>Change Password</p></div>
                             {items?.userType === "owner" && (
                                 <div onClick={handleShow} className="accountEditDiv">

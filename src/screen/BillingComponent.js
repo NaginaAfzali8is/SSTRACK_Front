@@ -808,8 +808,6 @@ const BillingComponent = () => {
 
     // const handlePlanSelect = (plan) => {
     //     setSelectedPlan(plan);
-
-
     // };
 
 
@@ -834,7 +832,6 @@ const BillingComponent = () => {
         }
     }, [headers]);
 
-
     const fetchTokenAndSuspendedStatus = async () => {
         if (token) {
             try {
@@ -855,7 +852,6 @@ const BillingComponent = () => {
                     setSelectedCard(defaultCard._id);
                     setpaycard(defaultCard);
                 }
-
             } catch (err) {
                 console.error('Error fetching data', err);
             }
@@ -1712,18 +1708,38 @@ const BillingComponent = () => {
 
     const plandetail = `${costPerUser}/employee/mo`;
 
+    // const planchange = () => {
+    //     if (paycard) {
+    //         setShowModalwithoutcard(true);  // For when the paycard is not available
+    //         console.log('card is available', showModalwithoutcard);
+    //         setSelectedPlan(selectedPlan)
+    //     } else {
+    //         console.log('card is not available');
+    //         // handleShowModal();
+    //     }
+    //     // setPlanData(plan)
+    // }
     const planchange = () => {
         if (paycard) {
+            // Proceed with upgrade if card exists
             setShowModalwithoutcard(true);  // For when the paycard is not available
-            console.log('card is available', showModalwithoutcard);
+            console.log('Card is available, upgrading...');
             setSelectedPlan(selectedPlan)
+            // Insert logic here to handle the upgrade, e.g., call the upgrade API
         } else {
-            console.log('card is not available');
-            // handleShowModal();
+            // Show Snackbar if no card is available
+            enqueueSnackbar("Please add your card to proceed", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            console.log('Card is not available, showing warning.');
+            // Optional: Open modal to add a new card
         }
-        // setPlanData(plan)
-    }
-
+    };
+    
     const [isOpen, setIsOpen] = useState(false);
 
     const totalbill = selectedPlan?.costPerUser * TotalUsers
@@ -1756,7 +1772,9 @@ const BillingComponent = () => {
                         </Link>
                         <p className="companyPlan">Company plan</p>
                         <p className="userEmail">If you track your time for other companies - you do not need a plan and do not have to pay - your company pays for you.</p>
+                        {invoices.length > 0 && (
                         <div style={{ width: '80%', margin: '10px auto', fontFamily: 'Arial, sans-serif' }}>
+        
                             <div style={{ display: 'flex', borderBottom: '2px solid #ddd', marginBottom: '10px' }}>
                                 <span
                                     style={{
@@ -1783,7 +1801,6 @@ const BillingComponent = () => {
                                     Payments
                                 </span>
                             </div>
-
                             {activeTab === 'invoices' ? (
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
@@ -1904,6 +1921,7 @@ const BillingComponent = () => {
                                 Download
                             </a> */}
                         </div>
+                        )}
                     </div>
                     <div className="row mt-4">
                         {loading ? (
@@ -2000,7 +2018,6 @@ const BillingComponent = () => {
                                                                                 selectedPlan?.planType?.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'
                                                                             )}
                                                                         </button>
-
                                                                         {/* <a
                                                                         href={receiptUrl}
                                                                         target="_blank"
@@ -2056,8 +2073,6 @@ const BillingComponent = () => {
                                 ))
                         )}
                     </div>
-
-
                     <div className='card mt-4'>
                         <div className='card-body'>
                             <h3 className="card-title mt-4">Estimated payments</h3>
