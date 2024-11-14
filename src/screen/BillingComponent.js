@@ -29,6 +29,8 @@ import { Link } from 'react-router-dom'
 import CustomModal from './component/CustomModal'
 import CardSelection from './component/CardSelection';
 import Payment from './payment'
+import { CircleSpinnerOverlay, FerrisWheelSpinner } from 'react-spinner-overlay'
+import jwtDecode from "jwt-decode";
 
 
 const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
@@ -108,8 +110,6 @@ const PayPalButton = ({ setMerchantId, selectedPlan }) => {
     return <div id="paypal-button-container" style={{ width: '200px', margin: '0 auto' }}></div>; // Set desired width
 };
 
-
-
 const BillingComponent = () => {
 
     const location = useLocation();
@@ -123,7 +123,10 @@ const BillingComponent = () => {
     const [loading, setLoading] = useState(false);
     const [TotalUsers, setTotalUsers] = useState(0);
     const [paycard, setpaycard] = useState();
-    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedPlan, setSelectedPlan] = useState(() => {
+        // Load initial plan data from localStorage if available
+        return JSON.parse(localStorage.getItem('planIdforHome')) || plans[0] || null;
+    });
     const [showNewCardModal, setshowNewCardModal] = useState(false);
     const [billingDate, setBillingDate] = useState(null);
     const [defaultPlanIndex] = useState(location.state?.defaultPlanIndex || 0);
@@ -139,13 +142,10 @@ const BillingComponent = () => {
     const [activeTab, setActiveTab] = useState('invoices');
     const [paymentStatus, setPaymentStatus] = useState('');
     const [cards, setCards] = useState([]);
-
+    const [isPlanChanging, setIsPlanChanging] = useState(false); // Add this new state
 
     const items = JSON.parse(localStorage.getItem('items'));
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
-
-
-
 
     const fetchInvoices = async () => {
         try {
@@ -155,13 +155,13 @@ const BillingComponent = () => {
             const data = await res.json();
             console.log('invoices', data);
 
-            console.log("Payment", data.data.paymentsInfo.map(payment => payment.TotalAmount));
+            console.log("Payment ka data agya", data.data.paymentsInfo.map(payment => payment.TotalAmount));
 
 
             // Transform paymentsInfo similar to invoiceInfo
             const transformedPayments = data.data.paymentsInfo.map((payment) => {
-                console.log('Payment Total Amount:', payment.TotalAmount);
-                console.log('Payment Receipt Id agyi:', payment.receiptId);
+                // console.log('Payment Total Amount:', payment.TotalAmount);
+                // console.log('Payment Receipt Id agyi:', payment.receiptId);
 
                 return {
 
@@ -187,7 +187,7 @@ const BillingComponent = () => {
 
             setPayments(transformedPayments);
 
-            console.log("Payment", transformedPayments);
+            console.log("Payment ka data agya", transformedPayments);
 
             // Transform the API data to the desired structure
             const transformedInvoices = data.data.invoiceInfo.map((invoice) => {
@@ -209,7 +209,6 @@ const BillingComponent = () => {
                     })),
                 };
             });
-            console.log("Invoices", transformedInvoices);
 
             // const transformedInvoice = data.data.paymentInfo.map((payment) => {
             //     // Log the status of each invoice
@@ -244,6 +243,7 @@ const BillingComponent = () => {
 
             setInvoices(transformedInvoices);
             // setInvoices(transformedInvoice);
+
             // Check if there is any unpaid invoice
             const hasUnpaidInvoice = transformedInvoices.some(invoice => invoice.status === 'unpaid');
             // const hasUnpaidInvoices = transformedInvoice.some(invoice => invoice.status === 'unpaid');
@@ -762,6 +762,8 @@ const BillingComponent = () => {
     }, [billing]);
 
 
+
+
     useEffect(() => {
         const storedPlanId = JSON.parse(localStorage.getItem('planIdforHome'));
         if (storedPlanId) {
@@ -809,6 +811,7 @@ const BillingComponent = () => {
 
 
     // };
+
 
     const getPlanDescription = (plan) => {
         return `$${plan.costPerUser} per month per user, up to ${plan.screenshotsPerHr} screenshots per hour, screenshots kept ${plan.ssStored} days, individual settings, activity level tracking, ${plan.mobileApp ? 'mobile app included' : 'no mobile app'}, app & URL tracking`;
@@ -867,6 +870,12 @@ const BillingComponent = () => {
         console.log('selectedPlan=========jjjjjjjjjjjj', selectedPlan);
 
     }, []);
+
+
+
+
+
+
 
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -973,8 +982,6 @@ const BillingComponent = () => {
 
     const [modalData, setModalData] = useState({});
 
-
-
     const CheckoutForm = () => {
         const stripe = useStripe();
         const elements = useElements();
@@ -1004,8 +1011,6 @@ const BillingComponent = () => {
                 card: elements.getElement(CardElement),
             });
 
-            debugger
-
             if (error) {
                 setError(error.message);
                 setLoading(false);
@@ -1023,12 +1028,15 @@ const BillingComponent = () => {
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/owner/upgrade`, {
                         // tokenId: paymentMethod.id,
+                        // TotalAmount: selectedPlan.costPerUser,
                         // planId: selectedPlan._id,
                         cardType: paymentMethod.card.brand,
                         expMonth: paymentMethod.card.exp_month,
                         expYear: paymentMethod.card.exp_year,
                         cardNumber: paymentMethod.card.last4,
                         tokenId: paymentMethod.id,
+                        // TotalAmount: '58.88',
+                        // dueDate: '2024-07-30',
                         planId: selectedPlan._id,
                     }, { headers });
 
@@ -1091,8 +1099,7 @@ const BillingComponent = () => {
     //     window.open(paypalUrl, '_blank');
     // };
     const [showPayPal, setShowPayPal] = useState(false);
-    const amount = selectedPlan === 'premium' ? 4.99 : 3.99; // Default to 3.99 for standard, 4.99 for premium
-
+    const amount = 10.00; // Set your amount here
 
     const handlePayPalClick = () => {
         handleDirectChangePlan(); // Pass the captureId directly
@@ -1108,7 +1115,7 @@ const BillingComponent = () => {
 
         } else {
             fetchPlans();
-            // setSelectedPlan(plans[0])
+            setSelectedPlan(plans[0])
         }
 
     }, [plans, defaultPlanIndex]);
@@ -1149,9 +1156,6 @@ const BillingComponent = () => {
         const token = localStorage.getItem('token');
 
         const [activeTab, setActiveTab] = useState('cardSelection');
-
-
-
         const tabButtonStyle = {
             flex: 1,
             padding: '0.5rem',
@@ -1194,6 +1198,7 @@ const BillingComponent = () => {
                         >
                             Add New Card
                         </button>
+
                     </div>
 
                     {activeTab === 'cardSelection' && (
@@ -1205,7 +1210,6 @@ const BillingComponent = () => {
 
                         />
                     )}
-
                     {activeTab === 'payment' && (
                         <Elements stripe={stripePromise}>
                             <div className="payment-container mt-4">
@@ -1269,7 +1273,7 @@ const BillingComponent = () => {
     };
 
     const handleShowModal = () => {
-        setShowModal(true);  // For when the paycard is available
+        // setShowModal(true);  // For when the paycard is available
     };
 
     const handleShowModal2 = () => {
@@ -1341,7 +1345,7 @@ const BillingComponent = () => {
                             cursor: 'pointer',  // Pointer on hover
                         }}
                             onClick={() => {
-                                handleDirectChangePlan();
+                                handleDirectChangePlan1();
                                 setPlanData(selectedPlan);
                                 localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
                                 handleCloseModal2()
@@ -1362,11 +1366,23 @@ const BillingComponent = () => {
                             cursor: 'pointer',  // Pointer on hover
                             fontSize: '0.875rem'
                         }}
-                            onClick={() => {
-                                handleDirectChangePlan();
-                                setPlanData(selectedPlan);
-                                localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                            // onClick={() => {
+                            //     handleDirectChangePlan();
+                            //     setPlanData(selectedPlan);
+                            //     // localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+                            // }}
+                            onClick={async () => {
+                                // Handle payment processing
                                 handleCloseModal2()
+                                setSelectedPlan(selectedPlan)
+                                const success = await handleDirectChangePlan(); // Ensure this function returns true/false based on the response
+                                // Close the modal after clicking "Pay Now"
+                                if (success) {
+                                    // Update the selected plan state only if the API call was successful
+                                    setSelectedPlan(selectedPlan);
+                                    handleCloseModal2(); // Close the modal right after payment processing
+                                }
+                                // handleCloseModal2(); // Close the modal after processing the payment
                             }}
                         // onClick={handleDirectChangePlan}
                         >Pay Now</button>
@@ -1441,64 +1457,155 @@ const BillingComponent = () => {
     // };
 
 
+    // const handleDirectChangePlan = async () => {
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     if (paycard) {
+    //         console.log('Pay with this card:', paycard);
+    //         // setIsLoading(true);
+    //         setResponseMessage(null);
+    //         try {
+    //             const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
+    //                 {
+    //                     planId: selectedPlan._id,
+    //                 }, { headers })
+    //             console.log('Response owner', res);
+    //             const receiptUrl = res.data.data.receiptUrl; // Add this line
+    //             console.log('Receipt URL:', receiptUrl); // Add this line
+    //             window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+
+
+
+    //             if (res.status === 200) {
+    //                 console.log('Response', res.data.success)
+    //                 enqueueSnackbar("Plan Changed Successfully", {
+    //                     variant: "success",
+    //                     anchorOrigin: {
+    //                         vertical: "top",
+    //                         horizontal: "right"
+    //                     }
+
+    //                 })
+    //                 // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+    //             }
+
+    //             else {
+    //                 if (res.status === 403) {
+    //                     alert("Access denied. Please check your permissions.")
+    //                 } else if (res.data.success === false) {
+    //                     alert(res.data.message)
+    //                 }
+    //             }
+    //             handleCloseModal2()
+    //             // console.log('Employee setting ka message', response?.data?.message);
+    //         } catch (error) {
+    //             console.error('Error:', error.response.data.message);
+    //             if (error.response && error.response.data) {
+    //                 if (error.response.status === 403 || error.response.status === 500 && error.response.data.success === false) {
+    //                     // alert(error.response.data.message)
+    //                     enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
+    //                         variant: "error",
+    //                         anchorOrigin: {
+    //                             vertical: "top",
+    //                             horizontal: "right"
+    //                         }
+    //                     })
+    //                 }
+    //             }
+    //         }
+    //         finally {
+    //             // setIsLoading(false);
+    //             setShowModalwithoutcard(false);
+    //         }
+    //     }
+    // }
     const handleDirectChangePlan = async () => {
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         if (paycard) {
             console.log('Pay with this card:', paycard);
-            // setIsLoading(true);
             setResponseMessage(null);
+            setIsPlanChanging(true); // Start loader
             try {
-                const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`,
-                    {
-                        planId: selectedPlan._id,
-                    }, { headers })
+                const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`, {
+                    planId: selectedPlan._id,
+                }, { headers });
+
                 console.log('Response owner', res);
-                const receiptUrl = res.data.data.receiptUrl; // Add this line
-                console.log('Receipt URL:', receiptUrl); // Add this line
-                window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
-                if (res.status === 200) {
-                    console.log('Response', res.data.success)
+
+                // Check if the response indicates success
+                if (res.data.success) {
+                    setSelectedPlan(selectedPlan); // Update state with new plan
+
+                    const receiptUrl = res.data.data.receiptUrl; // Retrieve receipt URL
+                    console.log('Receipt URL:', receiptUrl);
+                    window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+
+                    // Notify the user of success
                     enqueueSnackbar("Plan Changed Successfully", {
                         variant: "success",
                         anchorOrigin: {
                             vertical: "top",
                             horizontal: "right"
                         }
-
-                    })
-                    // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
+                    });
+                    setPlanData(selectedPlan); // Update state
+                    // localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan)); // Sync to localStorage    
+                } else {
+                    // Handle failure response
+                    alert(res.data.message || "An error occurred while changing the plan.");
                 }
-
-                else {
-                    if (res.status === 403) {
-                        alert("Access denied. Please check your permissions.")
-                    } else if (res.data.success === false) {
-                        alert(res.data.message)
-                    }
-                }
-                handleCloseModal2()
-                // console.log('Employee setting ka message', response?.data?.message);
             } catch (error) {
-                console.error('Error:', error.response.data.message);
+                console.error('Error:', error.response?.data?.message);
                 if (error.response && error.response.data) {
-                    if (error.response.status === 403 && error.response.data.success === false) {
-                        // alert(error.response.data.message)
+                    if (error.response.status === 403 || (error.response.status === 500 && error.response.data.success === false)) {
                         enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", {
                             variant: "error",
                             anchorOrigin: {
                                 vertical: "top",
                                 horizontal: "right"
                             }
-                        })
+                        });
+                    } else {
+                        // Handle other errors
+                        alert(error.response.data.message || "An unexpected error occurred.");
                     }
                 }
-            }
-            finally {
-                // setIsLoading(false);
+            } finally {
+                setIsPlanChanging(false); // End loading
                 setShowModalwithoutcard(false);
             }
+        } else {
+            alert("No payment card available.");
         }
-    }
+    };
+    // const handleDirectChangePlan = async () => {
+    //     const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
+    //     if (paycard) {
+    //         setIsPlanChanging(true); // Start loader
+    //         try {
+    //             const res = await axios.post(`${DirectPayApiUrl}/owner/upgrade`, {
+    //                 planId: selectedPlan._id,
+    //             }, { headers });
+
+    //             if (res.data.success) {
+    //                 const receiptUrl = res.data.data.receiptUrl;
+    //                 window.open(receiptUrl, '_blank');
+    //                 enqueueSnackbar("Plan Changed Successfully", { variant: "success" });
+    //                 setPlanData(selectedPlan); // Update selected plan only if API call was successful
+    //                 localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
+    //             } else {
+    //                 alert(res.data.message || "An error occurred while changing the plan.");
+    //             }
+    //         } catch (error) {
+    //             console.error('Error:', error.response?.data?.message);
+    //             enqueueSnackbar("Sorry, upgrade unavailable due to uncleared invoices", { variant: "error" });
+    //         } finally {
+    //             setIsPlanChanging(false); // Stop loader
+    //             setShowModalwithoutcard(false);
+    //         }
+    //     } else {
+    //         alert("No payment card available.");
+    //     }
+    // };
 
     // Example function to fetch or set merchantId
     // const fetchMerchantId = async () => {
@@ -1609,9 +1716,10 @@ const BillingComponent = () => {
         if (paycard) {
             setShowModalwithoutcard(true);  // For when the paycard is not available
             console.log('card is available', showModalwithoutcard);
+            setSelectedPlan(selectedPlan)
         } else {
             console.log('card is not available');
-            handleShowModal();
+            // handleShowModal();
         }
         // setPlanData(plan)
     }
@@ -1629,16 +1737,6 @@ const BillingComponent = () => {
     // const [planData, setPlanData] = useState(JSON.parse(localStorage.getItem('planIdforHome')));
 
     const premiumPlan = plans.find((plan) => plan.planType === 'premium');
-
-    useEffect(() => {
-        // Set the selected plan to the current plan (planData) when component mounts
-        if (planData) {
-            const currentPlan = plans.find(plan => plan.planType === planData.planType);
-            if (currentPlan) {
-                setSelectedPlan(currentPlan);
-            }
-        }
-    }, [plans, planData]);
 
     const handleOpenModal = () => {
         setIsOpen(true);
@@ -1814,7 +1912,7 @@ const BillingComponent = () => {
                             <p className="col-12">{fetchError}</p>
                         ) : (
                             plans
-                                .filter((plan) => (plan.planType !== 'standard' && plan.planType !== 'trial')) // Filter out trial plans
+                                .filter((plan) => plan.planType !== 'trial') // Filter out trial plans
                                 .map((plan, index) => (
 
                                     <div className={`col-6 ${index % 2 === 0 ? '' : 'pl-2'}`} style={{
@@ -1880,26 +1978,29 @@ const BillingComponent = () => {
                                                             ) : (
                                                                 selectedPlan?._id === plan._id ? (
                                                                     <>
-                                                                        <button style={{
-                                                                            marginLeft: '10px',
-                                                                            padding: '5px 5px',  // Adjusting padding for a smaller size
-                                                                            backgroundColor: 'green',  // Green background
-                                                                            color: 'white',  // White text
-                                                                            border: 'none',  // Removing default border
-                                                                            borderRadius: '5px',  // Rounded corners
-                                                                            cursor: 'pointer',  // Pointer on hover
-                                                                            fontSize: '0.875rem'
-                                                                        }}
+                                                                        <button
+                                                                            style={{
+                                                                                marginLeft: '10px',
+                                                                                padding: '5px 5px',
+                                                                                backgroundColor: 'green',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '5px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.875rem'
+                                                                            }}
                                                                             onClick={() => {
                                                                                 planchange();
-                                                                                // setPlanData(plan);
-                                                                                // localStorage.setItem('planIdforHome', JSON.stringify(plan));
-                                                                                // handleDirectChangePlan()
-                                                                                // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                                                                             }}
+                                                                            disabled={isPlanChanging} // Disable button while loading
                                                                         >
-                                                                            {plan.planType.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'}
+                                                                            {isPlanChanging ? (
+                                                                                <FerrisWheelSpinner loading={isPlanChanging} size={23} color="#fff" />
+                                                                            ) : (
+                                                                                selectedPlan?.planType?.charAt(0).toUpperCase() === 'S' ? 'Downgrade' : 'Upgrade'
+                                                                            )}
                                                                         </button>
+
                                                                         {/* <a
                                                                         href={receiptUrl}
                                                                         target="_blank"
@@ -1923,6 +2024,7 @@ const BillingComponent = () => {
                                                                     <span></span>
                                                                 )
                                                             )
+
                                                         ) : (
                                                             selectedPlan?._id === plan._id ? (
                                                                 <button style={{
@@ -1937,9 +2039,6 @@ const BillingComponent = () => {
                                                                 }}
                                                                     onClick={() => {
                                                                         planchange();
-                                                                        // setPlanData(plan);
-                                                                        // handleDirectChangePlan()
-                                                                        // localStorage.setItem('planIdforHome', JSON.stringify(plan));
                                                                     }}
                                                                 >
                                                                     Upgrade
@@ -1992,7 +2091,6 @@ const BillingComponent = () => {
                         showModalwithoutcard={showModalwithoutcard}
                         handleCloseModal2={handleCloseModal2}
                         selectedPlan={selectedPlan}
-
                     />
                     {/* <div style={{ paddingTop: '10px' }}>
                             <h2 style={{ color: '#0E4772', fontSize: '20px', fontWeight: '600', marginTop: '50px' }}>Billing</h2>
