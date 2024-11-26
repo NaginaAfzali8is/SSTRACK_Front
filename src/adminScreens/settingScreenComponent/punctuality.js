@@ -255,8 +255,14 @@ function Screenshot() {
         getData()
     }, [])
 
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
+   // Initialize state with values from localStorage
+   const [startTime, setStartTime] = useState(() => {
+    return localStorage.getItem("startTime") || ""; // Get saved startTime or default to ""
+});
+
+const [endTime, setEndTime] = useState(() => {
+    return localStorage.getItem("endTime") || ""; // Get saved endTime or default to ""
+});
     const [calculatedDuration, setCalculatedDuration] = useState("");
     const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
 
@@ -264,12 +270,12 @@ function Screenshot() {
         if (start && end) {
             const startDate = new Date(`1970-01-01T${start}:00`);
             const endDate = new Date(`1970-01-01T${end}:00`);
-
+    
             const differenceMs = endDate - startDate;
             const differenceMinutes = differenceMs / (1000 * 60); // Convert ms to minutes
-
-            if (differenceMinutes > 60) {
-                enqueueSnackbar("The time difference cannot exceed 1 hour.", {
+    
+            if (differenceMinutes > 480) { // 480 minutes = 8 hours
+                enqueueSnackbar("The time difference cannot exceed 8 hours.", {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "top",
@@ -277,7 +283,7 @@ function Screenshot() {
                     },
                 });
                 setEndTime(""); // Clear the invalid end time
-            } else if (differenceMinutes < 0) {
+            } else if (differenceMinutes <= 0) {
                 enqueueSnackbar("End time must be after start time.", {
                     variant: "error",
                     anchorOrigin: {
@@ -285,24 +291,45 @@ function Screenshot() {
                         horizontal: "right",
                     },
                 });
-                setEndTime(""); // Clear the invalid end time
+                // setEndTime(""); // Clear the invalid end time
             } else {
                 setEndTime(end); // Valid end time
+                enqueueSnackbar("Time difference is valid.", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
             }
+        } else {
+            enqueueSnackbar("Both start and end times are required.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
         }
     };
+    
 
     const handleStartTimeChange = (e) => {
         setStartTime(e.target.value);
+        const newStartTime = e.target.value;
+        localStorage.setItem("startTime", newStartTime); // Save to localStorage
         // Re-validate the end time when the start time changes
-        if (endTime) {
-            validateTimeDifference(e.target.value, endTime);
-        }
+        // if (endTime) {
+        //     validateTimeDifference(e.target.value, endTime);
+        // }
     };
 
     const handleEndTimeChange = (e) => {
+        setEndTime(e.target.value);
         const newEndTime = e.target.value;
-        validateTimeDifference(startTime, newEndTime);
+        localStorage.setItem("endTime", newEndTime); // Save to localStorage
+
+        // validateTimeDifference(startTime, newEndTime);
     };
 
     console.log("screenshot employess =====>", employees);
@@ -311,7 +338,7 @@ function Screenshot() {
         // Validate inputs
         for (const breakField of breakTime) {
             if (!breakField.start || !breakField.breakEndTime) {
-                enqueueSnackbar("Break Time Added Successfully", {
+                enqueueSnackbar("Punctuality Time Added Successfully", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
@@ -400,7 +427,7 @@ function Screenshot() {
                         type="time"
                         value={startTime}
                         onChange={handleStartTimeChange}
-                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                        // onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{
                             marginLeft: "10px",
@@ -417,7 +444,7 @@ function Screenshot() {
                         id="endTime"
                         type="time"
                         value={endTime}
-                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                        // onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         onChange={handleEndTimeChange}
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{
