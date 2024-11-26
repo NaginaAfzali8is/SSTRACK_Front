@@ -97,11 +97,11 @@ const CompanyEmployess = (props) => {
                         throw new Error(`Failed to fetch employees: ${response.statusText}`);
                     }
                 } catch (error) {
-                    console.error("Error fetching employees data:", error);
-                    enqueueSnackbar("Failed to refresh employees data.", {
-                        variant: "error",
-                        anchorOrigin: { vertical: "top", horizontal: "right" },
-                    });
+                    // console.error("Error fetching employees data:", error);
+                    // enqueueSnackbar("Failed to refresh employees data.", {
+                    //     variant: "error",
+                    //     anchorOrigin: { vertical: "top", horizontal: "right" },
+                    // });
                 }
             }, 1000); // 1-second delay
         } catch (error) {
