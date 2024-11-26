@@ -50,7 +50,7 @@ const CompanyEmployess = (props) => {
     //     });
     // };
     const handleToggleChange = async (employee, isSelected) => {
-        // Update local toggle state immediately
+        // Update local toggle state immediately for real-time effect
         setTimeFields((prev) => ({
             ...prev,
             [employee._id]: {
@@ -61,7 +61,7 @@ const CompanyEmployess = (props) => {
             },
         }));
     
-        // Optionally update Redux state or handle state at the global level
+        // Optionally update Redux state to reflect toggle change globally
         dispatch(setEmployessSetting({
             id: employee._id,
             key: "individualbreakTime",
@@ -71,12 +71,12 @@ const CompanyEmployess = (props) => {
         // First API call to persist the toggle state
         try {
             await handlePunctualitySetting({ employee, isSelected });
-            enqueueSnackbar("Toggle state updated successfully.", {
-                variant: "success",
-                anchorOrigin: { vertical: "top", horizontal: "right" },
-            });
+            // enqueueSnackbar("Toggle state updated successfully.", {
+            //     variant: "success",
+            //     anchorOrigin: { vertical: "top", horizontal: "right" },
+            // });
     
-            // Second API call after 1 second delay
+            // Second API call after a 1-second delay to fetch updated data
             setTimeout(async () => {
                 try {
                     const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
@@ -91,12 +91,8 @@ const CompanyEmployess = (props) => {
                         const data = await response.json();
                         console.log("Employees data fetched successfully:", data);
     
-                        // Update the Redux or local state with new employee data
+                        // Update Redux or local state with the refreshed employee data
                         dispatch(setEmployess(data));
-                        enqueueSnackbar("Employees data refreshed successfully.", {
-                            variant: "success",
-                            anchorOrigin: { vertical: "top", horizontal: "right" },
-                        });
                     } else {
                         throw new Error(`Failed to fetch employees: ${response.statusText}`);
                     }
@@ -115,32 +111,30 @@ const CompanyEmployess = (props) => {
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
     
-            // Revert toggle state in case of an error
+            // Revert the toggle state in case of an error
             setTimeFields((prev) => ({
                 ...prev,
                 [employee._id]: {
                     ...prev[employee._id],
-                    showFields: !isSelected, // Revert the change
+                    showFields: !isSelected, // Revert to the previous state
                 },
             }));
         }
     };
+
     
 
-
-
-
-    useEffect(() => {
-        const initialTimeFields = {};
-        employees.forEach((employee) => {
-            initialTimeFields[employee._id] = {
-                showFields: employee?.punctualityData?.individualbreakTime || false, // Default to false or existing state
-                startTime: "",
-                endTime: "",
-            };
-        });
-        setTimeFields(initialTimeFields);
-    }, [employees]);
+    // useEffect(() => {
+    //     const initialTimeFields = {};
+    //     employees.forEach((employee) => {
+    //         initialTimeFields[employee._id] = {
+    //             showFields: employee?.punctualityData?.individualbreakTime || false, // Default to false or existing state
+    //             startTime: "",
+    //             endTime: "",
+    //         };
+    //     });
+    //     setTimeFields(initialTimeFields);
+    // }, [employees]);
 
 
     // const handleTimeChange = (employeeId, field, value) => {
@@ -407,7 +401,7 @@ const CompanyEmployess = (props) => {
             );
 
             if (res.status === 200) {
-                enqueueSnackbar("Punctuality settings updated successfully!", {
+                enqueueSnackbar("Break Time settings updated successfully!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
