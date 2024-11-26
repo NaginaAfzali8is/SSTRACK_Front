@@ -24,7 +24,7 @@ function Screenshot() {
     const [breakTime, setBreakTime] = useState([
         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
     ]);
-    
+
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
             ...employee.effectiveSettings,
@@ -400,6 +400,7 @@ function Screenshot() {
                         type="time"
                         value={startTime}
                         onChange={handleStartTimeChange}
+                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{
                             marginLeft: "10px",
@@ -416,6 +417,7 @@ function Screenshot() {
                         id="endTime"
                         type="time"
                         value={endTime}
+                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         onChange={handleEndTimeChange}
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{

@@ -905,6 +905,7 @@ function Screenshot() {
                                     <input
                                         type="time"
                                         value={breakTime.start || ""}
+                                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                         onChange={(e) => handleBreakTimeChange(index, "start", e.target.value)}
                                     />
                                 </div>
@@ -913,6 +914,7 @@ function Screenshot() {
                                     <input
                                         type="time"
                                         value={breakTime.end || ""}
+                                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                         onChange={(e) => handleBreakTimeChange(index, "end", e.target.value)}
                                     />
                                 </div>
