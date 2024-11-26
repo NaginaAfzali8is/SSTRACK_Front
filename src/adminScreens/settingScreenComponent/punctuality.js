@@ -427,7 +427,7 @@ const [endTime, setEndTime] = useState(() => {
                         type="time"
                         value={startTime}
                         onChange={handleStartTimeChange}
-                        // onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{
                             marginLeft: "10px",
@@ -444,7 +444,7 @@ const [endTime, setEndTime] = useState(() => {
                         id="endTime"
                         type="time"
                         value={endTime}
-                        // onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
+                        onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                         onChange={handleEndTimeChange}
                         // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
                         style={{

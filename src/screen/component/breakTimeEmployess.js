@@ -23,36 +23,91 @@ const CompanyEmployess = (props) => {
     console.log('Employees', employees)
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
-    const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
+    // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
+    const [timeFields, setTimeFields] = useState(() => {
+        // Load initial state from localStorage
+        const savedTimeFields = localStorage.getItem("timeFields");
+        return savedTimeFields ? JSON.parse(savedTimeFields) : {};
+    });
+    useEffect(() => {
+        localStorage.setItem("timeFields", JSON.stringify(timeFields));
+    }, [timeFields]);
+    // const handleToggleChange = (employee, isSelected) => {
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employee._id]: {
+    //             ...prev[employee._id],
+    //             showFields: isSelected, // Show fields only when toggle is on
+    //             startTime: prev[employee._id]?.startTime || "",
+    //             endTime: prev[employee._id]?.endTime || "",
+    //         },
+    //     }));
 
-    const handleToggleChange = (employee, isSelected) => {
+    //     // Example API call to update employee settings
+    //     handlePunctualitySetting({
+    //         employee,
+    //         isSelected,
+    //     });
+    // };
+    const handleToggleChange = async (employee, isSelected) => {
+        // setTimeFields((prev) => ({
+        //     ...prev,
+        //     [employee._id]: {
+        //         ...prev[employee._id],
+        //         showFields: isSelected, // Show fields only when toggle is on
+        //         startTime: prev[employee._id]?.startTime || "",
+        //         endTime: prev[employee._id]?.endTime || "",
+        //     },
+        // }));
         setTimeFields((prev) => ({
             ...prev,
             [employee._id]: {
                 ...prev[employee._id],
-                showFields: isSelected, // Show fields only when toggle is on
+                showFields: isSelected, // Set showFields based on the toggle state
                 startTime: prev[employee._id]?.startTime || "",
                 endTime: prev[employee._id]?.endTime || "",
             },
         }));
+        handlePunctualitySetting({ employee, isSelected });
+    };
 
-        // Example API call to update employee settings
-        handlePunctualitySetting({
-            employee,
-            isSelected,
+    useEffect(() => {
+        const initialTimeFields = {};
+        employees.forEach((employee) => {
+            initialTimeFields[employee._id] = {
+                showFields: employee?.punctualityData?.individualbreakTime || false, // Default to false or existing state
+                startTime: "",
+                endTime: "",
+            };
+        });
+        setTimeFields(initialTimeFields);
+    }, [employees]);
+
+
+    // const handleTimeChange = (employeeId, field, value) => {
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employeeId]: {
+    //             ...prev[employeeId],
+    //             [field]: value,
+    //         },
+    //     }));
+    // };
+    const handleTimeChange = (employeeId, field, value) => {
+        setTimeFields((prev) => {
+            const updatedFields = {
+                ...prev,
+                [employeeId]: {
+                    ...prev[employeeId],
+                    [field]: value,
+                },
+            };
+            // Save to localStorage whenever the timeFields change
+            localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+            return updatedFields;
         });
     };
-
-    const handleTimeChange = (employeeId, field, value) => {
-        setTimeFields((prev) => ({
-            ...prev,
-            [employeeId]: {
-                ...prev[employeeId],
-                [field]: value,
-            },
-        }));
-    };
-
+    
     const handleSave = (employeeId) => {
         const { startTime, endTime } = timeFields[employeeId];
         if (!startTime || !endTime) {
@@ -506,7 +561,9 @@ const CompanyEmployess = (props) => {
             <div>
                 <SnackbarProvider />
                 {filteredEmployees && filteredEmployees.length > 0 ? filteredEmployees?.map((employee, index) => {
-
+                    // console.log("Break Time", employee?.settings?.individualbreakTime)
+                    console.log("Employee Object:", employee?.punctualityData?.individualbreakTime); // Debug the full employee object
+                    console.log("Break Time", employee?.settings?.individualbreakTime); // Access the correct property
                     {/* {employees && employees.length > 0 ? employees?.filter(employee => employee.invitationStatus === 'accepted' || (employee.invitationStatus === 'pending' && employee.invitedBy === userId)).map((employee, index) => { */ }
                     return (
                         loading ? (
@@ -560,7 +617,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={employee?.effectiveSettings?.breakTime?.length > 0 || false} // Safely access the breakTime toggle
+                                                checked={employee?.effectiveSetting?.individualbreakTime || false} // Safely access the value
                                                 onChange={(e) => {
                                                     const heading = "Break Time"; // Replace this with your actual heading value
                                                     if (heading === "Break Time") {
@@ -579,7 +636,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={employee?.effectiveSettings?.individualbreakTime || false} // Safely access the value
+                                                checked={employee?.punctualityData?.individualbreakTime || false} // Safely access the value
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>

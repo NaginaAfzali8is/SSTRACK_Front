@@ -31,7 +31,8 @@ import WorkCards from "../screen/workCards";
 // import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import OwnerLeaveManagement from '../companyOwner/owner-setting-components/ownerLeaveManagement'
-
+import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
+import SaMain from '../SuperAdmin/SuperAdmin/saMain'
 
 export default function AppRouter() {
   const [suspended, setSuspended] = useState(false);
@@ -155,6 +156,8 @@ export default function AppRouter() {
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} /> */}
           </Route>
           <Route path="*" element={<Navigate to="/signin" />} />
+          <Route path="/sALogin" element={<SaLogin/>} />
+          <Route path="/sADashboard" element={<SaMain/>} />
         </Routes>
       </Router>
     </>

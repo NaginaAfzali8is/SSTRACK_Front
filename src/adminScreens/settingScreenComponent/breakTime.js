@@ -483,9 +483,9 @@ function Screenshot() {
     //     const savedBreakTime = localStorage.getItem('breakTime');
     //     return savedBreakTime ? JSON.parse(savedBreakTime) : [{ TotalHours: "", breakStartTime: "", breakEndTime: "" }];
     // });
-        // const [breakTime, setBreakTime] = useState([
-        //     { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-        // ]);
+    // const [breakTime, setBreakTime] = useState([
+    //     { TotalHours: "", breakStartTime: "", breakEndTime: "" },
+    // ]);
     const [breakTime, setBreakTime] = useState(() => {
         // Load break times from localStorage when the component mounts
         const savedBreakTimes = localStorage.getItem("breakTimes");
@@ -561,7 +561,7 @@ function Screenshot() {
                 return; // Stop the function if validation fails
             }
         }
-    
+
         // Format the data for API
         const requestData = [
             {
@@ -570,11 +570,11 @@ function Screenshot() {
                     breakTime: breakTime.map((slot) => {
                         const startTime = new Date(slot.breakStartTime);
                         const endTime = new Date(slot.breakEndTime);
-    
+
                         // Calculate total hours
                         const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
                         const hours = Math.floor(totalMinutes / 60); // Extract hours
-    
+
                         return {
                             TotalHours: `${hours}h`, // Only include hours
                             breakStartTime: startTime.toISOString(),
@@ -586,7 +586,7 @@ function Screenshot() {
                 },
             },
         ];
-    
+
         try {
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
@@ -598,7 +598,7 @@ function Screenshot() {
                     },
                 }
             );
-    
+
             if (response.status === 200) {
                 enqueueSnackbar("Data successfully submitted!", {
                     variant: "success",
@@ -621,7 +621,7 @@ function Screenshot() {
             console.error("Error submitting data:", error);
         }
     };
-    
+
 
     const handleIndividualPunctualitySubmit = async () => {
         try {
@@ -761,7 +761,7 @@ function Screenshot() {
         return ""; // Return empty if either time is not set
 
     };
-    
+
     const [errors, setErrors] = useState([]);
 
     const handleBreakTimeChange = (index, field, value) => {
@@ -795,7 +795,17 @@ function Screenshot() {
         calculateTotalDuration(); // Recalculate total duration after any change
     };
 
-    const [totalDuration, setTotalDuration] = useState("0h:0m");
+    // const [totalDuration, setTotalDuration] = useState("0h:0m");
+    // Initialize state with value from localStorage or default value
+    const [totalDuration, setTotalDuration] = useState(
+        localStorage.getItem("totalDuration") || "0h:0m"
+    );
+
+    // Update localStorage whenever totalDuration changes
+    useEffect(() => {
+        localStorage.setItem("totalDuration", totalDuration);
+    }, [totalDuration]);
+
 
     const calculateTotalDuration = () => {
         let totalMinutes = 0;
@@ -820,9 +830,7 @@ function Screenshot() {
         const minutes = totalMinutes % 60;
         setTotalDuration(`${hours}h:${minutes}m`);
     };
-
-
-
+    
     return (
         <div>
             <SnackbarProvider />
@@ -837,7 +845,22 @@ function Screenshot() {
             </div>
             {/* Total Duration */}
             <h3>Total Break Time:</h3>
-            <input type="text" value={totalDuration} readOnly placeholder="Total Duration" />
+            <div>
+                <label htmlFor="totalDuration">Total Duration:</label>
+                <input
+                    id="totalDuration"
+                    type="text"
+                    value={totalDuration}
+                    readOnly // Prevent direct editing
+                    style={{
+                        marginLeft: "10px",
+                        padding: "5px",
+                        borderRadius: "4px",
+                        border: "1px solid #ccc",
+                    }}
+                />
+            </div>
+            {/* <input type="text" value={totalDuration} readOnly placeholder="Total Duration" /> */}
 
             <div className="takeScreenShotDiv">
                 <div className="d-flex gap-3">
