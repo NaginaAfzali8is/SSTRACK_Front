@@ -483,9 +483,14 @@ function Screenshot() {
     //     const savedBreakTime = localStorage.getItem('breakTime');
     //     return savedBreakTime ? JSON.parse(savedBreakTime) : [{ TotalHours: "", breakStartTime: "", breakEndTime: "" }];
     // });
-    const [breakTime, setBreakTime] = useState([
-        { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-    ]);
+        // const [breakTime, setBreakTime] = useState([
+        //     { TotalHours: "", breakStartTime: "", breakEndTime: "" },
+        // ]);
+    const [breakTime, setBreakTime] = useState(() => {
+        // Load break times from localStorage when the component mounts
+        const savedBreakTimes = localStorage.getItem("breakTimes");
+        return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
+    });
 
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
@@ -514,9 +519,9 @@ function Screenshot() {
     // }, []);
 
     // Save break time data to local storage whenever it changes
-    useEffect(() => {
-        localStorage.setItem('breakTime', JSON.stringify(breakTime));
-    }, [breakTime]);
+    // useEffect(() => {
+    //     localStorage.setItem('breakTime', JSON.stringify(breakTime));
+    // }, [breakTime]);
 
     const [breakCount, setBreakCount] = useState(0); // Track the number of breaks added
 
@@ -576,6 +581,8 @@ function Screenshot() {
                             breakEndTime: endTime.toISOString(),
                         };
                     }),
+                    puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with the actual punctuality start time
+                    puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with the actual punctuality end time
                 },
             },
         ];
@@ -711,7 +718,7 @@ function Screenshot() {
                 },
             });
         } else {
-            enqueueSnackbar("You can only add 2 break times.", {
+            enqueueSnackbar("You can only add 3 break times.", {
                 variant: "warning",
                 anchorOrigin: {
                     vertical: "top",
@@ -721,8 +728,17 @@ function Screenshot() {
         }
     };
 
-    const [breakTimes, setBreakTimes] = useState([]); // Track the added break times
+    // const [breakTimes, setBreakTimes] = useState([]); // Track the added break times
+    const [breakTimes, setBreakTimes] = useState(() => {
+        // Load break times from localStorage when the component mounts
+        const savedBreakTimes = localStorage.getItem("breakTimes");
+        return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
+    });
 
+    // Save breakTimes to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem("breakTimes", JSON.stringify(breakTimes));
+    }, [breakTimes]);
     // const handleBreakTimeChange = (index, field, value) => {
     //     const newBreakTimes = [...breakTimes];
     //     newBreakTimes[index][field] = value;

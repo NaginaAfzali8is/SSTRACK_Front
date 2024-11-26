@@ -330,8 +330,6 @@ const CompanyEmployess = (props) => {
         }
     }
 
-
-
     // async function handlePunctualitySetting(data) {
     //     console.log("Punctuality Data:", data);
 

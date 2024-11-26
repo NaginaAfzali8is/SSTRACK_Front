@@ -552,15 +552,21 @@ const adminSlice = createSlice({
         },
         updateEmployeeSettings(state, action) {
             const { id, isSelected, key } = action.payload;
-            const employee = state.employess.find(emp => emp._id === id);
-            if (employee) {
-                // Update the specific setting based on the key
-                employee.effectiveSettings = {
-                    ...employee.effectiveSettings,
-                    [key]: isSelected,
-                };
-            }
-        },
+        
+            // Ensure immutability by creating a new array for employees
+            state.employess = state.employess.map((emp) =>
+                emp._id === id
+                    ? {
+                        ...emp, // Spread existing employee data
+                        effectiveSettings: {
+                            ...emp.effectiveSettings, // Spread existing settings
+                            [key]: isSelected, // Update the specific key
+                        },
+                    }
+                    : emp // Leave other employees unchanged
+            );
+        }
+        
 
     },
 })
