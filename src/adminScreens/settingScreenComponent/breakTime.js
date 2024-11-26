@@ -6,7 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import CompanyEmployess from "../../screen/component/breakTimeEmployess";
 import SaveChanges from "../../screen/component/button";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { getEmployess, setAllUserSetting, setAllUserSetting2, setAllUserSetting3, setEmployess, setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/breakSlice";
+import { getEmployess, setAllUserSetting, setAllUserSetting2, setAllUserSetting3, setEmployess, setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/adminSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
@@ -16,6 +16,8 @@ function Screenshot() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
+    // const [startTime, setStartTime] = useState("");
+    // const [endTime, setEndTime] = useState("");
     const dispatch = useDispatch()
     const [number, setNumber] = useState(null)
     const ids = useSelector((state) => state.adminSlice.ids)
@@ -36,7 +38,6 @@ function Screenshot() {
                 frequency: `${setting}/hr`
             }
         }
-
         const settings3 = {
             ...employee.effectiveSettings,
             screenshots: {
@@ -50,7 +51,7 @@ function Screenshot() {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
                 }, { headers })
-                
+
             console.log('Response owner', res);
 
             if (res.status === 200) {
@@ -86,19 +87,6 @@ function Screenshot() {
         }
     }
 
-        // Load break time from localStorage on component mount
-        // useEffect(() => {
-        //     const savedBreakTime = localStorage.getItem("breakTime");
-        //     if (savedBreakTime) {
-        //         setBreakTime(JSON.parse(savedBreakTime)); // Parse and set saved data
-        //     }
-        // }, []);
-    
-        // // Save break time to localStorage whenever it updates
-        // useEffect(() => {
-        //     localStorage.setItem("breakTime", JSON.stringify(breakTime));
-        // }, [breakTime]);
-        
     function Setting({ setting, setSetting, employee }) {
         const salaryString = employee?.effectiveSettings?.screenshots?.frequency;
         const numberPattern = /\d+/;
@@ -392,56 +380,35 @@ function Screenshot() {
         return endDate.toTimeString().slice(0, 5);
     };
 
-
-    // const handleCheckboxChange = () => {
-    //     setIsCheckboxChecked(!isCheckboxChecked);
-    //     setStartTime(""); // Reset fields when toggling
-    //     setEndTime("");
-    //     setCalculatedDuration("");
-    // };
-
-    // const handleStartTimeChange = (e) => {
-    //     setStartTime(e.target.value);
-    //     // Re-validate the end time when the start time changes
-    //     if (endTime) {
-    //         validateTimeDifference(e.target.value, endTime);
-    //     }
-    // };
-
-    // const handleEndTimeChange = (e) => {
-    //     const newEndTime = e.target.value;
-    //     validateTimeDifference(startTime, newEndTime);
-    // };
-
     const handleStartTimeChange = (e) => {
         const newStartTime = e.target.value;
         setStartTime(newStartTime);
         calculateDuration(newStartTime, endTime);
     };
 
-    // const handleEndTimeChange = (e) => {
-    //     const newEndTime = e.target.value;
-    //     setEndTime(newEndTime);
-    //     calculateDuration(startTime, newEndTime);
-    // };
-    const handleEndTimeChange = (index, value) => {
-        const startTime = new Date(breakTime[index].breakStartTime);
-        const endTime = new Date(value);
-    
-        if (endTime <= startTime) {
-            enqueueSnackbar("End time must be later than start time.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-            return;
-        }
-    
-        handleInputChange(index, "breakEndTime", value); // Update state if valid
+    const handleEndTimeChange = (e) => {
+        const newEndTime = e.target.value;
+        setEndTime(newEndTime);
+        calculateDuration(startTime, newEndTime);
     };
-    
+    // const handleEndTimeChange = (index, value) => {
+    //     const startTime = new Date(breakTime[index].breakStartTime);
+    //     const endTime = new Date(value);
+
+    //     if (endTime <= startTime) {
+    //         enqueueSnackbar("End time must be later than start time.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //         return;
+    //     }
+
+    //     handleInputChange(index, "breakEndTime", value); // Update state if valid
+    // };
+
     const calculateDuration = (start, end) => {
         if (start && end) {
             const startDate = new Date(`1970-01-01T${start}:00`);
@@ -452,20 +419,7 @@ function Screenshot() {
                 const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
                 const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
 
-                // Check if duration exceeds 1 hour
-                if (durationHours > 1 || (durationHours === 1 && durationMinutes > 0)) {
-                    setCalculatedDuration("Invalid Time Range");
-                    enqueueSnackbar("Duration cannot exceed 1 hour.", {
-                        variant: "error",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right",
-                        },
-                    });
-                    setEndTime(""); // Reset invalid end time
-                } else {
-                    setCalculatedDuration(`${durationHours} hr ${durationMinutes} min`);
-                }
+                setCalculatedDuration(`${durationHours}h:${durationMinutes}m`);
             } else {
                 setCalculatedDuration("Invalid Time Range");
                 enqueueSnackbar("End time must be after start time.", {
@@ -525,135 +479,16 @@ function Screenshot() {
     };
 
 
-    // const calculateDuration = (start, end) => {
-    //     if (start && end) {
-    //         const startDate = new Date(`1970-01-01T${start}:00`);
-    //         const endDate = new Date(`1970-01-01T${end}:00`);
-
-    //         if (endDate > startDate) {
-    //             const durationMs = endDate - startDate;
-    //             const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
-    //             const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-    //             setCalculatedDuration(`${durationHours} hr ${durationMinutes} min`);
-    //         } else {
-    //             setCalculatedDuration("Invalid Time Range");
-    //         }
-    //     } else {
-    //         setCalculatedDuration("");
-    //     }
-    // };
-    // const sendPunctualityRule = async () => {
-    //     // Dummy data: Replace this with your actual users' data
-    //     const users = [
-    //         {
-    //             userId: "65570c6f35e0cf001ca86c3c",
-    //             breakTime: [
-    //                 {
-    //                     breakStartTime: "2024-11-21T12:00:00",
-    //                     breakEndTime: "2024-11-21T13:00:00",
-    //                 },
-    //                 {
-    //                     breakStartTime: "2024-11-21T15:00:00",
-    //                     breakEndTime: "2024-11-21T15:30:00",
-    //                 },
-    //             ],
-    //             puncStartTime: "2024-11-21T09:00:00",
-    //             puncEndTime: "2024-11-21T17:00:00",
-    //         },
-    //     ];
-
-    //     // Map data to required format
-    //     const requestData = users.map((user) => ({
-    //         userId: user.userId,
-    //         settings: {
-    //             breakTime: user.breakTime.map((breakSlot) => {
-    //                 const startTime = new Date(breakSlot.breakStartTime);
-    //                 const endTime = new Date(breakSlot.breakEndTime);
-
-    //                 const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-    //                 const hours = Math.floor(totalMinutes / 60);
-    //                 const minutes = totalMinutes % 60;
-
-    //                 return {
-    //                     TotalHours: `${hours}h:${minutes}m`,
-    //                     breakStartTime: startTime.toISOString(),
-    //                     breakEndTime: endTime.toISOString(),
-    //                 };
-    //             }),
-    //             puncStartTime: new Date(user.puncStartTime).toISOString(),
-    //             puncEndTime: new Date(user.puncEndTime).toISOString(),
-    //         },
-    //     }));
-
-    //     console.log("Request Payload:", requestData); // Debug the payload
-
-    //     try {
-    //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
-    //             requestData,
-    //             {
-    //                 headers: {
-    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //                     "Content-Type": "application/json",
-    //                 },
-    //             }
-    //         );
-
-    //         if (response.status === 200) {
-    //             enqueueSnackbar("Punctuality rules successfully submitted!", {
-    //                 variant: "success",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right",
-    //                 },
-    //             });
-    //             console.log("API Response:", response.data);
-    //         } else {
-    //             enqueueSnackbar("Failed to submit punctuality rules.", {
-    //                 variant: "error",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right",
-    //                 },
-    //             });
-    //         }
-    //     } catch (error) {
-    //         enqueueSnackbar(
-    //             error?.response?.data?.message || "An error occurred while submitting the punctuality rules.",
-    //             {
-    //                 variant: "error",
-    //                 anchorOrigin: {
-    //                     vertical: "top",
-    //                     horizontal: "right",
-    //                 },
-    //             }
-    //         );
-    //         console.error("Error submitting punctuality rules:", error);
-    //     }
-    // };
-
-
-
-
+    // const [breakTime, setBreakTime] = useState(() => {
+    //     const savedBreakTime = localStorage.getItem('breakTime');
+    //     return savedBreakTime ? JSON.parse(savedBreakTime) : [{ TotalHours: "", breakStartTime: "", breakEndTime: "" }];
+    // });
     const [breakTime, setBreakTime] = useState([
         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
     ]);
 
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
-
-        // Load break time from localStorage on component mount
-        useEffect(() => {
-            const savedBreakTime = localStorage.getItem("breakTime");
-            if (savedBreakTime) {
-                setBreakTime(JSON.parse(savedBreakTime)); // Parse and set saved data
-            }
-        }, []);
-    
-        // Save break time to localStorage whenever it updates
-        useEffect(() => {
-            localStorage.setItem("breakTime", JSON.stringify(breakTime));
-        }, [breakTime]);
 
     const handleInputChange = (index, field, value) => {
         const updatedBreakTime = [...breakTime];
@@ -667,42 +502,61 @@ function Screenshot() {
     //         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
     //     ]);
     // };
+
     const [clickCount, setClickCount] = useState(0); // Counter to track clicks
 
+    // Load break time data from local storage when the component mounts
+    //   useEffect(() => {
+    //     const savedBreakTime = localStorage.getItem('breakTime');
+    //     if (savedBreakTime) {
+    //         setBreakTime(JSON.parse(savedBreakTime));
+    //     }
+    // }, []);
+
+    // Save break time data to local storage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('breakTime', JSON.stringify(breakTime));
+    }, [breakTime]);
+
+    const [breakCount, setBreakCount] = useState(0); // Track the number of breaks added
+
     const addBreakTimeField = () => {
-        if (clickCount < 2) {
-            setBreakTime([
-                ...breakTime,
-                { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-            ]);
-            setClickCount(clickCount + 1); // Increment the click count
+        if (breakCount < 2) {
+            setBreakCount(breakCount + 1);
+            enqueueSnackbar("Break time added!", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        } else {
+            enqueueSnackbar("You can only add 3 break times.", {
+                variant: "warning",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
         }
     };
-    
+
+
     const handleSubmit = async () => {
         // Validate inputs
-        // if (!puncStartTime || !puncEndTime) {
-        //     enqueueSnackbar("Punctuality start and end times are required.", {
-        //         variant: "error",
-        //     });
-        //     return;
-        // }
-
         for (const breakField of breakTime) {
-            if (!breakField.breakStartTime || !breakField.breakEndTime) {
-                enqueueSnackbar("All break times must have start and end times.", {
-                    variant: "error",
-                    // variant: "success",
+            if (!breakField.start || !breakField.breakEndTime) {
+                enqueueSnackbar("Break Time Added Successfully", {
+                    variant: "success",
                     anchorOrigin: {
                         vertical: "top",
                         horizontal: "right"
                     }
                 });
-                
-                return;
+                return; // Stop the function if validation fails
             }
         }
-
+    
         // Format the data for API
         const requestData = [
             {
@@ -711,47 +565,21 @@ function Screenshot() {
                     breakTime: breakTime.map((slot) => {
                         const startTime = new Date(slot.breakStartTime);
                         const endTime = new Date(slot.breakEndTime);
-        
-                        // Calculate total hours and minutes
-                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-                        const hours = Math.floor(totalMinutes / 60);
-                        const minutes = totalMinutes % 60;
-        
+    
+                        // Calculate total hours
+                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
+                        const hours = Math.floor(totalMinutes / 60); // Extract hours
+    
                         return {
-                            TotalHours: `${hours}h:${minutes}m`,
+                            TotalHours: `${hours}h`, // Only include hours
                             breakStartTime: startTime.toISOString(),
                             breakEndTime: endTime.toISOString(),
                         };
                     }),
-                    // puncStartTime: new Date(puncStartTime).toISOString(),
-                    // puncEndTime: new Date(puncEndTime).toISOString(),
-                },
-            },
-            {
-                userId: "6558499b4ac2ae001cca7673", // Example for another user
-                settings: {
-                    breakTime: breakTime.map((slot) => {
-                        const startTime = new Date(slot.breakStartTime);
-                        const endTime = new Date(slot.breakEndTime);
-        
-                        // Calculate total hours and minutes
-                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-                        const hours = Math.floor(totalMinutes / 60);
-                        const minutes = totalMinutes % 60;
-        
-                        return {
-                            TotalHours: `${hours}h:${minutes}m`,
-                            breakStartTime: startTime.toISOString(),
-                            breakEndTime: endTime.toISOString(),
-                        };
-                    }),
-                    // puncStartTime: new Date(puncStartTime).toISOString(),
-                    // puncEndTime: new Date(puncEndTime).toISOString(),
                 },
             },
         ];
-        
-
+    
         try {
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
@@ -763,27 +591,30 @@ function Screenshot() {
                     },
                 }
             );
-
+    
             if (response.status === 200) {
-                enqueueSnackbar("Data successfully submitted!", 
-                    {  variant: "success",
-                        anchorOrigin: {
-                            vertical: "top",
-                            horizontal: "right"
-                        } });
+                enqueueSnackbar("Data successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
             } else {
                 enqueueSnackbar("Failed to submit data.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar("Data successfully submitted!", 
-                {  variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    } });
+            enqueueSnackbar("Error submitting data. Please try again later.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
             console.error("Error submitting data:", error);
         }
     };
+    
 
     const handleIndividualPunctualitySubmit = async () => {
         try {
@@ -794,12 +625,12 @@ function Screenshot() {
                     breakTime: breakTime.map((slot) => {
                         const startTime = new Date(slot.breakStartTime);
                         const endTime = new Date(slot.breakEndTime);
-    
+
                         // Calculate total hours and minutes
                         const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
                         const hours = Math.floor(totalMinutes / 60);
                         const minutes = totalMinutes % 60;
-    
+
                         return {
                             TotalHours: `${hours}h:${minutes}m`,
                             breakStartTime: startTime.toISOString(),
@@ -810,9 +641,9 @@ function Screenshot() {
                     puncEndTime: new Date(puncEndTime).toISOString(),
                 },
             }));
-    
+
             console.log("Request Data:", requestData); // Debugging
-    
+
             // Send the POST request to the API
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
@@ -824,7 +655,7 @@ function Screenshot() {
                     },
                 }
             );
-    
+
             if (response.status === 200) {
                 enqueueSnackbar("Punctuality rules successfully submitted!", {
                     variant: "success",
@@ -858,7 +689,124 @@ function Screenshot() {
         }
     };
 
+    // const handleStartTimeChange = (e) => {
+    //     const newStartTime = e.target.value;
+    //     setStartTime(newStartTime);
+    //     calculateDuration(newStartTime, endTime);
+    // };
+
+    // const handleEndTimeChange = (e) => {
+    //     const newEndTime = e.target.value;
+    //     setEndTime(newEndTime);
+    //     calculateDuration(startTime, newEndTime);
+    // };
+    const handleAddBreakTime = () => {
+        if (breakTimes.length < 3) {
+            setBreakTimes([...breakTimes, { start: "", end: "", duration: "" }]);
+            enqueueSnackbar("Break time added!", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        } else {
+            enqueueSnackbar("You can only add 2 break times.", {
+                variant: "warning",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        }
+    };
+
+    const [breakTimes, setBreakTimes] = useState([]); // Track the added break times
+
+    // const handleBreakTimeChange = (index, field, value) => {
+    //     const newBreakTimes = [...breakTimes];
+    //     newBreakTimes[index][field] = value;
+    //     setBreakTimes(newBreakTimes);
+    // };
+    const calculateBreakDuration = (start, end) => {
+        if (start && end) {
+            const startDate = new Date(`1970-01-01T${start}:00`);
+            const endDate = new Date(`1970-01-01T${end}:00`);
+
+            if (endDate > startDate) {
+                const durationMs = endDate - startDate;
+                const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+                const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                return `${durationHours}h:${durationMinutes}m`;
+            } else {
+                return "Invalid Time Range";
+            }
+        }
+        return ""; // Return empty if either time is not set
+
+    };
     
+    const [errors, setErrors] = useState([]);
+
+    const handleBreakTimeChange = (index, field, value) => {
+        const updatedBreakTimes = [...breakTimes];
+        updatedBreakTimes[index][field] = value;
+
+        // Validate duration if both start and end times are provided
+        const start = updatedBreakTimes[index].start;
+        const end = updatedBreakTimes[index].end;
+
+        if (start && end) {
+            const startTime = new Date(`1970-01-01T${start}:00`);
+            const endTime = new Date(`1970-01-01T${end}:00`);
+
+            // Calculate duration in minutes
+            const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+
+            // If duration exceeds 60 minutes, show error and reset the end time
+            if (durationMinutes > 60) {
+                alert("Duration cannot exceed 1 hour. Please adjust the times.");
+                updatedBreakTimes[index][field] = ""; // Reset the invalid field
+            }
+        }
+        const breakTime = updatedBreakTimes[index];
+        if (field === "start" || field === "end") {
+            if (!breakTime.start || !breakTime.end) {
+                // alert("Please fill in both Break Start Time and Break End Time.");
+            }
+        }
+        setBreakTimes(updatedBreakTimes);
+        calculateTotalDuration(); // Recalculate total duration after any change
+    };
+
+    const [totalDuration, setTotalDuration] = useState("0h:0m");
+
+    const calculateTotalDuration = () => {
+        let totalMinutes = 0;
+
+        breakTimes.forEach(({ start, end }) => {
+            if (start && end) {
+                const startTime = new Date(`1970-01-01T${start}:00`);
+                const endTime = new Date(`1970-01-01T${end}:00`);
+
+                if (endTime < startTime) {
+                    endTime.setDate(endTime.getDate() + 1);
+                }
+
+                totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
+            }
+        });
+
+        // Cap total minutes at 60 (1 hour)
+        totalMinutes = Math.min(totalMinutes, 60);
+
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        setTotalDuration(`${hours}h:${minutes}m`);
+    };
+
+
+
     return (
         <div>
             <SnackbarProvider />
@@ -871,188 +819,132 @@ function Screenshot() {
                 <p>How frequently screenshots will be taken.</p>
                 <p>This number is an average since screenshots are taken at random intervals.</p>
             </div>
+            {/* Total Duration */}
+            <h3>Total Break Time:</h3>
+            <input type="text" value={totalDuration} readOnly placeholder="Total Duration" />
+
             <div className="takeScreenShotDiv">
                 <div className="d-flex gap-3">
-                    {/* <div style={{ marginBottom: "10px" }}>
-                        <label htmlFor="calculatedDuration">Duration:</label>
-                        <input
-                            id="calculatedDuration"
-                            type="text"
-                            value={calculatedDuration}
-                            readOnly
-                            disabled
-                            placeholder="Total Hours"
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        />
-                    </div> */}
-                    {/* <div style={{ marginBottom: "10px" }}>
-                        <label htmlFor="startTime">Start Time:</label>
-                        <input
-                            id="startTime"
-                            type="time"
-                            value={startTime}
-                            onChange={handleStartTimeChange}
-                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        />
-                    </div>
 
-                    <div style={{ marginBottom: "10px" }}>
-                        <label htmlFor="endTime">End Time:</label>
-                        <input
-                            id="endTime"
-                            type="time"
-                            value={endTime}
-                            onChange={handleEndTimeChange}
-                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        />
-                    </div>
-                    <button
-                        onClick={sendPunctualityRule}
+
+                    <div
                         style={{
-                            padding: "10px 20px",
-                            backgroundColor: "#007bff",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer",
+                            display: "flex",
+                            flexDirection: "column", // Ensures new rows are added below each other
+                            gap: "10px", // Adds spacing between rows
                         }}
                     >
-                        Submit Punctuality Rules
-                    </button> */}
+                        {/* {breakTime.map((breakField, index) => {
+                            // Calculate duration for the current break
+                            const calculateDuration = () => {
+                                if (breakField.breakStartTime && breakField.breakEndTime) {
+                                    const start = new Date(breakField.breakStartTime);
+                                    const end = new Date(breakField.breakEndTime);
 
+                                    if (end > start) {
+                                        const totalMinutes = Math.floor((end - start) / (1000 * 60));
+                                        const hours = Math.floor(totalMinutes / 60);
+                                        const minutes = totalMinutes % 60;
 
-<div
-    style={{
-        display: "flex",
-        flexDirection: "column", // Ensures new rows are added below each other
-        gap: "10px", // Adds spacing between rows
-    }}
->
-{breakTime.map((breakField, index) => {
-    // Calculate duration for the current break
-    const calculateDuration = () => {
-        if (breakField.breakStartTime && breakField.breakEndTime) {
-            const start = new Date(breakField.breakStartTime);
-            const end = new Date(breakField.breakEndTime);
+                                        return `${hours}h:${minutes}m`; // Format as "Xh:Ym"
+                                    }
+                                }
+                                return "0h:0m"; // Default value
+                            };
 
-            if (end > start) {
-                const totalMinutes = Math.floor((end - start) / (1000 * 60));
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
+                            return (
+                                <div
+                                    key={index}
+                                    style={{
+                                        display: "flex", // Ensures the fields are laid out horizontally
+                                        alignItems: "center",
+                                        marginBottom: "10px",
+                                        gap: "10px", // Adds spacing between fields
 
-                return `${hours}h:${minutes}m`; // Format as "Xh:Ym"
-            }
-        }
-        return "0h:0m"; // Default value
-    };
+                                    }}
+                                >
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <input
+                                            type="text"
+                                            value={calculatedDuration}
+                                            readOnly
+                                            placeholder="Total Duration"
+                                        />
+                                    </div>
+                                    <div className="d-flex gap-3">
+                                        <input
+                                            type="time"
+                                            placeholder="Break Start Time"
+                                            value={startTime}
+                                            onChange={handleStartTimeChange}
+                                            style={{
+                                                marginLeft: "10px",
+                                                padding: "5px",
+                                                borderRadius: "4px",
+                                                border: "1px solid #ccc",
+                                                // flex: 1, // Adjust width of the fields proportionally
 
-    return (
-        <div
-        key={index}
-        style={{
-            display: "flex", // Ensures the fields are laid out horizontally
-            alignItems: "center",
-            marginBottom: "10px",
-            gap: "10px", // Adds spacing between fields
-            
-        }}
-    >
-            <div style={{ marginBottom: "10px" }}>
-                {/* <label htmlFor={`calculatedDuration-${index}`}>Duration:</label> */}
-                <input
-                    id={`calculatedDuration-${index}`}
-                    type="text"
-                    value={calculateDuration()} // Dynamically calculate duration
-                    readOnly
-                    disabled
-                    placeholder="Total Hours"
-                    style={{
-                        marginLeft: "10px",
-                        padding: "5px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        // flex: 1, // Adjust width of the fields proportionally
-
-                    }}
-                />
+                                            }}
+                                        />
+                                        <input
+                                            type="time"
+                                            placeholder="Break End Time"
+                                            value={endTime}
+                                            onChange={handleEndTimeChange}
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })} */}
+                        {/* Break Times Section */}
+                        {breakTimes.map((breakTime, index) => (
+                            <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                {/* <h3>Break Time {index + 1}</h3> */}
+                                <div>
+                                    <label>Break Start Time:</label>
+                                    <input
+                                        type="time"
+                                        value={breakTime.start || ""}
+                                        onChange={(e) => handleBreakTimeChange(index, "start", e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label>Break End Time:</label>
+                                    <input
+                                        type="time"
+                                        value={breakTime.end || ""}
+                                        onChange={(e) => handleBreakTimeChange(index, "end", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {/* <div style={{ marginTop: "20px" }}>
+                        <h3>Total Duration:</h3>
+                        <input type="text" value={totalDuration} readOnly placeholder="Total Duration" />
+                    </div> */}
+                </div>
             </div>
-
+            {/* <h3>Total Duration:</h3>
+            <input type="text" value={totalDuration} readOnly placeholder="Total Duration" /> */}
             <div className="d-flex gap-3">
-            <input
-                type="datetime-local"
-                placeholder="Break Start Time"
-                value={breakField.breakStartTime}
-                onChange={(e) => handleInputChange(index, "breakStartTime", e.target.value)}
-                style={{
-                    marginLeft: "10px",
-                    padding: "5px",
-                    borderRadius: "4px",
-                    border: "1px solid #ccc",
-                    // flex: 1, // Adjust width of the fields proportionally
 
-                }}
-                />
-                 {/* <input
-                            id="endTime"
-                            type="datetime-local"
-                            value={endTime}
-                            onChange={handleEndTimeChange}
-                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        /> */}
-            <input
-                type="datetime-local"
-                placeholder="Break End Time"
-                value={breakField.breakEndTime}
-                onChange={(e) => handleInputChange(index, "breakEndTime", e.target.value)}
-                />
-                </div>
-        </div>
-    );
-})}
-</div>
-                </div>
-            </div>
-            <div className="d-flex gap-3" style={{marginLeft: '10px'}}>
-
-            <button
-                onClick={addBreakTimeField}
-                disabled={clickCount >= 2} // Disable button after 2 clicks
-                style={{
-                    padding: "10px 20px",
-                    backgroundColor: clickCount >= 2 ? "#ccc" : "#7fc45a",
-                    color: "#fff",
-                    gap: '10px',
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: clickCount >= 2 ? "not-allowed" : "pointer",
-                }}
-            >
-                Add Break Time
-            </button>
-                    <button onClick={handleSubmit}  style={{
+                <button
+                    onClick={handleAddBreakTime}
+                    disabled={clickCount >= 2} // Disable button after 2 clicks
+                    style={{
+                        padding: "10px 20px",
+                        backgroundColor: clickCount >= 2 ? "#ccc" : "#7fc45a",
+                        color: "#fff",
+                        gap: '10px',
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: clickCount >= 2 ? "not-allowed" : "pointer",
+                    }}
+                >
+                    Add Break Time
+                </button>
+                <button onClick={handleSubmit} style={{
                     padding: "10px 20px",
                     backgroundColor: "#7fc45a",
                     color: "#fff",
@@ -1060,9 +952,10 @@ function Screenshot() {
                     borderRadius: "5px",
                     // cursor: clickCount >= 2 ? "not-allowed" : "pointer",
                 }}>
-                Submit Data
-            </button>
-                    </div>
+                    Save
+                </button>
+            </div>
+
             <div className="activityLevelIndividual">
                 <p className="settingScreenshotIndividual">Individual Settings</p>
                 <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
@@ -1082,193 +975,5 @@ function Screenshot() {
     );
 }
 
+
 export default Screenshot;
-
-
-
-// import React, { useState } from "react";
-// import axios from "axios";
-// import { SnackbarProvider, enqueueSnackbar } from "notistack";
-
-// function Screenshot() {
-//     const [breakTime, setBreakTime] = useState([
-//         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
-//     ]);
-//     const [puncStartTime, setPuncStartTime] = useState("");
-//     const [puncEndTime, setPuncEndTime] = useState("");
-
-//     // Update individual breakTime inputs
-//     const handleInputChange = (index, field, value) => {
-//         const updatedBreakTime = [...breakTime];
-//         updatedBreakTime[index][field] = value;
-//         setBreakTime(updatedBreakTime);
-//     };
-
-//     // Add a new break time slot
-//     const handleAddBreakTime = () => {
-//         setBreakTime([...breakTime, { TotalHours: "", breakStartTime: "", breakEndTime: "" }]);
-//     };
-
-//     // Remove a break time slot
-//     const handleRemoveBreakTime = (index) => {
-//         const updatedBreakTime = breakTime.filter((_, i) => i !== index);
-//         setBreakTime(updatedBreakTime);
-//     };
-
-    // const handleSubmit = async () => {
-    //     // Validate inputs
-    //     if (!puncStartTime || !puncEndTime) {
-    //         enqueueSnackbar("Punctuality start and end times are required.", {
-    //             variant: "error",
-    //         });
-    //         return;
-    //     }
-
-    //     for (const breakField of breakTime) {
-    //         if (!breakField.breakStartTime || !breakField.breakEndTime) {
-    //             enqueueSnackbar("All break times must have start and end times.", {
-    //                 variant: "error",
-    //             });
-    //             return;
-    //         }
-    //     }
-
-    //     // Format the data for API
-    //     const requestData = [
-    //         {
-    //             userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
-    //             settings: {
-    //                 breakTime: breakTime.map((slot) => {
-    //                     const startTime = new Date(slot.breakStartTime);
-    //                     const endTime = new Date(slot.breakEndTime);
-        
-    //                     // Calculate total hours and minutes
-    //                     const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-    //                     const hours = Math.floor(totalMinutes / 60);
-    //                     const minutes = totalMinutes % 60;
-        
-    //                     return {
-    //                         TotalHours: `${hours}h:${minutes}m`,
-    //                         breakStartTime: startTime.toISOString(),
-    //                         breakEndTime: endTime.toISOString(),
-    //                     };
-    //                 }),
-    //                 puncStartTime: new Date(puncStartTime).toISOString(),
-    //                 puncEndTime: new Date(puncEndTime).toISOString(),
-    //             },
-    //         },
-    //         {
-    //             userId: "6558499b4ac2ae001cca7673", // Example for another user
-    //             settings: {
-    //                 breakTime: breakTime.map((slot) => {
-    //                     const startTime = new Date(slot.breakStartTime);
-    //                     const endTime = new Date(slot.breakEndTime);
-        
-    //                     // Calculate total hours and minutes
-    //                     const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-    //                     const hours = Math.floor(totalMinutes / 60);
-    //                     const minutes = totalMinutes % 60;
-        
-    //                     return {
-    //                         TotalHours: `${hours}h:${minutes}m`,
-    //                         breakStartTime: startTime.toISOString(),
-    //                         breakEndTime: endTime.toISOString(),
-    //                     };
-    //                 }),
-    //                 puncStartTime: new Date(puncStartTime).toISOString(),
-    //                 puncEndTime: new Date(puncEndTime).toISOString(),
-    //             },
-    //         },
-    //     ];
-        
-
-    //     try {
-    //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
-    //             requestData,
-    //             {
-    //                 headers: {
-    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //                     "Content-Type": "application/json",
-    //                 },
-    //             }
-    //         );
-
-    //         if (response.status === 200) {
-    //             enqueueSnackbar("Data successfully submitted!", { variant: "success" });
-    //         } else {
-    //             enqueueSnackbar("Failed to submit data.", { variant: "error" });
-    //         }
-    //     } catch (error) {
-    //         enqueueSnackbar(error?.response?.data?.message || "An error occurred.", {
-    //             variant: "error",
-    //         });
-    //         console.error("Error submitting data:", error);
-    //     }
-    // };
-
-//     return (
-//         <div>
-//             <SnackbarProvider />
-
-//             <div>
-//                 <h3>Set Break Times</h3>
-//                 {breakTime.map((breakField, index) => (
-//                     <div key={index} style={{ marginBottom: "20px" }}>
-//                         <input
-//                             type="text"
-//                             placeholder="Enter Total Hours (e.g., 1 hour)"
-//                             value={breakField.TotalHours}
-//                             onChange={(e) =>
-//                                 handleInputChange(index, "TotalHours", e.target.value)
-//                             }
-//                             style={{ marginRight: "10px" }}
-//                         />
-//                         <input
-//                             type="datetime-local"
-//                             placeholder="Break Start Time"
-//                             value={breakField.breakStartTime}
-//                             onChange={(e) =>
-//                                 handleInputChange(index, "breakStartTime", e.target.value)
-//                             }
-//                             style={{ marginRight: "10px" }}
-//                         />
-                        // <input
-                        //     type="datetime-local"
-                        //     placeholder="Break End Time"
-                        //     value={breakField.breakEndTime}
-                        //     onChange={(e) =>
-                        //         handleInputChange(index, "breakEndTime", e.target.value)
-                        //     }
-                        //     style={{ marginRight: "10px" }}
-                        // />
-                        // <button onClick={() => handleRemoveBreakTime(index)}>Remove</button>
-//                     </div>
-//                 ))}
-//                 <button onClick={handleAddBreakTime}>Add Break Time</button>
-//             </div>
-
-//             <div>
-//                 <h3>Punctuality Times</h3>
-//                 <input
-//                     type="datetime-local"
-//                     placeholder="Punctuality Start Time"
-//                     value={puncStartTime}
-//                     onChange={(e) => setPuncStartTime(e.target.value)}
-//                 />
-//                 <input
-//                     type="datetime-local"
-//                     placeholder="Punctuality End Time"
-//                     value={puncEndTime}
-//                     onChange={(e) => setPuncEndTime(e.target.value)}
-//                 />
-//             </div>
-
-//             <button onClick={handleSubmit} style={{ marginTop: "20px" }}>
-//                 Submit Punctuality Rules
-//             </button>
-//         </div>
-//     );
-// }
-
-// export default Screenshot;

@@ -302,7 +302,80 @@ function Screenshot() {
     };
 
     console.log("screenshot employess =====>", employees);
+
+    const handleSubmit = async () => {
+        // Validate inputs
+        for (const breakField of breakTime) {
+            if (!breakField.start || !breakField.breakEndTime) {
+                enqueueSnackbar("Break Time Added Successfully", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
+                return; // Stop the function if validation fails
+            }
+        }
     
+        // Format the data for API
+        const requestData = [
+            {
+                userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
+                settings: {
+                    breakTime: breakTime.map((slot) => {
+                        const startTime = new Date(slot.breakStartTime);
+                        const endTime = new Date(slot.breakEndTime);
+    
+                        // Calculate total hours
+                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
+                        const hours = Math.floor(totalMinutes / 60); // Extract hours
+    
+                        return {
+                            TotalHours: `${hours}h`, // Only include hours
+                            breakStartTime: startTime.toISOString(),
+                            breakEndTime: endTime.toISOString(),
+                        };
+                    }),
+                },
+            },
+        ];
+    
+        try {
+            const response = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+    
+            if (response.status === 200) {
+                enqueueSnackbar("Data successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right"
+                    }
+                });
+            } else {
+                enqueueSnackbar("Failed to submit data.", { variant: "error" });
+            }
+        } catch (error) {
+            enqueueSnackbar("Error submitting data. Please try again later.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
+            console.error("Error submitting data:", error);
+        }
+    };
+
     return (
         <div>
             <SnackbarProvider />
@@ -316,39 +389,49 @@ function Screenshot() {
                 <p>This number is an average since screenshots are taken at random intervals.</p>
             </div>
             <div className="takeScreenShotDiv">
-            <div style={{ marginBottom: "10px" }}>
-                        <label htmlFor="startTime">Start Time:</label>
-                        <input
-                            id="startTime"
-                            type="time"
-                            value={startTime}
-                            onChange={handleStartTimeChange}
-                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        />
-                    </div>
+                <div style={{ marginBottom: "10px" }}>
+                    <label htmlFor="startTime">Start Time:</label>
+                    <input
+                        id="startTime"
+                        type="time"
+                        value={startTime}
+                        onChange={handleStartTimeChange}
+                        // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                        style={{
+                            marginLeft: "10px",
+                            padding: "5px",
+                            borderRadius: "4px",
+                            border: "1px solid #ccc",
+                        }}
+                    />
+                </div>
 
-                    <div style={{ marginBottom: "10px" }}>
-                        <label htmlFor="endTime">End Time:</label>
-                        <input
-                            id="endTime"
-                            type="time"
-                            value={endTime}
-                            onChange={handleEndTimeChange}
-                            // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
-                            style={{
-                                marginLeft: "10px",
-                                padding: "5px",
-                                borderRadius: "4px",
-                                border: "1px solid #ccc",
-                            }}
-                        />
-                    </div>
+                <div style={{ marginBottom: "10px" }}>
+                    <label htmlFor="endTime">End Time:</label>
+                    <input
+                        id="endTime"
+                        type="time"
+                        value={endTime}
+                        onChange={handleEndTimeChange}
+                        // disabled={!isCheckboxChecked} // Enabled only when checkbox is checked
+                        style={{
+                            marginLeft: "10px",
+                            padding: "5px",
+                            borderRadius: "4px",
+                            border: "1px solid #ccc",
+                        }}
+                    />
+                </div>
+                {/* <button onClick={handleSubmit} style={{
+                    padding: "10px 20px",
+                    backgroundColor: "#7fc45a",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    // cursor: clickCount >= 2 ? "not-allowed" : "pointer",
+                }}>
+                    Save
+                </button> */}
                 {/* <div>
                     <select
                         value={number}
@@ -470,6 +553,16 @@ function Screenshot() {
                     <label for="test2">Do not Take</label>
                 </div> */}
             </div>
+            <button onClick={handleSubmit} style={{
+                    padding: "10px 20px",
+                    backgroundColor: "#7fc45a",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    // cursor: clickCount >= 2 ? "not-allowed" : "pointer",
+                }}>
+                    Save
+                </button>
             <div className="activityLevelIndividual">
                 <p className="settingScreenshotIndividual">Individual Settings</p>
                 <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
