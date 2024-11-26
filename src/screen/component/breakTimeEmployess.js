@@ -50,26 +50,85 @@ const CompanyEmployess = (props) => {
     //     });
     // };
     const handleToggleChange = async (employee, isSelected) => {
-        // setTimeFields((prev) => ({
-        //     ...prev,
-        //     [employee._id]: {
-        //         ...prev[employee._id],
-        //         showFields: isSelected, // Show fields only when toggle is on
-        //         startTime: prev[employee._id]?.startTime || "",
-        //         endTime: prev[employee._id]?.endTime || "",
-        //     },
-        // }));
+        // Update local toggle state immediately
         setTimeFields((prev) => ({
             ...prev,
             [employee._id]: {
                 ...prev[employee._id],
-                showFields: isSelected, // Set showFields based on the toggle state
+                showFields: isSelected,
                 startTime: prev[employee._id]?.startTime || "",
                 endTime: prev[employee._id]?.endTime || "",
             },
         }));
-        handlePunctualitySetting({ employee, isSelected });
+    
+        // Optionally update Redux state or handle state at the global level
+        dispatch(setEmployessSetting({
+            id: employee._id,
+            key: "individualbreakTime",
+            isSelected,
+        }));
+    
+        // First API call to persist the toggle state
+        try {
+            await handlePunctualitySetting({ employee, isSelected });
+            enqueueSnackbar("Toggle state updated successfully.", {
+                variant: "success",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+    
+            // Second API call after 1 second delay
+            setTimeout(async () => {
+                try {
+                    const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    });
+    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("Employees data fetched successfully:", data);
+    
+                        // Update the Redux or local state with new employee data
+                        dispatch(setEmployess(data));
+                        enqueueSnackbar("Employees data refreshed successfully.", {
+                            variant: "success",
+                            anchorOrigin: { vertical: "top", horizontal: "right" },
+                        });
+                    } else {
+                        throw new Error(`Failed to fetch employees: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error("Error fetching employees data:", error);
+                    enqueueSnackbar("Failed to refresh employees data.", {
+                        variant: "error",
+                        anchorOrigin: { vertical: "top", horizontal: "right" },
+                    });
+                }
+            }, 1000); // 1-second delay
+        } catch (error) {
+            console.error("Error updating toggle state:", error);
+            enqueueSnackbar("Failed to update toggle state.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+    
+            // Revert toggle state in case of an error
+            setTimeFields((prev) => ({
+                ...prev,
+                [employee._id]: {
+                    ...prev[employee._id],
+                    showFields: !isSelected, // Revert the change
+                },
+            }));
+        }
     };
+    
+
+
+
 
     useEffect(() => {
         const initialTimeFields = {};
@@ -107,7 +166,7 @@ const CompanyEmployess = (props) => {
             return updatedFields;
         });
     };
-    
+
     const handleSave = (employeeId) => {
         const { startTime, endTime } = timeFields[employeeId];
         if (!startTime || !endTime) {
@@ -636,12 +695,13 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={employee?.punctualityData?.individualbreakTime || false} // Safely access the value
+                                                checked={timeFields[employee._id]?.showFields || false} // Real-time local state
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>
                                         </label>
                                     </div>
+
 
                                     {/* Show additional fields when the toggle is ON */}
                                     {/* {employee?.effectiveSettings?.individualBreakTime && (
