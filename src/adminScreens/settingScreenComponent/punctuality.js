@@ -21,6 +21,10 @@ function Screenshot() {
     const ids = useSelector((state) => state.adminSlice.ids)
     const employees = useSelector((state) => state.adminSlice.employess)
 
+    const [breakTime, setBreakTime] = useState([
+        { TotalHours: "", breakStartTime: "", breakEndTime: "" },
+    ]);
+    
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
             ...employee.effectiveSettings,
@@ -563,9 +567,6 @@ function Screenshot() {
                 }}>
                     Save
                 </button>
-                {/* <p>
-                    Hello
-                </p> */}
             <div className="activityLevelIndividual">
                 <p className="settingScreenshotIndividual">Individual Settings</p>
                 <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
