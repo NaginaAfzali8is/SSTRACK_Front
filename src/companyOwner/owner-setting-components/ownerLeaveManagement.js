@@ -605,160 +605,132 @@ const OwnerTeam = () => {
         fetchLeaveRequests();
     }, []);
 
+    const [selectedUser, setSelectedUser] = useState(null);
+
     return (
         <div className="container">
             <div className="userHeader">
                 <h5>Team</h5>
             </div>
-            <div className="mainwrapper">
-                <div className="ownerTeamContainer">
-                    <div style={{ width: "350px" }}>
-                        <div className="companyFont">
-                            <p style={{
-                                margin: 0,
-                                padding: 0,
-                                fontSize: "20px",
-                                color: "#0E4772",
-                                fontWeight: "600",
-                            }}>Total</p>
-                            <div style={{
-                                backgroundColor: "#28659C",
-                                color: "white",
-                                fontSize: "600",
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "100%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                {(requestedLeaves?.length || 0) + (approvedLeaves?.length || 0)}
-                            </div>
-                        </div>
-                        {/* <h3>Total Requested Leaves: {requestedLeaves?.length}</h3> */}
+            <div className="mainwrapper ownerTeamContainer" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
 
-                        {/* <div className="companyFont">
-                                <p style={{
-                                    margin: 0,
-                                    padding: 0,
-                                    fontSize: "20px",
-                                    color: "#0E4772",
-                                    fontWeight: "600",
-                                }}>Total</p>
-                                <div style={{
-                                    backgroundColor: "#28659C",
-                                    color: "white",
-                                    fontSize: "600",
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                }}>
-                                    {requestedLeaves?.length}
-                                </div>
-                            </div> */}
-                        {/* <h3>Total Approved Leaves: {approvedLeaves?.length}</h3> */}
-                        <div>
-                            {/* {users?.map((e, i) => { */}
-
-
-
-
-
-
-
-                        </div>
-                        {/* <div>
-                            {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
-                                <div key={index} className="leaveItem d-flex" style={{ gap: '50px' }}>
-                                    <p className="gap-10">
-                                        {index + 1}. 
-                                        <strong>{leave.userName}</strong>
-                                    </p>
-                                    <p className="gap-10">
-                                        <span style={{
-                                            color: leave.status === "Pending" ? "orange" :
-                                                leave.status === "Approved" ? "green" : "red"
-                                        }}>
-                                            {leave.status}
-                                        </span>
-                                    </p>
-                                </div>
-                            ))}
-                        </div> */}
-                        <div>
-
-                            {/* <div style={{
-                                backgroundColor: "#28659C",
-                                color: "white",
-                                fontWeight: "bold",
-                                width: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                marginBottom: "20px",
-                                fontSize: "18px"
-                            }}>
-                                {requestedLeaves?.length || 0}
-                            </div> */}
-                            <div>
-                                {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
-                                    <div
-                                        key={index}
-                                        className="requested-leave-item"
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "10px",
-                                            borderBottom: "1px solid #ccc",
-                                            padding: "10px 0"
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                backgroundColor: "#e7e7e7",
-                                                borderRadius: "50%",
-                                                width: "30px",
-                                                height: "30px",
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                fontWeight: "bold"
-                                            }}
-                                        >
-                                            {index + 1}
-                                        </div>
-                                        <div style={{ flexGrow: 1 }}>
-                                            <strong>{leave.userName}</strong>
-                                        </div>
-                                        <div
-                                            style={{
-                                                color:
-                                                    leave.status === "Pending"
-                                                        ? "orange"
-                                                        : leave.status === "Approved"
-                                                            ? "green"
-                                                            : "red",
-                                                fontWeight: "bold"
-                                            }}
-                                        >
-                                            {leave.status}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div>
-                                <img src={line} style={{ height: '100%' }} />
-                            </div>
+                {/* Left Section */}
+                <div style={{ width: "350px", marginRight: "20px" }}>
+                    <div className="companyFont">
+                        <p style={{
+                            margin: 0,
+                            padding: 0,
+                            fontSize: "20px",
+                            color: "#0E4772",
+                            fontWeight: "600",
+                        }}>Total</p>
+                        <div style={{
+                            backgroundColor: "#28659C",
+                            color: "white",
+                            fontSize: "600",
+                            width: "30px",
+                            height: "30px",
+                            borderRadius: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center"
+                        }}>
+                            {(requestedLeaves?.length || 0) + (approvedLeaves?.length || 0)}
                         </div>
                     </div>
+
+                    {/* Requested and Approved Leaves */}
+                    <div>
+                        {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
+                            <div
+                                key={index}
+                                className="requested-leave-item"
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    borderBottom: "1px solid #ccc",
+                                    padding: "10px 0",
+                                    cursor: "pointer", // Added this line
+                                }}
+                                onClick={() => setSelectedUser(leave)} // Update selected user on click
+                            >
+                                <div
+                                    style={{
+                                        backgroundColor: "#e7e7e7",
+                                        borderRadius: "50%",
+                                        width: "30px",
+                                        height: "30px",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        fontWeight: "bold"
+                                    }}
+                                >
+                                    {index + 1}
+                                </div>
+                                <div style={{ flexGrow: 1 }}>
+                                    <strong>{leave.userName}</strong>
+                                </div>
+                                <div
+                                    style={{
+                                        color:
+                                            leave.status === "Pending"
+                                                ? "orange"
+                                                : leave.status === "Approved"
+                                                    ? "green"
+                                                    : "red",
+                                        fontWeight: "bold"
+                                    }}
+                                >
+                                    {leave.status}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
+                {/* Center Line */}
+                <div>
+                    <img src={line} style={{ height: "100%" }} />
+                </div>
+
+                {/* Right Section */}
+                <div style={{ flexGrow: 1, paddingLeft: "20px" }}>
+                    {selectedUser ? (
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: "18px",
+                                    color: "#0E4772",
+                                    fontWeight: "600",
+                                    marginBottom: "10px",
+                                }}
+                            >
+                                Selected User Details
+                            </p>
+                            <p>
+                                <strong>Name:</strong> {selectedUser.userName}
+                            </p>
+                            <p>
+                                <strong>Status:</strong> {selectedUser.status}
+                            </p>
+                        </div>
+                    ) : (
+                        <p
+                            style={{
+                                fontSize: "16px",
+                                color: "#666",
+                            }}
+                        >
+                            Click on a user to view their details here.
+                        </p>
+                    )}
+                </div>
+
             </div>
         </div>
+
     );
 };
 
