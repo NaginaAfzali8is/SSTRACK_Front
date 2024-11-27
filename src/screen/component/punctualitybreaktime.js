@@ -60,14 +60,14 @@ const CompanyEmployess = (props) => {
                 endTime: prev[employee._id]?.endTime || "",
             },
         }));
-    
+
         // Optionally update Redux state to reflect toggle change globally
         dispatch(setEmployessSetting({
             id: employee._id,
             key: "individualPuncStart",
             isSelected,
         }));
-    
+
         // First API call to persist the toggle state
         try {
             await handlePunctualitySetting({ employee, isSelected });
@@ -75,7 +75,7 @@ const CompanyEmployess = (props) => {
             //     variant: "success",
             //     anchorOrigin: { vertical: "top", horizontal: "right" },
             // });
-    
+
             // Second API call after a 1-second delay to fetch updated data
             setTimeout(async () => {
                 try {
@@ -86,11 +86,11 @@ const CompanyEmployess = (props) => {
                             "Content-Type": "application/json",
                         },
                     });
-    
+
                     if (response.ok) {
                         const data = await response.json();
                         console.log("Employees data fetched successfully:", data);
-    
+
                         // Update Redux or local state with the refreshed employee data
                         dispatch(setEmployess(data));
                     } else {
@@ -110,7 +110,7 @@ const CompanyEmployess = (props) => {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
-    
+
             // Revert the toggle state in case of an error
             setTimeField((prev) => ({
                 ...prev,
@@ -738,6 +738,7 @@ const CompanyEmployess = (props) => {
                                                 <input
                                                     type="time"
                                                     value={timeField[employee._id]?.startTime || ""}
+                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "startTime", e.target.value)
                                                     }
@@ -751,6 +752,7 @@ const CompanyEmployess = (props) => {
                                                 <input
                                                     type="time"
                                                     value={timeField[employee._id]?.endTime || ""}
+                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "endTime", e.target.value)
                                                     }
