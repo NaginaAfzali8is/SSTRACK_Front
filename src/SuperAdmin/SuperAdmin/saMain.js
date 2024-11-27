@@ -68,7 +68,8 @@ const SaMain = () => {
   return (
     <div style={{
       display: 'flex',
-      width: '100%',
+      width: 'auto',
+      minWidth:'100%',
       minHeight: '100vh',
       height: 'auto',
       backgroundColor: '#fff',

@@ -6,7 +6,7 @@
 // import groupCompany from '../../images/Group.webp'
 // import search from "../../images/searchIcon.webp";
 // // import line from "../images/Line 3.webp";
-// import line from '../../images/Line 3.webp'
+import line from '../../images/Line 3.webp'
 // // import OwnerTeamComponent from "./ownerTeamComponent";
 // import axios from "axios";
 // import { enqueueSnackbar, SnackbarProvider } from 'notistack'
@@ -67,7 +67,7 @@
 
 //     const fetchOwnerCompanies = async () => {
 //         const response = await axios.get(`${apiUrl}/superAdmin/getAllLeaveRequests`, { headers });
-        
+
 //         console.log("Leave Request User Names:", response.data.requestedLeaves.map((leave) => leave.userName));
 
 //         return response.data;  // React Query will handle the response status internall
@@ -79,7 +79,7 @@
 //         return assignedUsersList.length;
 //         // return assignedUsersList.length > 0 ? assignedUsersList.length - 1 : 0;
 //     }
-    
+
 //     function logOut() {
 //         localStorage.clear();
 //         localStorage.removeItem("cachedData");
@@ -224,7 +224,7 @@
 //         }
 //     }, [managerUsers, user]);
 
- 
+
 
 
 //     async function archived_unarchived_users() {
@@ -451,8 +451,8 @@
 //                         <h5>Team</h5>
 //                     </div>
 //                 </div>
-//                 <div className="mainwrapper">
-//                     <div className="ownerTeamContainer">
+// <div className="mainwrapper">
+//     <div className="ownerTeamContainer">
 //                         <div className="d-flex gap-3">
 //                             <div style={{ width: "350px" }}>
 //                                 {user?.userType !== "manager" && (
@@ -498,28 +498,28 @@
 //                                         </div>
 //                                     </>
 //                                 )}
-//                                 <div className="companyFont">
-//                                     <p style={{
-//                                         margin: 0,
-//                                         padding: 0,
-//                                         fontSize: "20px",
-//                                         color: "#0E4772",
-//                                         fontWeight: "600",
-//                                     }}>Total</p>
-//                                     <div style={{
-//                                         backgroundColor: "#28659C",
-//                                         color: "white",
-//                                         fontSize: "600",
-//                                         width: "30px",
-//                                         height: "30px",
-//                                         borderRadius: "100%",
-//                                         display: "flex",
-//                                         justifyContent: "center",
-//                                         alignItems: "center"
-//                                     }}>
-//                                         {requestedLeaves?.length}
-//                                     </div>
-//                                 </div>
+// <div className="companyFont">
+//     <p style={{
+//         margin: 0,
+//         padding: 0,
+//         fontSize: "20px",
+//         color: "#0E4772",
+//         fontWeight: "600",
+//     }}>Total</p>
+//     <div style={{
+//         backgroundColor: "#28659C",
+//         color: "white",
+//         fontSize: "600",
+//         width: "30px",
+//         height: "30px",
+//         borderRadius: "100%",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center"
+//     }}>
+//         {requestedLeaves?.length}
+//     </div>
+//  </div>
 //                                 <div>
 //                                     {/* Map through the leave data */}
 //                                     {requestedLeaves?.map((leave, index) => (
@@ -540,9 +540,9 @@
 //                                 </div>
 //                             </div>
 
-//                             <div>
-//                                 <img src={line} style={{ height: '100%' }} />
-//                             </div>
+// <div>
+//     <img src={line} style={{ height: '100%' }} />
+// </div>
 //                             {/* <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "center" : "", alignItems: mainId === null ? "center" : "" }}>
 //                                 <div>
 //                                     <p className="settingScreenshotHeading">Currency symbol</p>
@@ -558,7 +558,7 @@
 //                                     <p className="settingScreenshotIndividual">Individual Settings</p>
 //                                     <p className="individualSettingFont">If enabled, the individual setting will be used instead of the team setting</p>
 //                                 </div>
-                            
+
 //                             </div> */}
 //                         </div>
 //                     </div>
@@ -610,38 +610,154 @@ const OwnerTeam = () => {
             <div className="userHeader">
                 <h5>Team</h5>
             </div>
-
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <div className="mainwrapper">
+            <div className="mainwrapper">
+                <div className="ownerTeamContainer">
                     <div style={{ width: "350px" }}>
-                        <h3>Total Requested Leaves: {requestedLeaves?.length}</h3>
-                        <div>
-                            {requestedLeaves?.map((leave, index) => (
-                                <div key={index} className="leaveItem">
-                                    <p>
-                                        {index + 1}. <strong>{leave.userName}</strong>
-                                    </p>
-                                    <p>Status: <span style={{ color: leave.status === "Pending" ? "orange" : "red" }}>{leave.status}</span></p>
-                                </div>
-                            ))}
+                        <div className="companyFont">
+                            <p style={{
+                                margin: 0,
+                                padding: 0,
+                                fontSize: "20px",
+                                color: "#0E4772",
+                                fontWeight: "600",
+                            }}>Total</p>
+                            <div style={{
+                                backgroundColor: "#28659C",
+                                color: "white",
+                                fontSize: "600",
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                {(requestedLeaves?.length || 0) + (approvedLeaves?.length || 0)}
+                            </div>
                         </div>
+                        {/* <h3>Total Requested Leaves: {requestedLeaves?.length}</h3> */}
 
-                        <h3>Total Approved Leaves: {approvedLeaves?.length}</h3>
+                        {/* <div className="companyFont">
+                                <p style={{
+                                    margin: 0,
+                                    padding: 0,
+                                    fontSize: "20px",
+                                    color: "#0E4772",
+                                    fontWeight: "600",
+                                }}>Total</p>
+                                <div style={{
+                                    backgroundColor: "#28659C",
+                                    color: "white",
+                                    fontSize: "600",
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}>
+                                    {requestedLeaves?.length}
+                                </div>
+                            </div> */}
+                        {/* <h3>Total Approved Leaves: {approvedLeaves?.length}</h3> */}
                         <div>
-                            {approvedLeaves?.map((leave, index) => (
-                                <div key={index} className="leaveItem">
-                                    <p>
-                                        {index + 1}. <strong>{leave.userName}</strong>
+                            {/* {users?.map((e, i) => { */}
+
+
+
+
+
+
+
+                        </div>
+                        {/* <div>
+                            {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
+                                <div key={index} className="leaveItem d-flex" style={{ gap: '50px' }}>
+                                    <p className="gap-10">
+                                        {index + 1}. 
+                                        <strong>{leave.userName}</strong>
                                     </p>
-                                    <p>Status: <span style={{ color: "green" }}>{leave.status}</span></p>
+                                    <p className="gap-10">
+                                        <span style={{
+                                            color: leave.status === "Pending" ? "orange" :
+                                                leave.status === "Approved" ? "green" : "red"
+                                        }}>
+                                            {leave.status}
+                                        </span>
+                                    </p>
                                 </div>
                             ))}
+                        </div> */}
+                        <div>
+
+                            {/* <div style={{
+                                backgroundColor: "#28659C",
+                                color: "white",
+                                fontWeight: "bold",
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginBottom: "20px",
+                                fontSize: "18px"
+                            }}>
+                                {requestedLeaves?.length || 0}
+                            </div> */}
+                            <div>
+                                {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
+                                    <div
+                                        key={index}
+                                        className="requested-leave-item"
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "10px",
+                                            borderBottom: "1px solid #ccc",
+                                            padding: "10px 0"
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                backgroundColor: "#e7e7e7",
+                                                borderRadius: "50%",
+                                                width: "30px",
+                                                height: "30px",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                fontWeight: "bold"
+                                            }}
+                                        >
+                                            {index + 1}
+                                        </div>
+                                        <div style={{ flexGrow: 1 }}>
+                                            <strong>{leave.userName}</strong>
+                                        </div>
+                                        <div
+                                            style={{
+                                                color:
+                                                    leave.status === "Pending"
+                                                        ? "orange"
+                                                        : leave.status === "Approved"
+                                                            ? "green"
+                                                            : "red",
+                                                fontWeight: "bold"
+                                            }}
+                                        >
+                                            {leave.status}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div>
+                                <img src={line} style={{ height: '100%' }} />
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 };

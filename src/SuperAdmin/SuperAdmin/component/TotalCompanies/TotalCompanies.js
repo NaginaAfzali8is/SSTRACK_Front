@@ -126,6 +126,7 @@ function TotalCompanies() {
       setDLTLoading(false);
     }
   };
+
   const handleBlock = async (selectedCompanyId) => {
     if (!selectedCompanyId) {
       alert('No company selected.');
@@ -142,12 +143,14 @@ function TotalCompanies() {
     setDLTLoading(true);
 
     try {
+      // Toggle the accessBlock value
+      const updatedAccessBlock = !selectedCompany?.accessBlock;
       const response = await axios.post(
         `https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: false,
           suspended: false,
-          accessBlock: true,
+          accessBlock: updatedAccessBlock,
         },
         {
           headers: {
@@ -179,7 +182,7 @@ function TotalCompanies() {
   const handleFilterChange = (event) => {
     const filter = event.target.value;
     setSelectedFilter(filter);
-  
+
     // Filter companies based on the selected filter
     if (filter === 'all') {
       setFilteredCompanies(companies); // Show all companies
@@ -187,7 +190,7 @@ function TotalCompanies() {
       const filtered = companies.filter((company) => company.type === filter);
       setFilteredCompanies(filtered); // Update filteredCompanies
     }
-  
+
     // Reset to the first page when the filter changes
     setCurrentPage(1);
   };
@@ -277,9 +280,9 @@ function TotalCompanies() {
                         position: 'relative',
                         padding: '16px',
                         border: '1px solid #e0e0e0',
-                        maxWidth: '280px',
-                        minWidth: '280px',
-                        minHeight: '300px',
+                        minWidth: '200px',
+                        maxWidth: '100%',
+                        height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
@@ -326,7 +329,7 @@ function TotalCompanies() {
                         </Box>
                       </CardContent>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2  }}>
                         <Button
                           variant="contained"
                           onClick={() => handleViewClick(company)}
@@ -530,7 +533,7 @@ function TotalCompanies() {
                     }}
                     onClick={() => handleBlock(selectedCompany.id)}
                   >
-                    {selectedCompany.accessBlock ? `Unblock Access` : `Block Access)`}
+                    {selectedCompany.accessBlock ? `Unblock Access` : `Block Access`}
                   </Button>
 
                 </Box>

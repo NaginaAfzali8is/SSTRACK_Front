@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, CircularProgress } from '@mui/material';
+import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, CircularProgress, IconButton, Collapse, List, ListItem, ListItemText} from '@mui/material';
+import Divider from '@mui/material/Divider';
 import TopBar from '../topBar';
 import axios from 'axios';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function FinancialsContent() {
   const [paymentData, setPaymentData] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [openRow, setOpenRow] = useState(null); // Track open row for dropdown
 
+  const handleToggleRow = (index) => {
+    setOpenRow(openRow === index ? null : index);
+  };
   const fetchPayments = async () => {
     const token = localStorage.getItem('token_for_sa'); // Retrieve token from local storage
 
@@ -27,7 +33,7 @@ function FinancialsContent() {
 
       if (response.data.success) {
         setPaymentData(response.data.data);
-        setInvoices(response.data.data.invoices);
+        // setInvoices(response.data.data.invoices);
 
       } else {
         setError('Failed to fetch payment data');
@@ -39,10 +45,41 @@ function FinancialsContent() {
       setLoading(false);
     }
   };
+  const fetchInvoices = async () => {
+    const token = localStorage.getItem('token_for_sa'); // Retrieve token from local storage
+  
+    if (!token) {
+      setError('Token not found');
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllInvoices', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.data.success) {
+        // Assuming you want to store invoices in a separate state
+        setInvoices(response.data.data); // Replace with your state variable
+      } else {
+        setError('Failed to fetch invoice data');
+      }
+    } catch (err) {
+      console.error('Error fetching invoice data:', err);
+      setError('An error occurred while fetching invoice data');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   useEffect(() => {
     console.log('get cjhlaaaa', paymentData?.totalReceivedAmount)
     fetchPayments();
+    fetchInvoices();
   }, []);
 
   if (loading) return <CircularProgress />;
@@ -153,31 +190,120 @@ function FinancialsContent() {
               <TableRow>
                 <TableCell>Transaction ID</TableCell>
                 <TableCell>Owner Name</TableCell>
+                <TableCell>Owner Email</TableCell>
                 <TableCell>Company Name</TableCell>
-                <TableCell>Plan</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {invoices.map((invoice, index) => (
-                <TableRow key={index}>
-                  <TableCell>{invoice.invoiceNumber}</TableCell>
-                  <TableCell>{invoice.ownerName}</TableCell>
-                  <TableCell>{invoice.company || 'N/A'}</TableCell>
-                  <TableCell>{invoice.planId || 'N/A'}</TableCell>
-                  <TableCell>${invoice.subTotal.toFixed(2)} USD</TableCell>
-                  <TableCell>{new Date(invoice.invoiceDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Typography
-                      color={invoice.status === 'paid' ? 'success' : 'warning'}
-                      sx={{ fontWeight: 'bold' }}
-                    >
-                      {invoice.status === 'paid' ? 'Success' : 'Pending'}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
+                <React.Fragment key={index}>
+                  <TableRow>
+                    <TableCell>{invoice.invoiceNumber}</TableCell>
+                    <TableCell>{invoice.ownerName}</TableCell>
+                    <TableCell>{invoice.ownerEmail || 'N/A'}</TableCell>
+                    <TableCell>{invoice.company?.companyName || 'N/A'}</TableCell>
+                    <TableCell>${invoice.subTotal.toFixed(2)} USD</TableCell>
+                    <TableCell>
+                      {new Date(invoice.invoiceDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        color={invoice.status === 'paid' ? 'success' : 'warning'}
+                        sx={{ fontWeight: 'bold' }}
+                      >
+                        {invoice.status === 'paid' ? 'Success' : 'Pending'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleToggleRow(index)}>
+                        <ExpandMoreIcon
+                          sx={{
+                            transform: openRow === index ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.3s',
+                          }}
+                        />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow>
+                    <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>
+                      <Collapse in={openRow === index} timeout="auto" unmountOnExit>
+                        <Box
+                          sx={{
+                            margin: 1,
+                            padding: 2,
+                            border: '1px solid #ddd',
+                            borderRadius: 2,
+                            backgroundColor: '#f9f9f9',
+                          }}
+                        >
+                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
+                            Billing Details
+                          </Typography>
+
+                          <Divider sx={{ my: 1 }} />
+
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subtitle2" sx={{ color: '#555' }}>
+                                <strong>Billing Period:</strong>
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#777' }}>
+                                {new Date(invoice.billingPeriodStart).toLocaleDateString()} -{' '}
+                                {new Date(invoice.billingPeriodEnd).toLocaleDateString()}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subtitle2" sx={{ color: '#555' }}>
+                                <strong>Number of Employees:</strong>
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#777' }}>{invoice.employee.length}</Typography>
+                            </Grid>
+                          </Grid>
+
+                          <Divider sx={{ my: 2 }} />
+
+                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
+                            Employees
+                          </Typography>
+
+                          <List sx={{ padding: 0 }}>
+                            {invoice.employee.map((emp) => (
+                              <Box
+                                key={emp._id}
+                                sx={{
+                                  padding: 2,
+                                  marginBottom: 1,
+                                  border: '1px solid #ddd',
+                                  borderRadius: 2,
+                                  backgroundColor: '#fff',
+                                }}
+                              >
+                                <Typography variant="subtitle2" sx={{ color: '#555' }}>
+                                  <strong>{emp.name}</strong>
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#777' }}>
+                                  <strong>Amount:</strong> ${emp.amount.toFixed(2)}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#777' }}>
+                                  <strong>Period:</strong>{' '}
+                                  {new Date(emp.periodStart).toLocaleDateString()} -{' '}
+                                  {new Date(emp.periodEnd).toLocaleDateString()}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </List>
+                        </Box>
+
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
