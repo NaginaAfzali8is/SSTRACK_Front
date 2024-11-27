@@ -415,38 +415,31 @@ const [endTime, setEndTime] = useState(() => {
     // };
     const handleSubmit = async () => {
         try {
-            // Validate that all break times have start and end
-            breakTimes.forEach((slot, index) => {
-                if (!slot.start || !slot.end) {
-                    throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
-                }
-            });
+            if (!startTime || !endTime) {
+                throw new Error("Both Punctuality Start Time and End Time are required.");
+            }
     
-            // Format the break times
-            const formattedBreakTimes = breakTimes.map((slot) => {
-                const startTime = new Date(`1970-01-01T${slot.start}:00`);
-                const endTime = new Date(`1970-01-01T${slot.end}:00`);
+            // Convert start and end times to ISO strings
+            const puncStartTime = new Date(`1970-01-01T${startTime}:00`).toISOString();
+            const puncEndTime = new Date(`1970-01-01T${endTime}:00`).toISOString();
     
-                // Calculate total hours and minutes
-                const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
+            // Validate the time difference
+            const start = new Date(puncStartTime);
+            const end = new Date(puncEndTime);
+            const differenceMs = end - start;
+            const differenceMinutes = differenceMs / (1000 * 60); // Convert ms to minutes
     
-                return {
-                    TotalHours: `${hours}h:${minutes}m`,
-                    breakStartTime: startTime.toISOString(),
-                    breakEndTime: endTime.toISOString(),
-                };
-            });
+            // if (differenceMinutes <= 0 || differenceMinutes > 480) {
+            //     throw new Error("The time difference must be between 0 and 8 hours.");
+            // }
     
             // Prepare the API payload
             const requestData = [
                 {
                     userId: "65570c6f35e0cf001ca86c3c", // Replace with actual user ID
                     settings: {
-                        breakTime: formattedBreakTimes,
-                        puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
-                        puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
+                        puncStartTime,
+                        puncEndTime,
                     },
                 },
             ];
@@ -457,8 +450,8 @@ const [endTime, setEndTime] = useState(() => {
                 requestData,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token from localStorage
+                        "Content-Type": "application/json", // Set JSON content type
                     },
                 }
             );
@@ -473,7 +466,7 @@ const [endTime, setEndTime] = useState(() => {
                     },
                 });
             } else {
-                enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
+                throw new Error("Failed to submit punctuality rule.");
             }
         } catch (error) {
             // Handle errors
@@ -490,6 +483,79 @@ const [endTime, setEndTime] = useState(() => {
             console.error("Error submitting punctuality rule:", error);
         }
     };
+    
+    
+    // const handleSubmit = async () => {
+    //     try {
+    //         if (!startTime || !endTime) {
+    //             throw new Error("Both Punctuality Start Time and End Time are required.");
+    //         }
+    
+    //         // Convert start and end times to ISO strings
+    //         const puncStartTime = new Date(`1970-01-01T${startTime}:00`).toISOString();
+    //         const puncEndTime = new Date(`1970-01-01T${endTime}:00`).toISOString();
+    
+    //         // Validate the time difference
+    //         const start = new Date(puncStartTime);
+    //         const end = new Date(puncEndTime);
+    //         const differenceMs = end - start;
+    //         const differenceMinutes = differenceMs / (1000 * 60); // Convert ms to minutes
+    
+    //         if (differenceMinutes <= 0 || differenceMinutes > 480) {
+    //             throw new Error("The time difference must be between 0 and 8 hours.");
+    //         }
+    
+    //         // Prepare the API payload
+    //         const requestData = [
+    //             {
+    //                 userId: "65570c6f35e0cf001ca86c3c", // Replace with actual user ID
+    //                 settings: {
+    //                     puncStartTime: startTime, // Exact Start Time entered
+    //                     puncEndTime: endTime, // Exact End Time entered
+    //                 },
+    //             },
+    //         ];
+    
+    //         // Make the API call
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token from localStorage
+    //                     "Content-Type": "application/json", // Set JSON content type
+    //                 },
+    //             }
+    //         );
+    
+    //         // Handle success
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Punctuality Time successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
+    //         } else {
+    //             throw new Error("Failed to submit punctuality rule.");
+    //         }
+    //     } catch (error) {
+    //         // Handle errors
+    //         enqueueSnackbar(
+    //             error.message || "Error submitting punctuality rule. Please try again later.",
+    //             {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             }
+    //         );
+    //         console.error("Error submitting punctuality rule:", error);
+    //     }
+    // };
+    
     return (
         <div>
             <SnackbarProvider />

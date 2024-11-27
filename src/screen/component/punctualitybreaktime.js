@@ -400,7 +400,7 @@ const CompanyEmployess = (props) => {
             );
 
             if (res.status === 200) {
-                enqueueSnackbar("Break Time settings updated successfully!", {
+                enqueueSnackbar("Punctuality settings updated successfully!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
