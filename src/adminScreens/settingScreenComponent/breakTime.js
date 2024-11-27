@@ -631,24 +631,24 @@ function Screenshot() {
                     throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
                 }
             });
-    
+
             // Format the break times
             const formattedBreakTimes = breakTimes.map((slot) => {
                 const startTime = new Date(`1970-01-01T${slot.start}:00`);
                 const endTime = new Date(`1970-01-01T${slot.end}:00`);
-    
+
                 // Calculate total hours and minutes
                 const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
-    
+
                 return {
                     TotalHours: `${hours}h:${minutes}m`,
                     breakStartTime: startTime.toISOString(),
                     breakEndTime: endTime.toISOString(),
                 };
             });
-    
+
             // Prepare the API payload
             const requestData = [
                 {
@@ -660,7 +660,7 @@ function Screenshot() {
                     },
                 },
             ];
-    
+
             // Make the API call
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
@@ -672,7 +672,7 @@ function Screenshot() {
                     },
                 }
             );
-    
+
             // Handle success
             if (response.status === 200) {
                 enqueueSnackbar("Break Time rule successfully submitted!", {
@@ -700,7 +700,69 @@ function Screenshot() {
             console.error("Error submitting punctuality rule:", error);
         }
     };
+
+    // const handleRemoveBreakTime = (index) => {
+    //     if (breakTimes.length > 0) {
+    //         setBreakTimes((prev) => prev.filter((_, i) => i !== index)); // Remove the field at the specified index
+    //         enqueueSnackbar("Break time removed!", {
+    //             variant: "info",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //     } else {
+    //         enqueueSnackbar("No break times to remove.", {
+    //             variant: "warning",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //     }
+    // };
+
+    const handleRemoveBreakTime = (index) => {
+        if (breakTimes.length > 0) {
+            const updatedBreakTimes = breakTimes.filter((_, i) => i !== index); // Remove the specified index
+            setBreakTimes(updatedBreakTimes);
     
+            if (updatedBreakTimes.length === 0) {
+                // If all break times are removed, reset total duration to 0h 0m
+                setTotalDuration("0h:0m");
+            } else {
+                // Recalculate total duration
+                let totalMinutes = 0;
+                updatedBreakTimes.forEach(({ start, end }) => {
+                    if (start && end) {
+                        const startTime = new Date(`1970-01-01T${start}:00`);
+                        const endTime = new Date(`1970-01-01T${end}:00`);
+                        totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
+                    }
+                });
+    
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                setTotalDuration(`${hours}h:${minutes}m`);
+            }
+    
+            enqueueSnackbar("Break time removed!", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        } else {
+            enqueueSnackbar("No break times to remove.", {
+                variant: "warning",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        }
+    };    
 
     const handleIndividualPunctualitySubmit = async () => {
         try {
@@ -913,27 +975,27 @@ function Screenshot() {
 
     const calculateTotalDuration = () => {
         let totalMinutes = 0;
-    
+
         breakTimes.forEach(({ start, end }) => {
             if (start && end) {
                 const startTime = new Date(`1970-01-01T${start}:00`);
                 const endTime = new Date(`1970-01-01T${end}:00`);
-    
+
                 if (endTime < startTime) {
                     endTime.setDate(endTime.getDate() + 1);
                 }
-    
+
                 totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
             }
         });
-    
+
         // Cap total minutes at 60 (1 hour)
         totalMinutes = Math.min(totalMinutes, 60);
-    
+
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         setTotalDuration(`${hours}h:${minutes}m`);
-    
+
         // Disable the button if total duration equals 1 hour
         setIsAddButtonDisabled(totalMinutes >= 60);
     };
@@ -1064,7 +1126,21 @@ function Screenshot() {
                                         onChange={(e) => handleBreakTimeChange(index, "end", e.target.value)}
                                     />
                                 </div>
+                                <button
+                                    onClick={() => handleRemoveBreakTime(index)} // Pass index here
+                                    style={{
+                                        backgroundColor: "#7fc45a",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        padding: "5px 10px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Remove
+                                </button>
                             </div>
+
                         ))}
                     </div>
                     {/* <div style={{ marginTop: "20px" }}>
@@ -1093,6 +1169,7 @@ function Screenshot() {
                 >
                     Add Break Time
                 </button>
+
                 <button onClick={handleSubmit} style={{
                     padding: "10px 20px",
                     backgroundColor: "#7fc45a",
