@@ -3,7 +3,7 @@ import Switch from "../../screen/component/switch";
 import user from '../../images/groupImg.svg'
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-import CompanyEmployess from "../../screen/component/breakTimeEmployess";
+import CompanyEmployess from "../../screen/component/punctualitybreaktime";
 import SaveChanges from "../../screen/component/button";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { getEmployess, setAllUserSetting, setAllUserSetting2, setAllUserSetting3, setEmployess, setEmployessSetting, setEmployessSetting2, setEmployessSetting4 } from "../../store/adminSlice";
@@ -24,6 +24,13 @@ function Screenshot() {
     const [breakTime, setBreakTime] = useState([
         { TotalHours: "", breakStartTime: "", breakEndTime: "" },
     ]);
+
+     // const [breakTimes, setBreakTimes] = useState([]); // Track the added break times
+     const [breakTimes, setBreakTimes] = useState(() => {
+        // Load break times from localStorage when the component mounts
+        const savedBreakTimes = localStorage.getItem("breakTimes");
+        return savedBreakTimes ? JSON.parse(savedBreakTimes) : []; // Default to an empty array if nothing is saved
+    });
 
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
@@ -334,47 +341,119 @@ const [endTime, setEndTime] = useState(() => {
 
     console.log("screenshot employess =====>", employees);
 
+    // const handleSubmit = async () => {
+    //     // Validate inputs
+    //     for (const breakField of breakTime) {
+    //         if (!breakField.start || !breakField.breakEndTime) {
+    //             enqueueSnackbar("Punctuality Time Added Successfully", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //             return; // Stop the function if validation fails
+    //         }
+    //     }
+    
+    //     // Format the data for API
+    //     const requestData = [
+    //         {
+    //             userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
+    //             settings: {
+    //                 breakTime: breakTime.map((slot) => {
+    //                     const startTime = new Date(slot.breakStartTime);
+    //                     const endTime = new Date(slot.breakEndTime);
+    
+    //                     // Calculate total hours
+    //                     const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
+    //                     const hours = Math.floor(totalMinutes / 60); // Extract hours
+    
+    //                     return {
+    //                         TotalHours: `${hours}h`, // Only include hours
+    //                         breakStartTime: startTime.toISOString(),
+    //                         breakEndTime: endTime.toISOString(),
+    //                     };
+    //                 }),
+    //             },
+    //         },
+    //     ];
+    
+    //     try {
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+    
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Data successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //         } else {
+    //             enqueueSnackbar("Failed to submit data.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar("Error submitting data. Please try again later.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         });
+    //         console.error("Error submitting data:", error);
+    //     }
+    // };
     const handleSubmit = async () => {
-        // Validate inputs
-        for (const breakField of breakTime) {
-            if (!breakField.start || !breakField.breakEndTime) {
-                enqueueSnackbar("Punctuality Time Added Successfully", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                });
-                return; // Stop the function if validation fails
-            }
-        }
-    
-        // Format the data for API
-        const requestData = [
-            {
-                userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
-                settings: {
-                    breakTime: breakTime.map((slot) => {
-                        const startTime = new Date(slot.breakStartTime);
-                        const endTime = new Date(slot.breakEndTime);
-    
-                        // Calculate total hours
-                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
-                        const hours = Math.floor(totalMinutes / 60); // Extract hours
-    
-                        return {
-                            TotalHours: `${hours}h`, // Only include hours
-                            breakStartTime: startTime.toISOString(),
-                            breakEndTime: endTime.toISOString(),
-                        };
-                    }),
-                },
-            },
-        ];
-    
         try {
+            // Validate that all break times have start and end
+            breakTimes.forEach((slot, index) => {
+                if (!slot.start || !slot.end) {
+                    throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
+                }
+            });
+    
+            // Format the break times
+            const formattedBreakTimes = breakTimes.map((slot) => {
+                const startTime = new Date(`1970-01-01T${slot.start}:00`);
+                const endTime = new Date(`1970-01-01T${slot.end}:00`);
+    
+                // Calculate total hours and minutes
+                const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+    
+                return {
+                    TotalHours: `${hours}h:${minutes}m`,
+                    breakStartTime: startTime.toISOString(),
+                    breakEndTime: endTime.toISOString(),
+                };
+            });
+    
+            // Prepare the API payload
+            const requestData = [
+                {
+                    userId: "65570c6f35e0cf001ca86c3c", // Replace with actual user ID
+                    settings: {
+                        breakTime: formattedBreakTimes,
+                        puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
+                        puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
+                    },
+                },
+            ];
+    
+            // Make the API call
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
                 requestData,
                 {
                     headers: {
@@ -384,29 +463,33 @@ const [endTime, setEndTime] = useState(() => {
                 }
             );
     
+            // Handle success
             if (response.status === 200) {
-                enqueueSnackbar("Data successfully submitted!", {
+                enqueueSnackbar("Punctuality Time successfully submitted!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
-                        horizontal: "right"
-                    }
+                        horizontal: "right",
+                    },
                 });
             } else {
-                enqueueSnackbar("Failed to submit data.", { variant: "error" });
+                enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar("Error submitting data. Please try again later.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
+            // Handle errors
+            enqueueSnackbar(
+                error.message || "Error submitting punctuality rule. Please try again later.",
+                {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
                 }
-            });
-            console.error("Error submitting data:", error);
+            );
+            console.error("Error submitting punctuality rule:", error);
         }
     };
-
     return (
         <div>
             <SnackbarProvider />

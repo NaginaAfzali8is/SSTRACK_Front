@@ -24,14 +24,14 @@ const CompanyEmployess = (props) => {
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
     // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
-    const [timeFields, setTimeFields] = useState(() => {
+    const [timeField, setTimeField] = useState(() => {
         // Load initial state from localStorage
-        const savedTimeFields = localStorage.getItem("timeFields");
+        const savedTimeFields = localStorage.getItem("timeField");
         return savedTimeFields ? JSON.parse(savedTimeFields) : {};
     });
     useEffect(() => {
-        localStorage.setItem("timeFields", JSON.stringify(timeFields));
-    }, [timeFields]);
+        localStorage.setItem("timeField", JSON.stringify(timeField));
+    }, [timeField]);
     // const handleToggleChange = (employee, isSelected) => {
     //     setTimeFields((prev) => ({
     //         ...prev,
@@ -51,7 +51,7 @@ const CompanyEmployess = (props) => {
     // };
     const handleToggleChange = async (employee, isSelected) => {
         // Update local toggle state immediately for real-time effect
-        setTimeFields((prev) => ({
+        setTimeField((prev) => ({
             ...prev,
             [employee._id]: {
                 ...prev[employee._id],
@@ -64,7 +64,7 @@ const CompanyEmployess = (props) => {
         // Optionally update Redux state to reflect toggle change globally
         dispatch(setEmployessSetting({
             id: employee._id,
-            key: "individualbreakTime",
+            key: "individualPuncStart",
             isSelected,
         }));
     
@@ -112,7 +112,7 @@ const CompanyEmployess = (props) => {
             });
     
             // Revert the toggle state in case of an error
-            setTimeFields((prev) => ({
+            setTimeField((prev) => ({
                 ...prev,
                 [employee._id]: {
                     ...prev[employee._id],
@@ -122,7 +122,6 @@ const CompanyEmployess = (props) => {
         }
     };
 
-    
 
     // useEffect(() => {
     //     const initialTimeFields = {};
@@ -147,7 +146,7 @@ const CompanyEmployess = (props) => {
     //     }));
     // };
     const handleTimeChange = (employeeId, field, value) => {
-        setTimeFields((prev) => {
+        setTimeField((prev) => {
             const updatedFields = {
                 ...prev,
                 [employeeId]: {
@@ -156,13 +155,13 @@ const CompanyEmployess = (props) => {
                 },
             };
             // Save to localStorage whenever the timeFields change
-            localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+            localStorage.setItem("timeField", JSON.stringify(updatedFields));
             return updatedFields;
         });
     };
 
     const handleSave = (employeeId) => {
-        const { startTime, endTime } = timeFields[employeeId];
+        const { startTime, endTime } = timeField[employeeId];
         if (!startTime || !endTime) {
             enqueueSnackbar("Please fill in both Start Time and End Time.", {
                 variant: "error",
@@ -194,7 +193,7 @@ const CompanyEmployess = (props) => {
     useEffect(() => {
         // Set local toggle state based on Redux state
         const employeeWithToggleOn = employees.find(
-            (employee) => employee.effectiveSettings?.individualBreakTime
+            (employee) => employee.effectiveSettings?.individualPuncStart
         );
         if (employeeWithToggleOn) {
             setAllowBlur(true); // Example: Update a local state based on Redux
@@ -382,9 +381,9 @@ const CompanyEmployess = (props) => {
                 ]
                 : [],
 
-            individualbreakTime: data.isSelected, // Pass toggle value
+            individualbreakTime: false, // Pass toggle value
             // individualbreakTime: data.isSelected, // Pass toggle value
-            individualPuncStart: false,
+            individualPuncStart: data.isSelected,
             individualPuncEnd: false
         };
 
@@ -414,7 +413,7 @@ const CompanyEmployess = (props) => {
                     setPunctualitySettings({
                         id: ssId,
                         isSelected: data.isSelected,
-                        key: "individualbreakTime",
+                        key: "individualPuncStart",
                     })
                 );
             } else {
@@ -689,7 +688,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={timeFields[employee._id]?.showFields || false} // Real-time local state
+                                                checked={timeField[employee._id]?.showFields || false} // Real-time local state
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>
@@ -731,14 +730,14 @@ const CompanyEmployess = (props) => {
                                         />
                                     )} */}
                                 </div>
-                                {timeFields[employee._id]?.showFields && (
+                                {timeField[employee._id]?.showFields && (
                                     <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
                                         <div style={{ marginBottom: 10 }}>
                                             <label>
                                                 Start Time:
                                                 <input
                                                     type="time"
-                                                    value={timeFields[employee._id]?.startTime || ""}
+                                                    value={timeField[employee._id]?.startTime || ""}
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "startTime", e.target.value)
                                                     }
@@ -751,7 +750,7 @@ const CompanyEmployess = (props) => {
                                                 End Time:
                                                 <input
                                                     type="time"
-                                                    value={timeFields[employee._id]?.endTime || ""}
+                                                    value={timeField[employee._id]?.endTime || ""}
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "endTime", e.target.value)
                                                     }

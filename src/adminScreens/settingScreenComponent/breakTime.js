@@ -409,6 +409,8 @@ function Screenshot() {
     //     handleInputChange(index, "breakEndTime", value); // Update state if valid
     // };
 
+    const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false); // Track if the Add Break Time button is disabled
+
     const calculateDuration = (start, end) => {
         if (start && end) {
             const startDate = new Date(`1970-01-01T${start}:00`);
@@ -547,49 +549,121 @@ function Screenshot() {
     };
 
 
+    // const handleSubmit = async () => {
+    //     // Validate inputs
+    //     for (const breakField of breakTime) {
+    //         if (!breakField.start || !breakField.breakEndTime) {
+    //             enqueueSnackbar("Break Time Added Successfully", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //             return; // Stop the function if validation fails
+    //         }
+    //     }
+
+    //     // Format the data for API
+    //     const requestData = [
+    //         {
+    //             userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
+    //             settings: {
+    //                 breakTime: breakTime.map((slot) => {
+    //                     const startTime = new Date(slot.breakStartTime);
+    //                     const endTime = new Date(slot.breakEndTime);
+
+    //                     // Calculate total hours
+    //                     const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
+    //                     const hours = Math.floor(totalMinutes / 60); // Extract hours
+
+    //                     return {
+    //                         TotalHours: `${hours}h`, // Only include hours
+    //                         breakStartTime: startTime.toISOString(),
+    //                         breakEndTime: endTime.toISOString(),
+    //                     };
+    //                 }),
+    //                 puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with the actual punctuality start time
+    //                 puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with the actual punctuality end time
+    //             },
+    //         },
+    //     ];
+
+    //     try {
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Data successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right"
+    //                 }
+    //             });
+    //         } else {
+    //             enqueueSnackbar("Failed to submit data.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar("Error submitting data. Please try again later.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right"
+    //             }
+    //         });
+    //         console.error("Error submitting data:", error);
+    //     }
+    // };
     const handleSubmit = async () => {
-        // Validate inputs
-        for (const breakField of breakTime) {
-            if (!breakField.start || !breakField.breakEndTime) {
-                enqueueSnackbar("Break Time Added Successfully", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right"
-                    }
-                });
-                return; // Stop the function if validation fails
-            }
-        }
-
-        // Format the data for API
-        const requestData = [
-            {
-                userId: "65570c6f35e0cf001ca86c3c", // Replace with actual userId
-                settings: {
-                    breakTime: breakTime.map((slot) => {
-                        const startTime = new Date(slot.breakStartTime);
-                        const endTime = new Date(slot.breakEndTime);
-
-                        // Calculate total hours
-                        const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60)); // Ensure correct calculation
-                        const hours = Math.floor(totalMinutes / 60); // Extract hours
-
-                        return {
-                            TotalHours: `${hours}h`, // Only include hours
-                            breakStartTime: startTime.toISOString(),
-                            breakEndTime: endTime.toISOString(),
-                        };
-                    }),
-                    puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with the actual punctuality start time
-                    puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with the actual punctuality end time
-                },
-            },
-        ];
-
         try {
+            // Validate that all break times have start and end
+            breakTimes.forEach((slot, index) => {
+                if (!slot.start || !slot.end) {
+                    throw new Error(`Please fill both start and end time for Break ${index + 1}.`);
+                }
+            });
+    
+            // Format the break times
+            const formattedBreakTimes = breakTimes.map((slot) => {
+                const startTime = new Date(`1970-01-01T${slot.start}:00`);
+                const endTime = new Date(`1970-01-01T${slot.end}:00`);
+    
+                // Calculate total hours and minutes
+                const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+    
+                return {
+                    TotalHours: `${hours}h:${minutes}m`,
+                    breakStartTime: startTime.toISOString(),
+                    breakEndTime: endTime.toISOString(),
+                };
+            });
+    
+            // Prepare the API payload
+            const requestData = [
+                {
+                    userId: "65570c6f35e0cf001ca86c3c", // Replace with actual user ID
+                    settings: {
+                        breakTime: formattedBreakTimes,
+                        puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
+                        puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
+                    },
+                },
+            ];
+    
+            // Make the API call
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
                 requestData,
                 {
                     headers: {
@@ -598,30 +672,35 @@ function Screenshot() {
                     },
                 }
             );
-
+    
+            // Handle success
             if (response.status === 200) {
-                enqueueSnackbar("Data successfully submitted!", {
+                enqueueSnackbar("Break Time rule successfully submitted!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
-                        horizontal: "right"
-                    }
+                        horizontal: "right",
+                    },
                 });
             } else {
-                enqueueSnackbar("Failed to submit data.", { variant: "error" });
+                enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar("Error submitting data. Please try again later.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right"
+            // Handle errors
+            enqueueSnackbar(
+                error.message || "Error submitting punctuality rule. Please try again later.",
+                {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
                 }
-            });
-            console.error("Error submitting data:", error);
+            );
+            console.error("Error submitting punctuality rule:", error);
         }
     };
-
+    
 
     const handleIndividualPunctualitySubmit = async () => {
         try {
@@ -806,31 +885,59 @@ function Screenshot() {
         localStorage.setItem("totalDuration", totalDuration);
     }, [totalDuration]);
 
+    // const calculateTotalDuration = () => {
+    //     let totalMinutes = 0;
+
+    //     breakTimes.forEach(({ start, end }) => {
+    //         if (start && end) {
+    //             const startTime = new Date(`1970-01-01T${start}:00`);
+    //             const endTime = new Date(`1970-01-01T${end}:00`);
+
+    //             if (endTime < startTime) {
+    //                 endTime.setDate(endTime.getDate() + 1);
+    //             }
+
+    //             totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
+    //         }
+    //     });
+
+    //     // Cap total minutes at 60 (1 hour)
+    //     totalMinutes = Math.min(totalMinutes, 60);
+
+    //     const hours = Math.floor(totalMinutes / 60);
+    //     const minutes = totalMinutes % 60;
+    //     setTotalDuration(`${hours}h:${minutes}m`);
+    // };
+
+    // const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false); // Track if the Add Break Time button is disabled
 
     const calculateTotalDuration = () => {
         let totalMinutes = 0;
-
+    
         breakTimes.forEach(({ start, end }) => {
             if (start && end) {
                 const startTime = new Date(`1970-01-01T${start}:00`);
                 const endTime = new Date(`1970-01-01T${end}:00`);
-
+    
                 if (endTime < startTime) {
                     endTime.setDate(endTime.getDate() + 1);
                 }
-
+    
                 totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
             }
         });
-
+    
         // Cap total minutes at 60 (1 hour)
         totalMinutes = Math.min(totalMinutes, 60);
-
+    
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         setTotalDuration(`${hours}h:${minutes}m`);
-    };
     
+        // Disable the button if total duration equals 1 hour
+        setIsAddButtonDisabled(totalMinutes >= 60);
+    };
+
     return (
         <div>
             <SnackbarProvider />
@@ -972,7 +1079,8 @@ function Screenshot() {
 
                 <button
                     onClick={handleAddBreakTime}
-                    disabled={clickCount >= 2} // Disable button after 2 clicks
+                    disabled={isAddButtonDisabled} // Disable based on calculated total duration
+                    // disabled={clickCount >= 2} // Disable button after 2 clicks
                     style={{
                         padding: "10px 20px",
                         backgroundColor: clickCount >= 2 ? "#ccc" : "#7fc45a",
