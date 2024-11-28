@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, CircularProgress, IconButton, Collapse, List, ListItem, ListItemText} from '@mui/material';
+import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, CircularProgress, IconButton, Collapse, List, ListItem, ListItemText } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import TopBar from '../topBar';
 import axios from 'axios';
@@ -47,23 +47,24 @@ function FinancialsContent() {
   };
   const fetchInvoices = async () => {
     const token = localStorage.getItem('token_for_sa'); // Retrieve token from local storage
-  
+
     if (!token) {
       setError('Token not found');
       setLoading(false);
       return;
     }
-  
+
     try {
       const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllInvoices', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.data.success) {
         // Assuming you want to store invoices in a separate state
-        setInvoices(response.data.data); // Replace with your state variable
+        setInvoices(response.data.data.reverse());
+
       } else {
         setError('Failed to fetch invoice data');
       }
@@ -74,10 +75,10 @@ function FinancialsContent() {
       setLoading(false);
     }
   };
-  
+
 
   useEffect(() => {
-    console.log('get cjhlaaaa', paymentData?.totalReceivedAmount)
+    // console.log('get cjhlaaaa', paymentData?.totalReceivedAmount)
     fetchPayments();
     fetchInvoices();
   }, []);
@@ -264,11 +265,31 @@ function FinancialsContent() {
                               </Typography>
                               <Typography variant="body2" sx={{ color: '#777' }}>{invoice.employee.length}</Typography>
                             </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subtitle2" sx={{ color: '#555' }}>
+                                <strong>Billing Date:</strong>
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#777' }}>
+                                {invoice.company?.billingDate
+                                  ? new Date(invoice.company.billingDate).toLocaleDateString()
+                                  : 'Not paid yet'}
+                              </Typography>
+
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="subtitle2" sx={{ color: '#555' }}>
+                                <strong>Billing Amount:</strong>
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: '#777' }}>
+                              ${invoice.subTotal.toFixed(2)} USD
+                              </Typography>
+
+                            </Grid>
                           </Grid>
 
                           <Divider sx={{ my: 2 }} />
 
-                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
+                          {/* <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
                             Employees
                           </Typography>
 
@@ -297,7 +318,7 @@ function FinancialsContent() {
                                 </Typography>
                               </Box>
                             ))}
-                          </List>
+                          </List> */}
                         </Box>
 
                       </Collapse>
