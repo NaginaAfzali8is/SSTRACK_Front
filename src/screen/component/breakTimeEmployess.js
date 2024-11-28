@@ -49,7 +49,6 @@ const CompanyEmployess = (props) => {
     //         isSelected,
     //     });
     // };
-
     const handleToggleChange = async (employee, isSelected) => {
         // Update local toggle state immediately for real-time effect
         setTimeFields((prev) => ({
@@ -61,8 +60,6 @@ const CompanyEmployess = (props) => {
                 endTime: prev[employee._id]?.endTime || "",
             },
         }));
-
-        // props.onToggleChange(employee._id, updatedData);
 
         // Optionally update Redux state to reflect toggle change globally
         dispatch(setEmployessSetting({
@@ -164,24 +161,7 @@ const CompanyEmployess = (props) => {
         });
     };
 
-    // const handleSave = (employeeId) => {
-    //     const { startTime, endTime } = timeFields[employeeId];
-    //     if (!startTime || !endTime) {
-    //         enqueueSnackbar("Please fill in both Start Time and End Time.", {
-    //             variant: "error",
-    //             anchorOrigin: { vertical: "top", horizontal: "right" },
-    //         });
-    //         return;
-    //     }
-
-    //     // Call API to save data
-    //     console.log(`Saving for ${employeeId}:`, { startTime, endTime });
-    //     enqueueSnackbar("Start and End Times saved successfully!", {
-    //         variant: "success",
-    //         anchorOrigin: { vertical: "top", horizontal: "right" },
-    //     });
-    // };
-    const handleSave = async (employeeId) => {
+    const handleSave = (employeeId) => {
         const { startTime, endTime } = timeFields[employeeId];
         if (!startTime || !endTime) {
             enqueueSnackbar("Please fill in both Start Time and End Time.", {
@@ -190,68 +170,14 @@ const CompanyEmployess = (props) => {
             });
             return;
         }
-    
-        try {
-            // Format the start and end time
-            const formattedBreakTime = (() => {
-                const start = new Date(`1970-01-01T${startTime}:00`);
-                const end = new Date(`1970-01-01T${endTime}:00`);
-                const totalMinutes = Math.floor((end - start) / (1000 * 60));
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
-                return {
-                    TotalHours: `${hours}h:${minutes}m`,
-                    breakStartTime: start.toISOString(),
-                    breakEndTime: end.toISOString(),
-                };
-            })();
-    
-            // Prepare the API payload
-            const requestData = [
-                {
-                    userId: employeeId, // Use the current employee ID
-                    settings: {
-                        breakTime: [formattedBreakTime], // Single break time as an array
-                        puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
-                        puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
-                    },
-                },
-            ];
-    
-            // API Call
-            const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
-                requestData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-    
-            // Handle success
-            if (response.status === 200) {
-                enqueueSnackbar("Break Time rule successfully submitted!", {
-                    variant: "success",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                });
-            } else {
-                enqueueSnackbar("Failed to submit punctuality rule.", { variant: "error" });
-            }
-        } catch (error) {
-            // Handle errors
-            enqueueSnackbar(
-                error.message || "Error submitting punctuality rule. Please try again later.",
-                {
-                    variant: "error",
-                    anchorOrigin: { vertical: "top", horizontal: "right" },
-                }
-            );
-            console.error("Error submitting punctuality rule:", error);
-        }
+
+        // Call API to save data
+        console.log(`Saving for ${employeeId}:`, { startTime, endTime });
+        enqueueSnackbar("Start and End Times saved successfully!", {
+            variant: "success",
+            anchorOrigin: { vertical: "top", horizontal: "right" },
+        });
     };
-    
     useEffect(() => {
         // Set allowBlur based on the Redux store
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
@@ -850,60 +776,6 @@ const CompanyEmployess = (props) => {
                                         </button>
                                     </div>
                                 )}
-                                {/* {timeFields[employee._id]?.showFields && (
-                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                            
-                                        {employee.userType && (
-                                            <div style={{ marginBottom: 10 }}>
-                                                <label>
-                                                    User Type:
-                                                    <span style={{ marginLeft: 10, fontWeight: 'bold' }}>{employee.userType}</span>
-                                                </label>
-                                            </div>
-                                        )}
-                                        <div style={{ marginBottom: 10 }}>
-                                            <label>
-                                                Start Time:
-                                                <input
-                                                    type="time"
-                                                    value={timeFields[employee._id]?.startTime || ""}
-                                                    onFocus={(e) => e.target.showPicker()} 
-                                                    onChange={(e) =>
-                                                        handleTimeChange(employee._id, "startTime", e.target.value)
-                                                    }
-                                                    style={{ marginLeft: 10 }}
-                                                />
-                                            </label>
-                                        </div>
-                                        <div style={{ marginBottom: 10 }}>
-                                            <label>
-                                                End Time:
-                                                <input
-                                                    type="time"
-                                                    value={timeFields[employee._id]?.endTime || ""}
-                                                    onFocus={(e) => e.target.showPicker()} 
-                                                    onChange={(e) =>
-                                                        handleTimeChange(employee._id, "endTime", e.target.value)
-                                                    }
-                                                    style={{ marginLeft: 10 }}
-                                                />
-                                            </label>
-                                        </div>
-                                        <button
-                                            onClick={() => handleSave(employee._id)}
-                                            style={{
-                                                padding: "5px 10px",
-                                                backgroundColor: "#7fc45a",
-                                                color: "#fff",
-                                                border: "none",
-                                                borderRadius: 5,
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            Save
-                                        </button>
-                                    </div>
-                                )}  */}
                                 {(
                                     employee?.effectiveSettings?.individualss && activeTab?.id === 1
                                 ) ? (

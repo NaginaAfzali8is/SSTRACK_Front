@@ -1672,7 +1672,7 @@ function OwnerTeam() {
                                 <img src={line} style={{ height: '100%' }} />
                             </div>
                             <div style={{ width: "100%", display: mainId === null ? "flex" : "", justifyContent: mainId === null ? "center" : "", alignItems: mainId === null ? "center" : "" }}>
-                                <OwnerTeamComponent
+                                {/* <OwnerTeamComponent
                                     fixId={mainId}
                                     archived_unarchived_users={() => setShow2(true)}
                                     deleteUser={() => setShow(true)}
@@ -1687,7 +1687,7 @@ function OwnerTeam() {
                                     // users={users.filter((u) => !u.isArchived)} // Filter o   ut archived users
                                     setUsers={setUsers}
                                     selectedUser={selectedUser}
-                                />
+                                /> */}
                             </div>
                         </div>
                     </div>

@@ -4,10 +4,8 @@ import loader from "../../images/Rectangle.webp";
 import check from "../../images/check.webp";
 import circle from "../../images/circle.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 
-
-function UserDashboardSection() {
+function UserDashboardSection(params) {
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -19,7 +17,6 @@ function UserDashboardSection() {
     }, []);
 
     console.log('Items from localStorage:', items);
-    const [remainingBreakTime, setRemainingBreakTime] = useState(''); // State to store remaining break time
 
     // return (
     //     <div className="cursor-pointer">
@@ -67,49 +64,6 @@ function UserDashboardSection() {
         }
     }, [items, navigate]);
 
-
-    useEffect(() => {
-        const fetchRemainingBreakTime = async () => {
-            if (items?.userType === "user" && items?._id) {
-                try {
-                    const userId = items._id; // Extract userId dynamically
-                    const apiUrl = `https://ss-track-xi.vercel.app/api/v1/timetrack/remainingBreak/${userId}`;
-
-                    console.log("Fetching Remaining Break Time for User ID:", userId);
-                    console.log("API URL:", apiUrl);
-
-                    // Make the API call
-                    const response = await axios.get(apiUrl, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token in headers
-                            "Content-Type": "application/json",
-                        },
-                    });
-
-                    console.log("API Response:", response);
-
-                    // Handle response
-                    if (response.status === 200 && response.data?.data) {
-                        const { remainingBreakTime } = response.data.data; // Extract remainingBreakTime
-                        console.log("Remaining Break Time from API:", remainingBreakTime);
-                        setRemainingBreakTime(remainingBreakTime || "0h:0m"); // Fallback to "0h:0m" if no time
-                    } else {
-                        console.error("Failed to fetch remaining break time:", response.statusText);
-                        setRemainingBreakTime("0h:0m"); // Fallback on failure
-                    }
-                } catch (error) {
-                    console.error("Error fetching remaining break time:", error);
-                    setRemainingBreakTime("0h:0m"); // Fallback on error
-                }
-            } else {
-                console.warn("User type is not 'user' or userId is missing.");
-                setRemainingBreakTime("0h:0m"); // Fallback when condition fails
-            }
-        };
-
-        fetchRemainingBreakTime();
-    }, [items]);
-
     return (
         <div className="cursor-pointer">
             <div className="d-flex justify-content-between align-items-center" style={{
@@ -127,16 +81,6 @@ function UserDashboardSection() {
                             navigate('/dashboard')
                         }}>Dashboard</p>
                     </div>
-                    {/* {Object.entries(toggleData).map(([employeeId, data]) => (
-                        data.showFields && data.userType === "user" && ( // Ensure userType is "user"
-                            <div key={employeeId} style={{ marginLeft: '20px' }}>
-                                <p style={{ margin: 0, fontWeight: 'bold' }}>Employee ID: {employeeId}</p>
-                                <p style={{ margin: 0 }}>Start Time: {data.startTime || 'Not Set'}</p>
-                                <p style={{ margin: 0 }}>End Time: {data.endTime || 'Not Set'}</p>
-                            </div>
-                        )
-                    ))} */}
-
                     {items?.userType === "user" && <div className={location.pathname.includes("/timeline") ? "active-tab" : "ownerSectionUser"} onClick={() => navigate(`/timeline/${items?._id}`)}>
                         <p style={{ margin: 0, whiteSpace: 'nowrap' }} onClick={() => navigate(`/timeline/${items?._id}`)}>My timeline</p>
                     </div>}
@@ -164,7 +108,6 @@ function UserDashboardSection() {
                             </div>
                         </>
                     )}
-
                     {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
                             <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
@@ -187,13 +130,6 @@ function UserDashboardSection() {
                         <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
                     </div>
                 </div>
-                {items?.userType === "owner" && (
-                    <div>
-                        <p style={{ margin: "0 20px", fontWeight: "bold" }}>
-                            Remaining Break Time: {remainingBreakTime || "0h:0m"}
-                        </p>
-                    </div>
-                )}
                 <div>
                     <div className="ownerSectionCompany d-flex align-items-center cursor-none">
                         <div><img src={circle} /></div>
