@@ -634,8 +634,20 @@ function Screenshot() {
 
             // Format the break times
             const formattedBreakTimes = breakTimes.map((slot) => {
-                const startTime = new Date(`1970-01-01T${slot.start}:00`);
-                const endTime = new Date(`1970-01-01T${slot.end}:00`);
+                const startTime = new Date(`2024-11-21T${slot.start}:00`);
+                const endTime = new Date(`2024-11-21T${slot.end}:00`);
+                // const specificDate = "2024-11-21"; // Replace with the required date
+
+                // Get today's date in YYYY-MM-DD format
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                const day = String(today.getDate()).padStart(2, '0');
+                const currentDate = `${year}-${month}-${day}`;
+
+                // Assuming slot.start and slot.end are in 'HH:mm' format
+                const breakStartTime = new Date(`${currentDate}T${slot.start}:00`).toISOString();
+                const breakEndTime = new Date(`${currentDate}T${slot.end}:00`).toISOString();
 
                 // Calculate total hours and minutes
                 const totalMinutes = Math.floor((endTime - startTime) / (1000 * 60));
@@ -644,23 +656,34 @@ function Screenshot() {
 
                 return {
                     TotalHours: `${hours}h:${minutes}m`,
-                    breakStartTime: startTime.toISOString(),
-                    breakEndTime: endTime.toISOString(),
+                    breakStartTime,
+                    breakEndTime,
                 };
             });
 
-            // Prepare the API payload
-            const requestData = [
-                {
-                    userId: "65570c6f35e0cf001ca86c3c", // Replace with actual user ID
-                    settings: {
-                        breakTime: formattedBreakTimes,
-                        puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
-                        puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
-                    },
-                },
-            ];
+            const userIds = employees.map((employee) => employee._id);
 
+            // Prepare the API payload
+            // const requestData = [
+            //     {
+            //         userIds,// Replace with actual user ID
+            //         settings: {
+            //             breakTime: formattedBreakTimes,
+            //             puncStartTime: "2024-11-21T09:00:00.000Z", // Replace with actual punctuality start time
+            //             puncEndTime: "2024-11-21T17:00:00.000Z", // Replace with actual punctuality end time
+            //         },
+            //     },
+            // ];
+            // Prepare the API payload for each user
+            const requestData = userIds.map((userId) => ({
+                userId,
+                settings: {
+                    breakTime: formattedBreakTimes,
+                    puncStartTime: "2024-11-21T09:00:00.000Z",
+                    puncEndTime: "2024-11-21T17:00:00.000Z",
+                },
+            }));
+            
             // Make the API call
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
@@ -726,7 +749,7 @@ function Screenshot() {
         if (breakTimes.length > 0) {
             const updatedBreakTimes = breakTimes.filter((_, i) => i !== index); // Remove the specified index
             setBreakTimes(updatedBreakTimes);
-    
+
             if (updatedBreakTimes.length === 0) {
                 // If all break times are removed, reset total duration to 0h 0m
                 setTotalDuration("0h:0m");
@@ -740,12 +763,12 @@ function Screenshot() {
                         totalMinutes += Math.floor((endTime - startTime) / (1000 * 60));
                     }
                 });
-    
+
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
                 setTotalDuration(`${hours}h:${minutes}m`);
             }
-    
+
             enqueueSnackbar("Break time removed!", {
                 variant: "success",
                 anchorOrigin: {
@@ -762,7 +785,7 @@ function Screenshot() {
                 },
             });
         }
-    };    
+    };
 
     const handleIndividualPunctualitySubmit = async () => {
         try {

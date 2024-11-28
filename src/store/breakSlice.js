@@ -6,7 +6,7 @@ const adminSlice = createSlice({
         employess: [],
         settings: [],
         activeTab: null,
-        breakTime: [], // Initial state for breakTime
+        breakTimes: [], // Initial state for breakTime
         ids: []
     },
     reducers: {
@@ -544,7 +544,21 @@ const adminSlice = createSlice({
                 };
             }
         },
-
+        setBreakTimes(state, action) {
+            state.breakTimes = action.payload; // Set initial break times
+        },
+        addBreakTime(state) {
+            if (state.breakTimes.length < 3) {
+                state.breakTimes.push({ start: "", end: "" }); // Add a new break time
+            }
+        },
+        updateBreakTime(state, action) {
+            const { index, field, value } = action.payload;
+            state.breakTimes[index][field] = value; // Update a specific field
+        },
+        removeBreakTime(state, action) {
+            state.breakTimes.splice(action.payload, 1); // Remove break time by index
+        },
     },
 })
 
@@ -568,6 +582,7 @@ export const { getEmployess,
     setAllUserSetting8,
     updateEmployeeSettings,
     setIds,
+    setBreakTimes, updateBreakTime, addBreakTime, removeBreakTime,
     setEmployessSettings,
     setPunctualitySettings
 
