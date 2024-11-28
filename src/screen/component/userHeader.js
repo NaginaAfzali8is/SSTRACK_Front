@@ -359,6 +359,15 @@ function UserHeader() {
     //     items.userType = newRole;
     // };
 
+    const [toggleData, setToggleData] = useState({}); // Shared state for toggles
+
+    const handleToggleChange = (employeeId, data) => {
+        setToggleData((prev) => ({
+            ...prev,
+            [employeeId]: data, // Update specific employee toggle data
+        }));
+    };
+
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -703,6 +712,7 @@ function UserHeader() {
                         </nav>
                         {token && (
                             <UserDashboardSection />
+
                         )}
                         {/* <img className="line" src={line} /> */}
                     </>
