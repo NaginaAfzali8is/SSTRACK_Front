@@ -24,11 +24,7 @@ const CompanyEmployess = (props) => {
     // const employees = useSelector((state) => state.adminSlice.employess)
     // .filter((employee) => employee.invitationStatus === 'accepted');
     // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
-    const [timeFields, setTimeFields] = useState(() => {
-        // Load initial state from localStorage
-        const savedTimeFields = localStorage.getItem("timeFields");
-        return savedTimeFields ? JSON.parse(savedTimeFields) : {};
-    });
+    const [timeFields, setTimeFields] = useState([])
     useEffect(() => {
         localStorage.setItem("timeFields", JSON.stringify(timeFields));
     }, [timeFields]);
@@ -49,81 +45,241 @@ const CompanyEmployess = (props) => {
     //         isSelected,
     //     });
     // };
-
-    const handleToggleChange = async (employee, isSelected) => {
-        // Update local toggle state immediately for real-time effect
-        setTimeFields((prev) => ({
-            ...prev,
-            [employee._id]: {
-                ...prev[employee._id],
-                showFields: isSelected,
-                startTime: prev[employee._id]?.startTime || "",
-                endTime: prev[employee._id]?.endTime || "",
+    useEffect(() => {
+        // Synchronize `timeFields` state with `employees` data on mount or update
+        const updatedTimeFields = employees.reduce((fields, employee) => {
+            fields[employee._id] = {
+                showFields: employee?.punctualityData?.individualbreakTime || false, // Reflect the backend state
+                startTime: fields[employee._id]?.startTime || "", // Retain existing values
+                endTime: fields[employee._id]?.endTime || "",
+            };
+            return fields;
+        }, {});
+    
+        setTimeFields(updatedTimeFields);
+    }, [employees]);
+    
+const handleToggleChange = async (employee, isSelected) => {
+    try {
+        // API payload to update individualbreakTime
+        const requestData = {
+            userId: employee._id,
+            settings: {
+                individualbreakTime: isSelected, // Update based on toggle value
             },
-        }));
+        };
 
-        // props.onToggleChange(employee._id, updatedData);
+        // Call API to update the value
+        const response = await axios.post(
+            "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+            requestData,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
-        // Optionally update Redux state to reflect toggle change globally
-        dispatch(setEmployessSetting({
-            id: employee._id,
-            key: "individualbreakTime",
-            isSelected,
-        }));
-
-        // First API call to persist the toggle state
-        try {
-            await handlePunctualitySetting({ employee, isSelected });
-            // enqueueSnackbar("Toggle state updated successfully.", {
-            //     variant: "success",
-            //     anchorOrigin: { vertical: "top", horizontal: "right" },
-            // });
-
-            // Second API call after a 1-second delay to fetch updated data
-            setTimeout(async () => {
-                try {
-                    const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                            "Content-Type": "application/json",
-                        },
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log("Employees data fetched successfully:", data);
-
-                        // Update Redux or local state with the refreshed employee data
-                        dispatch(setEmployess(data));
-                    } else {
-                        throw new Error(`Failed to fetch employees: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    // console.error("Error fetching employees data:", error);
-                    // enqueueSnackbar("Failed to refresh employees data.", {
-                    //     variant: "error",
-                    //     anchorOrigin: { vertical: "top", horizontal: "right" },
-                    // });
-                }
-            }, 1000); // 1-second delay
-        } catch (error) {
-            console.error("Error updating toggle state:", error);
-            enqueueSnackbar("Failed to update toggle state.", {
-                variant: "error",
-                anchorOrigin: { vertical: "top", horizontal: "right" },
+        if (response.status === 200) {
+            enqueueSnackbar("Break Time setting updated successfully!", {
+                variant: "success",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
             });
 
-            // Revert the toggle state in case of an error
+            // Update local state for real-time toggle update
             setTimeFields((prev) => ({
                 ...prev,
                 [employee._id]: {
                     ...prev[employee._id],
-                    showFields: !isSelected, // Revert to the previous state
+                    showFields: isSelected,
                 },
             }));
+        } else {
+            enqueueSnackbar("Failed to update Break Time setting.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
         }
-    };
+    } catch (error) {
+        console.error("Error updating Break Time setting:", error);
+        enqueueSnackbar("An error occurred while updating Break Time setting.", {
+            variant: "error",
+            anchorOrigin: {
+                vertical: "top",
+                horizontal: "right",
+            },
+        });
+    }
+};
+// const handleToggleChange = async (employee, isSelected) => {
+//     try {
+//         // API payload to update individualbreakTime
+//         const requestData = {
+//             userId: employee._id,
+//             settings: {
+//                 individualbreakTime: isSelected, // Update based on toggle value
+//             },
+//         };
+// console.log("Requested Data Toggel", requestData)
+//         // Call API to update the value
+//         const response = await axios.post(
+//             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+//             requestData,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+//                     "Content-Type": "application/json",
+//                 },
+//             }
+//         );
+
+//         if (response.status === 200) {
+//             enqueueSnackbar("Break Time setting updated successfully!", {
+//                 variant: "success",
+//                 anchorOrigin: {
+//                     vertical: "top",
+//                     horizontal: "right",
+//                 },
+//             });
+
+//             // Fetch the updated employee data
+//             const getResponse = await axios.get(
+//                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/employees",
+//                 {
+//                     headers: {
+//                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+//                     },
+//                 }
+//             );
+
+//             if (getResponse.status === 200) {
+//                 const updatedEmployees = getResponse.data.convertedEmployees;
+
+//                 // Update local state based on updated API data
+//                 const updatedEmployee = updatedEmployees.find(
+//                     (emp) => emp._id === employee._id
+//                 );
+
+//                 if (updatedEmployee) {
+//                     setTimeFields((prev) => ({
+//                         ...prev,
+//                         [employee._id]: {
+//                             ...prev[employee._id],
+//                             showFields: updatedEmployee.punctualityData?.individualbreakTime || false,
+//                         },
+//                     }));
+//                 }
+//             } else {
+//                 enqueueSnackbar("Failed to fetch updated employee data.", {
+//                     variant: "error",
+//                     anchorOrigin: {
+//                         vertical: "top",
+//                         horizontal: "right",
+//                     },
+//                 });
+//             }
+//         } else {
+//             enqueueSnackbar("Failed to update Break Time setting.", {
+//                 variant: "error",
+//                 anchorOrigin: {
+//                     vertical: "top",
+//                     horizontal: "right",
+//                 },
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error updating Break Time setting:", error);
+//         enqueueSnackbar("An error occurred while updating Break Time setting.", {
+//             variant: "error",
+//             anchorOrigin: {
+//                 vertical: "top",
+//                 horizontal: "right",
+//             },
+//         });
+//     }
+// };
+
+    // const handleToggleChange = async (employee, isSelected) => {
+    //     // Update local toggle state immediately for real-time effect
+    //     setTimeFields((prev) => ({
+    //         ...prev,
+    //         [employee._id]: {
+    //             ...prev[employee._id],
+    //             showFields: isSelected,
+    //             startTime: prev[employee._id]?.startTime || "",
+    //             endTime: prev[employee._id]?.endTime || "",
+    //         },
+    //     }));
+
+    //     // props.onToggleChange(employee._id, updatedData);
+
+    //     // Optionally update Redux state to reflect toggle change globally
+    //     dispatch(setEmployessSetting({
+    //         id: employee._id,
+    //         key: "individualbreakTime",
+    //         isSelected,
+    //     }));
+
+    //     // First API call to persist the toggle state
+    //     try {
+    //         await handlePunctualitySetting({ employee, isSelected });
+    //         // enqueueSnackbar("Toggle state updated successfully.", {
+    //         //     variant: "success",
+    //         //     anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         // });
+
+    //         // Second API call after a 1-second delay to fetch updated data
+    //         setTimeout(async () => {
+    //             try {
+    //                 const response = await fetch("https://ss-track-xi.vercel.app/api/v1/superAdmin/employees", {
+    //                     method: "GET",
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                         "Content-Type": "application/json",
+    //                     },
+    //                 });
+
+    //                 if (response.ok) {
+    //                     const data = await response.json();
+    //                     console.log("Employees data fetched successfully:", data);
+
+    //                     // Update Redux or local state with the refreshed employee data
+    //                     dispatch(setEmployess(data));
+    //                 } else {
+    //                     throw new Error(`Failed to fetch employees: ${response.statusText}`);
+    //                 }
+    //             } catch (error) {
+    //                 // console.error("Error fetching employees data:", error);
+    //                 // enqueueSnackbar("Failed to refresh employees data.", {
+    //                 //     variant: "error",
+    //                 //     anchorOrigin: { vertical: "top", horizontal: "right" },
+    //                 // });
+    //             }
+    //         }, 1000); // 1-second delay
+    //     } catch (error) {
+    //         console.error("Error updating toggle state:", error);
+    //         enqueueSnackbar("Failed to update toggle state.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+
+    //         // Revert the toggle state in case of an error
+    //         setTimeFields((prev) => ({
+    //             ...prev,
+    //             [employee._id]: {
+    //                 ...prev[employee._id],
+    //                 showFields: !isSelected, // Revert to the previous state
+    //             },
+    //         }));
+    //     }
+    // };
 
 
 
@@ -763,7 +919,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={timeFields[employee._id]?.showFields || false} // Real-time local state
+                                                checked={timeFields[employee._id]?.showFields || false} // Reflect updated state
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>
