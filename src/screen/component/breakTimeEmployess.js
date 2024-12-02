@@ -673,7 +673,7 @@ const CompanyEmployess = (props) => {
     useEffect(() => {
         // Set local toggle state based on Redux state
         const employeeWithToggleOn = employees.find(
-            (employee) => employee.effectiveSettings?.individualBreakTime
+            (employee) => employee.effectiveSettings?.individualbreakTime
         );
         if (employeeWithToggleOn) {
             setAllowBlur(true); // Example: Update a local state based on Redux

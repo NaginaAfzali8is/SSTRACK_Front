@@ -46,7 +46,7 @@ const CompanyEmployess = (props) => {
                     if (response.status === 200) {
                         const { employeeSettings } = response.data;
                         updatedFields[employee._id] = {
-                            showFields: timeFields[employee._id]?.showFields || employeeSettings.individualbreakTime || false,
+                            showFields: timeFields[employee._id]?.showFields || employeeSettings.individualPuncStart || false,
                             startTime: employeeSettings.breakTime?.[0]?.breakStartTime?.substring(11, 16) || "00:00",
                             endTime: employeeSettings.breakTime?.[0]?.breakEndTime?.substring(11, 16) || "00:00",
                             puncStartTime: employeeSettings.puncStartTime?.substring(11, 16) || "00:00", // Add puncStartTime
