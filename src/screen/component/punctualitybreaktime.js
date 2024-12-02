@@ -25,6 +25,44 @@ const CompanyEmployess = (props) => {
     // .filter((employee) => employee.invitationStatus === 'accepted');
     // const [timeFields, setTimeFields] = useState({}); // Track time fields for each employee
     const [timeFields, setTimeFields] = useState([])
+    const [puncStartTime, setPuncStartTime] = useState("");
+    const [puncEndTime, setPuncEndTime] = useState("");
+
+    // Fetch employees and initialize timeFields
+    useEffect(() => {
+        const fetchEmployeeData = async () => {
+            const updatedFields = {};
+            for (const employee of employees) {
+                try {
+                    const response = await axios.get(
+                        `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            },
+                        }
+                    );
+
+                    if (response.status === 200) {
+                        const { employeeSettings } = response.data;
+                        updatedFields[employee._id] = {
+                            showFields: timeFields[employee._id]?.showFields || employeeSettings.individualbreakTime || false,
+                            startTime: employeeSettings.breakTime?.[0]?.breakStartTime?.substring(11, 16) || "00:00",
+                            endTime: employeeSettings.breakTime?.[0]?.breakEndTime?.substring(11, 16) || "00:00",
+                            puncStartTime: employeeSettings.puncStartTime?.substring(11, 16) || "00:00", // Add puncStartTime
+                            puncEndTime: employeeSettings.puncEndTime?.substring(11, 16) || "00:00",     // Add puncEndTime
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error fetching data for employee ${employee._id}:`, error);
+                }
+            }
+            setTimeFields((prev) => ({ ...prev, ...updatedFields })); // Merge with existing state
+        };
+
+        fetchEmployeeData();
+    }, [employees]);
+
 
     // useEffect(() => {
     //     localStorage.setItem("timeField", JSON.stringify(timeField));
@@ -51,7 +89,7 @@ const CompanyEmployess = (props) => {
         // Synchronize `timeFields` state with `employees` data on mount or update
         const updatedTimeFields = employees.reduce((fields, employee) => {
             fields[employee._id] = {
-                showFields: employee?.punctualityData?.individualPuncStart|| false, // Reflect the backend state
+                showFields: employee?.punctualityData?.individualPuncStart || false, // Reflect the backend state
                 startTime: fields[employee._id]?.startTime || "", // Retain existing values
                 endTime: fields[employee._id]?.endTime || "",
             };
@@ -161,23 +199,74 @@ const CompanyEmployess = (props) => {
         });
     };
 
-    const handleSave = (employeeId) => {
-        const { startTime, endTime } = timeFields[employeeId];
-        if (!startTime || !endTime) {
-            enqueueSnackbar("Please fill in both Start Time and End Time.", {
+    const handleSave = async (employeeId) => {
+        try {
+            const { startTime, endTime, puncStartTime, puncEndTime } = timeFields[employeeId];
+
+            // Validate if all times are provided
+            if (!startTime || !endTime || !puncStartTime || !puncEndTime) {
+                throw new Error("All times are required.");
+            }
+
+            // Calculate Total Hours
+            const calculateTotalHours = (startTime, endTime) => {
+                const start = new Date(`1970-01-01T${startTime}:00`);
+                const end = new Date(`1970-01-01T${endTime}:00`);
+                const totalMinutes = (end - start) / (1000 * 60);
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                return `${hours}h:${minutes}m`;
+            };
+
+            const totalHours = calculateTotalHours(startTime, endTime);
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            // API Request Data
+            const requestData = {
+                userId: employeeId,
+                settings: {
+                    breakTime: [
+                        {
+                            TotalHours: totalHours,
+                            breakStartTime: `${currentDate}T${startTime}:00`,
+                            breakEndTime: `${currentDate}T${endTime}:00`,
+                        },
+                    ],
+                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
+                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                },
+            };
+
+            // Call API to save data
+            const response = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Punctuality successfully submitted!", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+            } else {
+                enqueueSnackbar("Failed to submit punctuality", { variant: "error" });
+            }
+        } catch (error) {
+            enqueueSnackbar(error.message || "Error submitting times.", {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
-            return;
+            console.error("Error submitting times:", error);
         }
-
-        // Call API to save data
-        console.log(`Saving for ${employeeId}:`, { startTime, endTime });
-        enqueueSnackbar("Start and End Times saved successfully!", {
-            variant: "success",
-            anchorOrigin: { vertical: "top", horizontal: "right" },
-        });
     };
+
+
     useEffect(() => {
         // Set allowBlur based on the Redux store
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
@@ -732,17 +821,14 @@ const CompanyEmployess = (props) => {
                                     )} */}
                                 </div>
                                 {timeFields[employee._id]?.showFields && (
-                                    <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
-                                        <div style={{ marginBottom: 10 }}>
+                                    <>
+                                        {/* <div style={{ marginBottom: 10 }}>
                                             <label>
                                                 Start Time:
                                                 <input
                                                     type="time"
                                                     value={timeFields[employee._id]?.startTime || ""}
-                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                                                    onChange={(e) =>
-                                                        handleTimeChange(employee._id, "startTime", e.target.value)
-                                                    }
+                                                    onChange={(e) => handleTimeChange(employee._id, "startTime", e.target.value)}
                                                     style={{ marginLeft: 10 }}
                                                 />
                                             </label>
@@ -753,64 +839,99 @@ const CompanyEmployess = (props) => {
                                                 <input
                                                     type="time"
                                                     value={timeFields[employee._id]?.endTime || ""}
-                                                    onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
-                                                    onChange={(e) =>
-                                                        handleTimeChange(employee._id, "endTime", e.target.value)
-                                                    }
+                                                    onChange={(e) => handleTimeChange(employee._id, "endTime", e.target.value)}
                                                     style={{ marginLeft: 10 }}
                                                 />
                                             </label>
+                                        </div> */}
+                                        {/* Display puncStartTime */}
+                                        <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc", borderRadius: 5, display: 'flex', gap: '10px' }}>
+                                            <div>
+                                                <label>
+                                                    Punctuality Start Time:
+                                                    <input
+                                                        type="time"
+                                                        value={timeFields[employee._id]?.puncStartTime || ""}
+                                                        onChange={(e) => handleTimeChange(employee._id, "puncStartTime", e.target.value)}
+                                                        style={{ marginLeft: 10 }}
+                                                    />
+                                                </label>
+
+                                                {/* Display puncEndTime */}
+
+                                                <label>
+                                                    Punctuality End Time:
+                                                    <input
+                                                        type="time"
+                                                        value={timeFields[employee._id]?.puncEndTime || ""}
+                                                        onChange={(e) => handleTimeChange(employee._id, "puncEndTime", e.target.value)}
+                                                        style={{ marginLeft: 10 }}
+                                                    />
+                                                </label>
+                                            </div>
+                                            <button
+                                                onClick={() => handleSave(employee._id)}
+                                                style={{
+                                                    padding: "5px 10px",
+                                                    backgroundColor: "#7fc45a",
+                                                    color: "#fff",
+                                                    border: "none",
+                                                    borderRadius: 5,
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                Save
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => handleSave(employee._id)}
-                                            style={{
-                                                padding: "5px 10px",
-                                                backgroundColor: "#7fc45a",
-                                                color: "#fff",
-                                                border: "none",
-                                                borderRadius: 5,
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            Save
-                                        </button>
-                                    </div>
+
+                                    </>
                                 )}
-                                {(
-                                    employee?.effectiveSettings?.individualss && activeTab?.id === 1
-                                ) ? (
-                                    <div className="employee-individual-setting">
-                                        <Setting setting={setting} setSetting={setSetting} employee={employee} />
-                                    </div>
-                                ) : ""}
-                                {(
-                                    employee?.effectiveSettings?.individualAct && activeTab?.id === 2
-                                ) ? (
-                                    <div className="employee-individual-setting">
-                                        <Setting setting={setting} setSetting={setSetting} employee={employee} />
-                                    </div>
-                                ) : ""}
-                                {(
-                                    employee?.effectiveSettings?.individualUrl && activeTab?.id === 3
-                                ) ? (
-                                    <div className="employee-individual-setting">
-                                        <Setting setting={setting} setSetting={setSetting} employee={employee} />
-                                    </div>
-                                ) : ""}
-                                {(
-                                    employee?.effectiveSettings?.individualAutoPause && activeTab?.id === 5
-                                ) ? (
-                                    <div className="employee-individual-setting">
-                                        <Setting setting={setting} setSetting={setSetting} employee={employee} />
-                                    </div>
-                                ) : ""}
-                                {(
-                                    employee?.effectiveSettings?.individualOffline && activeTab?.id === 6
-                                ) ? (
-                                    <div className="employee-individual-setting">
-                                        <Setting setting={setting} setSetting={setSetting} employee={employee} />
-                                    </div>
-                                ) : ""}
+
+                                {
+                                    (
+                                        employee?.effectiveSettings?.individualss && activeTab?.id === 1
+                                    ) ? (
+                                        <div className="employee-individual-setting">
+                                            <Setting setting={setting} setSetting={setSetting} employee={employee} />
+                                        </div>
+                                    ) : ""
+                                }
+                                {
+                                    (
+                                        employee?.effectiveSettings?.individualAct && activeTab?.id === 2
+                                    ) ? (
+                                        <div className="employee-individual-setting">
+                                            <Setting setting={setting} setSetting={setSetting} employee={employee} />
+                                        </div>
+                                    ) : ""
+                                }
+                                {
+                                    (
+                                        employee?.effectiveSettings?.individualUrl && activeTab?.id === 3
+                                    ) ? (
+                                        <div className="employee-individual-setting">
+                                            <Setting setting={setting} setSetting={setSetting} employee={employee} />
+                                        </div>
+                                    ) : ""
+                                }
+                                {
+                                    (
+                                        employee?.effectiveSettings?.individualAutoPause && activeTab?.id === 5
+                                    ) ? (
+                                        <div className="employee-individual-setting">
+                                            <Setting setting={setting} setSetting={setSetting} employee={employee} />
+                                        </div>
+                                    ) : ""
+                                }
+                                {
+                                    (
+                                        employee?.effectiveSettings?.individualOffline && activeTab?.id === 6
+                                    ) ? (
+                                        <div className="employee-individual-setting">
+                                            <Setting setting={setting} setSetting={setSetting} employee={employee} />
+                                        </div>
+                                    ) : ""
+                                }
 
                             </div>
                         )
@@ -818,7 +939,7 @@ const CompanyEmployess = (props) => {
                 }) : <p>No employees found</p>
                 }
 
-            </div>
+            </div >
         </>
 
     );
