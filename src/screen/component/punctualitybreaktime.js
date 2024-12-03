@@ -90,8 +90,12 @@ const CompanyEmployess = (props) => {
         const updatedTimeFields = employees.reduce((fields, employee) => {
             fields[employee._id] = {
                 showFields: employee?.punctualityData?.individualPuncStart || false, // Reflect the backend state
-                startTime: fields[employee._id]?.startTime || "", // Retain existing values
-                endTime: fields[employee._id]?.endTime || "",
+                // startTime: fields[employee._id]?.startTime || "", // Retain existing values
+                // endTime: fields[employee._id]?.endTime || "",
+                startTime: timeFields[employee._id]?.startTime || "00:00",
+                endTime: timeFields[employee._id]?.endTime || "00:00",
+                puncStartTime: timeFields[employee._id]?.puncStartTime || "00:00",
+                puncEndTime: timeFields[employee._id]?.puncEndTime || "00:00",
             };
             return fields;
         }, {});
@@ -138,6 +142,11 @@ const CompanyEmployess = (props) => {
                     [employee._id]: {
                         ...prev[employee._id],
                         showFields: isSelected,
+                        // Set default values when toggled ON
+                        startTime: isSelected ? "00:00" : prev[employee._id]?.startTime || "",
+                        endTime: isSelected ? "00:00" : prev[employee._id]?.endTime || "",
+                        puncStartTime: isSelected ? "00:00" : prev[employee._id]?.puncStartTime || "",
+                        puncEndTime: isSelected ? "00:00" : prev[employee._id]?.puncEndTime || "",
                     },
                 }));
             } else {
@@ -199,13 +208,81 @@ const CompanyEmployess = (props) => {
         });
     };
 
+    // const handleSave = async (employeeId) => {
+    //     console.log("Time Fields for Employee:", timeFields[employeeId]); // Debugging
+    //     try {
+    //         const { startTime, endTime, puncStartTime, puncEndTime } = timeFields[employeeId];
+
+    //         // Validate if all times are provided
+    //         if (!puncStartTime || !puncEndTime) {
+    //             throw new Error("All times are required.");
+    //         }
+
+    //         // Calculate Total Hours
+    //         const calculateTotalHours = (startTime, endTime) => {
+    //             const start = new Date(`1970-01-01T${startTime}:00`);
+    //             const end = new Date(`1970-01-01T${endTime}:00`);
+    //             const totalMinutes = (end - start) / (1000 * 60);
+    //             const hours = Math.floor(totalMinutes / 60);
+    //             const minutes = totalMinutes % 60;
+    //             return `${hours}h:${minutes}m`;
+    //         };
+
+    //         const totalHours = calculateTotalHours(startTime, endTime);
+    //         const currentDate = new Date().toISOString().split("T")[0];
+
+    //         // API Request Data
+    //         const requestData = {
+    //             userId: employeeId,
+    //             settings: {
+    //                 breakTime: [
+    //                     {
+    //                         TotalHours: totalHours,
+    //                         breakStartTime: `${currentDate}T${startTime}:00`,
+    //                         breakEndTime: `${currentDate}T${endTime}:00`,
+    //                     },
+    //                 ],
+    // puncStartTime: `${currentDate}T${puncStartTime}:00`,
+    // puncEndTime: `${currentDate}T${puncEndTime}:00`,
+    //                 individualPuncStart: true, // Ensure the toggle is saved as ON
+    //             },
+    //         };
+
+    //         // Call API to save data
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Punctuality successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             });
+    //         } else {
+    //             enqueueSnackbar("Failed to submit punctuality", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(error.message || "Error submitting times.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         console.error("Error submitting times:", error);
+    //     }
+    // };
     const handleSave = async (employeeId) => {
         try {
             const { startTime, endTime, puncStartTime, puncEndTime } = timeFields[employeeId];
 
-            // Validate if all times are provided
-            if (!startTime || !endTime || !puncStartTime || !puncEndTime) {
-                throw new Error("All times are required.");
+            // Validate if both times are provided
+            if (!startTime || !endTime) {
+                throw new Error("Both Break Start Time and Break End Time are required.");
             }
 
             // Calculate Total Hours
@@ -220,6 +297,8 @@ const CompanyEmployess = (props) => {
 
             const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
+            const fullBreakStartTime = `${currentDate}T${startTime}:00`;
+            const fullBreakEndTime = `${currentDate}T${endTime}:00`;
 
             // API Request Data
             const requestData = {
@@ -228,12 +307,13 @@ const CompanyEmployess = (props) => {
                     breakTime: [
                         {
                             TotalHours: totalHours,
-                            breakStartTime: `${currentDate}T${startTime}:00`,
-                            breakEndTime: `${currentDate}T${endTime}:00`,
+                            breakStartTime: fullBreakStartTime,
+                            breakEndTime: fullBreakEndTime,
                         },
                     ],
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                    individualPuncStart: true, // Ensure the toggle is saved as ON
                 },
             };
 
@@ -250,23 +330,47 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Punctuality successfully submitted!", {
+                enqueueSnackbar("Break Time successfully submitted!", {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
+
+                // Fetch updated data to ensure correct toggle state
+                const updatedEmployee = await axios.get(
+                    `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+
+                if (updatedEmployee.status === 200) {
+                    const updatedData = updatedEmployee.data?.employeeSettings;
+
+                    // Update the local state with the fetched data
+                    setTimeFields((prev) => ({
+                        ...prev,
+                        [employeeId]: {
+                            showFields: updatedData.individualPuncStart || false, // Reflect the backend state
+                            startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+                            endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+                            puncStartTime: updatedData.puncStartTime?.substring(11, 16) || "00:00", // Add puncStartTime
+                            puncEndTime: updatedData.puncEndTime?.substring(11, 16) || "00:00",     // Add puncEndTime
+                        },
+                    }));
+                }
             } else {
-                enqueueSnackbar("Failed to submit punctuality", { variant: "error" });
+                enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar(error.message || "Error submitting times.", {
+            enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
-            console.error("Error submitting times:", error);
+            console.error("Error submitting Break Time rule:", error);
         }
     };
-
-
     useEffect(() => {
         // Set allowBlur based on the Redux store
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
@@ -851,7 +955,7 @@ const CompanyEmployess = (props) => {
                                                     Punctuality Start Time:
                                                     <input
                                                         type="time"
-                                                        value={timeFields[employee._id]?.puncStartTime || ""}
+                                                        value={timeFields[employee._id]?.puncStartTime === "00:00" ? "" : timeFields[employee._id]?.puncStartTime}
                                                         onChange={(e) => handleTimeChange(employee._id, "puncStartTime", e.target.value)}
                                                         style={{ marginLeft: 10 }}
                                                     />
@@ -863,7 +967,7 @@ const CompanyEmployess = (props) => {
                                                     Punctuality End Time:
                                                     <input
                                                         type="time"
-                                                        value={timeFields[employee._id]?.puncEndTime || ""}
+                                                        value={timeFields[employee._id]?.puncEndTime === "00:00" ? "" : timeFields[employee._id]?.puncEndTime}
                                                         onChange={(e) => handleTimeChange(employee._id, "puncEndTime", e.target.value)}
                                                         style={{ marginLeft: 10 }}
                                                     />

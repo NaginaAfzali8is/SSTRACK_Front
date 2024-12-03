@@ -16,6 +16,8 @@ function Screenshot() {
     let headers = {
         Authorization: 'Bearer ' + token,
     }
+
+    const [isSaveDisabled, setIsSaveDisabled] = useState(true);
     const dispatch = useDispatch()
     const [number, setNumber] = useState(null)
     const ids = useSelector((state) => state.adminSlice.ids)
@@ -929,7 +931,7 @@ function Screenshot() {
                         <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
                     </>
                 ) : ( */}
-                <CompanyEmployess Setting={Setting} />
+                <CompanyEmployess Setting={Setting}  />
                 {/* )} */}
             </div>
         </div>

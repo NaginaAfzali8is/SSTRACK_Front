@@ -105,13 +105,15 @@ const CompanyEmployess = (props) => {
                 });
 
                 // Update local state for real-time toggle update
-                // setTimeFields((prev) => ({
-                //     ...prev,
-                //     [employee._id]: {
-                //         ...prev[employee._id],
-                //         showFields: isSelected,
-                //     },
-                // }));
+                setTimeFields((prev) => ({
+                    ...prev,
+                    [employee._id]: {
+                        ...prev[employee._id],
+                        showFields: isSelected,
+                        startTime: isSelected ? null : prev[employee._id]?.startTime || "00:00", // Set to null when toggled on
+                        endTime: isSelected ? null : prev[employee._id]?.endTime || "00:00",   // Set to null when toggled on
+                    },
+                }));
 
             } else {
                 enqueueSnackbar("Failed to update Break Time setting.", {
@@ -569,6 +571,105 @@ const CompanyEmployess = (props) => {
 
     // Function to calculate total hours from break start and end times
 
+    // const handleSave = async (employeeId) => {
+    //     try {
+    //         const { startTime, endTime } = timeFields[employeeId];
+
+    //         // Validate if both times are provided
+    //         if (!startTime || !endTime) {
+    //             throw new Error("Both Break Start Time and Break End Time are required.");
+    //         }
+
+    //         // Calculate Total Hours
+    //         const calculateTotalHours = (startTime, endTime) => {
+    //             const start = new Date(`1970-01-01T${startTime}:00`);
+    //             const end = new Date(`1970-01-01T${endTime}:00`);
+    //             const totalMinutes = (end - start) / (1000 * 60);
+    //             const hours = Math.floor(totalMinutes / 60);
+    //             const minutes = totalMinutes % 60;
+    //             return `${hours}h:${minutes}m`;
+    //         };
+
+    //         const totalHours = calculateTotalHours(startTime, endTime);
+    //         const currentDate = new Date().toISOString().split("T")[0];
+    //         const fullBreakStartTime = `${currentDate}T${startTime}:00`;
+    //         const fullBreakEndTime = `${currentDate}T${endTime}:00`;
+
+    //         // API Request Data
+    //         const requestData = {
+    //             userId: employeeId,
+    //             settings: {
+    //                 breakTime: [
+    //                     {
+    //                         TotalHours: totalHours,
+    //                         breakStartTime: fullBreakStartTime,
+    //                         breakEndTime: fullBreakEndTime,
+    //                     },
+    //                 ],
+    //             },
+    //         };
+
+    //         // Call API to save data
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Break Time successfully submitted!", {
+    //                 variant: "success",
+    //                 anchorOrigin: { vertical: "top", horizontal: "right" },
+    //             });
+
+    //             // Ensure toggle remains ON after saving
+    //             // setTimeFields((prev) => ({
+    //             //     ...prev,
+    //             //     [employeeId]: {
+    //             //         ...prev[employeeId],
+    //             //         startTime, // Persist start time
+    //             //         endTime,   // Persist end time
+    //             //         showFields: true, // Ensure toggle remains ON
+    //             //     },
+    //             // }));
+
+    //             const updatedData = updatedEmployee.data.employeeSettings;
+    //             setTimeFields((prev) => ({
+    //                 ...prev,
+    //                 [employeeId]: {
+    //                     showFields: updatedData.individualbreakTime || false, // Reflect the backend state
+    //                     startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+    //                     endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+    //                 },
+    //             }));
+
+    //             // Ensure toggle remains ON after saving
+    //             // setTimeFields((prev) => ({
+
+    //             //     ...prev,
+    //             //     [employeeId]: {
+    //             //         ...prev[employeeId],
+    //             //         startTime, // Persist start time
+    //             //         endTime,   // Persist end time
+    //             //         showFields: true, // Ensure toggle remains ON
+    //             //     },
+    //             // }));
+    //         } else {
+    //             enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+    //         }
+    //     } catch (error) {
+    //         enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+    //             variant: "error",
+    //             anchorOrigin: { vertical: "top", horizontal: "right" },
+    //         });
+    //         console.error("Error submitting Break Time rule:", error);
+    //     }
+    // };
     const handleSave = async (employeeId) => {
         try {
             const { startTime, endTime } = timeFields[employeeId];
@@ -604,6 +705,7 @@ const CompanyEmployess = (props) => {
                             breakEndTime: fullBreakEndTime,
                         },
                     ],
+                    individualbreakTime: true, // Ensure the toggle is saved as ON
                 },
             };
 
@@ -625,16 +727,29 @@ const CompanyEmployess = (props) => {
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
 
-                // Ensure toggle remains ON after saving
-                setTimeFields((prev) => ({
-                    ...prev,
-                    [employeeId]: {
-                        ...prev[employeeId],
-                        startTime, // Persist start time
-                        endTime,   // Persist end time
-                        showFields: true, // Ensure toggle remains ON
-                    },
-                }));
+                // Fetch updated data to ensure correct toggle state
+                const updatedEmployee = await axios.get(
+                    `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+
+                if (updatedEmployee.status === 200) {
+                    const updatedData = updatedEmployee.data.employeeSettings;
+
+                    // Update the local state with the fetched data
+                    setTimeFields((prev) => ({
+                        ...prev,
+                        [employeeId]: {
+                            showFields: updatedData.individualbreakTime || false, // Reflect the backend state
+                            startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+                            endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+                        },
+                    }));
+                }
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
@@ -646,8 +761,6 @@ const CompanyEmployess = (props) => {
             console.error("Error submitting Break Time rule:", error);
         }
     };
-
-
 
     const calculateTotalHours = (startTime, endTime) => {
         const start = new Date(`1970-01-01T${startTime}:00`);
@@ -1106,7 +1219,7 @@ const CompanyEmployess = (props) => {
                         const { employeeSettings } = response.data;
                         const latestBreak = employeeSettings.breakTime?.[0] || {};
                         updatedFields[employee._id] = {
-                            showFields: timeFields[employee._id]?.showFields || employeeSettings.individualbreakTime || false, // Preserve local state
+                            showFields: employeeSettings.individualbreakTime || false,
                             startTime: latestBreak.breakStartTime?.substring(11, 16) || "00:00",
                             endTime: latestBreak.breakEndTime?.substring(11, 16) || "00:00",
                         };
@@ -1115,11 +1228,12 @@ const CompanyEmployess = (props) => {
                     console.error(`Error fetching data for employee ${employee._id}:`, error);
                 }
             }
-            setTimeFields((prev) => ({ ...prev, ...updatedFields })); // Merge with existing state
+            setTimeFields((prev) => ({ ...prev, ...updatedFields }));
         };
 
         fetchEmployeeData();
     }, [employees]);
+
 
 
     return (
@@ -1252,7 +1366,8 @@ const CompanyEmployess = (props) => {
 
                                                 <input
                                                     type="time"
-                                                    value={timeFields[employee._id]?.startTime || "00:00"} // Default to 00:00 if null
+
+                                                    value={timeFields[employee._id]?.startTime || ""} // Default to 00:00 if null
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "startTime", e.target.value)
                                                     }
@@ -1264,7 +1379,7 @@ const CompanyEmployess = (props) => {
 
                                                 <input
                                                     type="time"
-                                                    value={timeFields[employee._id]?.endTime || "00:00"} // Default to 00:00 if null
+                                                    value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null
                                                     onChange={(e) =>
                                                         handleTimeChange(employee._id, "endTime", e.target.value)
                                                     }
