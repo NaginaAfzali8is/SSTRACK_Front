@@ -73,18 +73,33 @@ const CompanyEmployess = (props) => {
 
     const handleToggleChange = async (employee, isSelected) => {
         try {
-            // API payload to update individualbreakTime
+            // Fetch current settings for the employee to avoid overwriting other fields
+            const response = await axios.get(
+                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+    
+            if (response.status !== 200) {
+                throw new Error("Failed to fetch current settings.");
+            }
+    
+            const currentSettings = response.data.employeeSettings;
+    
+            // Prepare the API request payload with preserved settings
             const requestData = {
                 userId: employee._id,
                 settings: {
-                    individualbreakTime: isSelected, // Update based on toggle value
-                    individualPuncStart: false,
-                    individualPuncEnd: false
+                    ...currentSettings, // Preserve current settings
+                    individualbreakTime: isSelected, // Update only the individualbreakTime field
                 },
             };
-
-            // Call API to update the value
-            const response = await axios.post(
+    
+            // Call API to update the settings
+            const updateResponse = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
                 {
@@ -94,29 +109,26 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-
-            if (response.status === 200) {
-                enqueueSnackbar("Break Time setting updated successfully!", {
+    
+            if (updateResponse.status === 200) {
+                enqueueSnackbar("Punctuality setting updated successfully!", {
                     variant: "success",
                     anchorOrigin: {
                         vertical: "top",
                         horizontal: "right",
                     },
                 });
-
-                // Update local state for real-time toggle update
+    
+                // Update local state for real-time UI synchronization
                 setTimeFields((prev) => ({
                     ...prev,
                     [employee._id]: {
                         ...prev[employee._id],
-                        showFields: isSelected,
-                        startTime: isSelected ? null : prev[employee._id]?.startTime || "00:00", // Set to null when toggled on
-                        endTime: isSelected ? null : prev[employee._id]?.endTime || "00:00",   // Set to null when toggled on
+                        individualbreakTime: isSelected, // Reflect the updated state in the UI
                     },
                 }));
-
             } else {
-                enqueueSnackbar("Failed to update Break Time setting.", {
+                enqueueSnackbar("Failed to update punctuality setting.", {
                     variant: "error",
                     anchorOrigin: {
                         vertical: "top",
@@ -125,8 +137,8 @@ const CompanyEmployess = (props) => {
                 });
             }
         } catch (error) {
-            console.error("Error updating Break Time setting:", error);
-            enqueueSnackbar("An error occurred while updating Break Time setting.", {
+            console.error("Error updating punctuality setting:", error);
+            enqueueSnackbar("An error occurred while updating punctuality setting.", {
                 variant: "error",
                 anchorOrigin: {
                     vertical: "top",
@@ -135,6 +147,7 @@ const CompanyEmployess = (props) => {
             });
         }
     };
+    
     // const handleToggleChange = async (employee, isSelected) => {
     //     try {
     //         // API payload to update individualbreakTime
@@ -628,15 +641,15 @@ const CompanyEmployess = (props) => {
     //             });
 
     //             // Ensure toggle remains ON after saving
-    //             // setTimeFields((prev) => ({
-    //             //     ...prev,
-    //             //     [employeeId]: {
-    //             //         ...prev[employeeId],
-    //             //         startTime, // Persist start time
-    //             //         endTime,   // Persist end time
-    //             //         showFields: true, // Ensure toggle remains ON
-    //             //     },
-    //             // }));
+    // setTimeFields((prev) => ({
+    //     ...prev,
+    //     [employeeId]: {
+    //         ...prev[employeeId],
+    //         startTime, // Persist start time
+    //         endTime,   // Persist end time
+    //         showFields: true, // Ensure toggle remains ON
+    //     },
+    // }));
 
     //             const updatedData = updatedEmployee.data.employeeSettings;
     //             setTimeFields((prev) => ({
@@ -749,6 +762,16 @@ const CompanyEmployess = (props) => {
                             endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
                         },
                     }));
+                    // setTimeFields((prev) => ({
+                    //     ...prev,
+                    //     [employeeId]: {
+                    //         ...prev[employeeId],
+                    //         startTime, // Persist start time
+                    //         endTime,   // Persist end time
+                    //         showFields: true, // Ensure toggle remains ON
+                    //     },
+                    // }));
+
                 }
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
@@ -797,7 +820,6 @@ const CompanyEmployess = (props) => {
     const updateAllowBlur = (allowBlur) => {
         setAllowBlur(allowBlur);
     };
-
 
     // async function handleApplySetting(data) {
     //     const employeeId = data.employee._id;
@@ -1316,7 +1338,7 @@ const CompanyEmployess = (props) => {
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
-                                                checked={timeFields[employee._id]?.showFields || false} // Reflect updated state
+                                                checked={timeFields[employee._id]?.showFields || false} // Reflect updated toggle state
                                                 onChange={(e) => handleToggleChange(employee, e.target.checked)}
                                             />
                                             <span className="slider round"></span>

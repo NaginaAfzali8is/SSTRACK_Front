@@ -47,8 +47,8 @@ const CompanyEmployess = (props) => {
                         const { employeeSettings } = response.data;
                         updatedFields[employee._id] = {
                             showFields: timeFields[employee._id]?.showFields || employeeSettings.individualPuncStart || false,
-                            startTime: employeeSettings.breakTime?.[0]?.breakStartTime?.substring(11, 16) || "00:00",
-                            endTime: employeeSettings.breakTime?.[0]?.breakEndTime?.substring(11, 16) || "00:00",
+                            // startTime: employeeSettings.breakTime?.[0]?.breakStartTime?.substring(11, 16) || "00:00",
+                            // endTime: employeeSettings.breakTime?.[0]?.breakEndTime?.substring(11, 16) || "00:00",
                             puncStartTime: employeeSettings.puncStartTime?.substring(11, 16) || "00:00", // Add puncStartTime
                             puncEndTime: employeeSettings.puncEndTime?.substring(11, 16) || "00:00",     // Add puncEndTime
                         };
@@ -103,72 +103,81 @@ const CompanyEmployess = (props) => {
         setTimeFields(updatedTimeFields);
     }, [employees]);
 
-    const handleToggleChange = async (employee, isSelected) => {
-        try {
-            // API payload to update individualbreakTime
-            const requestData = {
-                userId: employee._id,
-                settings: {
-                    individualbreakTime: false, // Update based on toggle value
-                    individualPuncStart: isSelected,
-                    individualPuncEnd: false
-                },
-            };
+    // const handleToggleChange = async (employee, isSelected) => {
+    //     try {
+    //         const requestData = {
+    //             userId: employee._id,
+    //             settings: {
+    //                 individualbreakTime: false, // Set to false for all users
+    //                 individualPuncStart: isSelected,
+    //                 individualPuncEnd: false
+    //             },
+    //         };
 
-            // Call API to update the value
-            const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
-                requestData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+    //         // Call API to update the value
+    //         const response = await axios.post(
+    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             requestData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
 
-            if (response.status === 200) {
-                enqueueSnackbar("Break Time setting updated successfully!", {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
+    //         if (response.status === 200) {
+    //             enqueueSnackbar("Punctuality setting updated successfully!", {
+    //                 variant: "success",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
 
-                // Update local state for real-time toggle update
-                setTimeFields((prev) => ({
-                    ...prev,
-                    [employee._id]: {
-                        ...prev[employee._id],
-                        showFields: isSelected,
-                        // Set default values when toggled ON
-                        startTime: isSelected ? "00:00" : prev[employee._id]?.startTime || "",
-                        endTime: isSelected ? "00:00" : prev[employee._id]?.endTime || "",
-                        puncStartTime: isSelected ? "00:00" : prev[employee._id]?.puncStartTime || "",
-                        puncEndTime: isSelected ? "00:00" : prev[employee._id]?.puncEndTime || "",
-                    },
-                }));
-            } else {
-                enqueueSnackbar("Failed to update Break Time setting.", {
-                    variant: "error",
-                    anchorOrigin: {
-                        vertical: "top",
-                        horizontal: "right",
-                    },
-                });
-            }
-        } catch (error) {
-            console.error("Error updating Break Time setting:", error);
-            enqueueSnackbar("An error occurred while updating Break Time setting.", {
-                variant: "error",
-                anchorOrigin: {
-                    vertical: "top",
-                    horizontal: "right",
-                },
-            });
-        }
-    };
+    //             // Update local state for real-time toggle update
+    //             setTimeFields((prev) => {
+    //                 // Create a new state object
+    //                 const updatedFields = { ...prev };
+
+    //                 // Set the toggled employee's settings
+    //                 updatedFields[employee._id] = {
+    //                     ...updatedFields[employee._id],
+    //                     showFields: isSelected, // Reflect updated state in UI
+    //                 };
+
+    //                 // Set all other employees' individualbreakTime to false
+    //                 for (const emp of employees) {
+    //                     if (emp._id !== employee._id) {
+    //                         updatedFields[emp._id] = {
+    //                             ...updatedFields[emp._id],
+    //                             showFields: false, // Set to false if not the toggled employee
+    //                         };
+    //                     }
+    //                 }
+
+    //                 return updatedFields;
+    //             });
+    //         } else {
+    //             enqueueSnackbar("Failed to update punctuality setting.", {
+    //                 variant: "error",
+    //                 anchorOrigin: {
+    //                     vertical: "top",
+    //                     horizontal: "right",
+    //                 },
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error("Error updating punctuality setting:", error);
+    //         enqueueSnackbar("An error occurred while updating punctuality setting.", {
+    //             variant: "error",
+    //             anchorOrigin: {
+    //                 vertical: "top",
+    //                 horizontal: "right",
+    //             },
+    //         });
+    //     }
+    // };
 
 
     // useEffect(() => {
@@ -193,6 +202,85 @@ const CompanyEmployess = (props) => {
     //         },
     //     }));
     // };
+    const handleToggleChange = async (employee, isSelected) => {
+        try {
+
+            // Fetch current settings for the employee to avoid overwriting other fields
+            const response = await axios.get(
+                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error("Failed to fetch current settings.");
+            }
+
+            const currentSettings = response.data.employeeSettings;
+            
+            // Prepare the API request payload
+            const requestData = {
+                userId: employee._id,
+                settings: {
+                    ...currentSettings, // Preserve current settings
+                    individualPuncStart: isSelected, // Set to true or false based on the toggle
+                },
+            };
+
+
+            // Call API to update the settings
+            const updateResponse = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                requestData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (updateResponse.status === 200) {
+                enqueueSnackbar("Punctuality setting updated successfully!", {
+                    variant: "success",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+
+                // Update local state for real-time UI synchronization
+                setTimeFields((prev) => ({
+                    ...prev,
+                    [employee._id]: {
+                        ...prev[employee._id],
+                        individualPuncStart: isSelected, // Reflect the updated state in the UI
+                    },
+                }));
+            } else {
+                enqueueSnackbar("Failed to update punctuality setting.", {
+                    variant: "error",
+                    anchorOrigin: {
+                        vertical: "top",
+                        horizontal: "right",
+                    },
+                });
+            }
+        } catch (error) {
+            console.error("Error updating punctuality setting:", error);
+            enqueueSnackbar("An error occurred while updating punctuality setting.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                },
+            });
+        }
+    };
+
     const handleTimeChange = (employeeId, field, value) => {
         setTimeFields((prev) => {
             const updatedFields = {
@@ -281,9 +369,9 @@ const CompanyEmployess = (props) => {
             const { startTime, endTime, puncStartTime, puncEndTime } = timeFields[employeeId];
 
             // Validate if both times are provided
-            if (!startTime || !endTime) {
-                throw new Error("Both Break Start Time and Break End Time are required.");
-            }
+            // if (!startTime || !endTime) {
+            //     throw new Error("Both Break Start Time and Break End Time are required.");
+            // }
 
             // Calculate Total Hours
             const calculateTotalHours = (startTime, endTime) => {
@@ -304,13 +392,13 @@ const CompanyEmployess = (props) => {
             const requestData = {
                 userId: employeeId,
                 settings: {
-                    breakTime: [
-                        {
-                            TotalHours: totalHours,
-                            breakStartTime: fullBreakStartTime,
-                            breakEndTime: fullBreakEndTime,
-                        },
-                    ],
+                    // breakTime: [
+                    //     {
+                    //         TotalHours: totalHours,
+                    //         breakStartTime: fullBreakStartTime,
+                    //         breakEndTime: fullBreakEndTime,
+                    //     },
+                    // ],
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
                     individualPuncStart: true, // Ensure the toggle is saved as ON
@@ -336,30 +424,30 @@ const CompanyEmployess = (props) => {
                 });
 
                 // Fetch updated data to ensure correct toggle state
-                const updatedEmployee = await axios.get(
-                    `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    }
-                );
+                // const updatedEmployee = await axios.get(
+                //     `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                //     {
+                //         headers: {
+                //             Authorization: `Bearer ${localStorage.getItem("token")}`,
+                //         },
+                //     }
+                // );
 
-                if (updatedEmployee.status === 200) {
-                    const updatedData = updatedEmployee.data?.employeeSettings;
+                // if (updatedEmployee.status === 200) {
+                //     const updatedData = updatedEmployee.data?.employeeSettings;
 
-                    // Update the local state with the fetched data
-                    setTimeFields((prev) => ({
-                        ...prev,
-                        [employeeId]: {
-                            showFields: updatedData.individualPuncStart || false, // Reflect the backend state
-                            startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
-                            endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
-                            puncStartTime: updatedData.puncStartTime?.substring(11, 16) || "00:00", // Add puncStartTime
-                            puncEndTime: updatedData.puncEndTime?.substring(11, 16) || "00:00",     // Add puncEndTime
-                        },
-                    }));
-                }
+                //     // Update the local state with the fetched data
+                setTimeFields((prev) => ({
+                    ...prev,
+                    [employeeId]: {
+                        showFields: updatedData.individualPuncStart || false, // Reflect the backend state
+                        // startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
+                        // endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
+                        puncStartTime: updatedData.puncStartTime?.substring(11, 16) || startTime, // Add puncStartTime
+                        puncEndTime: updatedData.puncEndTime?.substring(11, 16) || endTime,     // Add puncEndTime
+                    },
+                }));
+
             } else {
                 enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
             }
