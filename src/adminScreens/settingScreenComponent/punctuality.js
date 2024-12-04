@@ -154,6 +154,7 @@ function Screenshot() {
                     <p>per hour</p>
                 </div>
                 <div>
+                    
                     <select
                         value={employee?.effectiveSettings?.screenshots?.allowBlur === true ? "Blur" : "Do Not Blur"}
                         className="myselect"
@@ -635,8 +636,8 @@ function Screenshot() {
                 });
 
                 // Preserve fields after saving
-                setPuncStartTime(puncStartTime);
-                setPuncEndTime(puncEndTime);
+                // setPuncStartTime(puncStartTime);
+                // setPuncEndTime(puncEndTime);
 
             } else {
                 enqueueSnackbar("Failed to submit punctuality rule.", {

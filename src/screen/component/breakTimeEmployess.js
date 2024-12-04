@@ -872,8 +872,8 @@ const CompanyEmployess = (props) => {
                     ...prev,
                     [employeeId]: {
                         ...prev[employeeId],
-                        startTime,
-                        endTime,
+                        breakStartTime,
+                        breakEndTime,
                     },
                 }));
             } else {
@@ -1323,7 +1323,9 @@ const CompanyEmployess = (props) => {
     console.log(activeTab);
 
     console.log('=============>', employees);
-    const filteredEmployees = employees.filter(employee => employee.name);
+    // const filteredEmployees = employees.filter(employee => employee.name);
+    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+
     console.log('=##########=>', filteredEmployees);
 
     useEffect(() => {

@@ -903,7 +903,9 @@ const CompanyEmployess = (props) => {
     console.log(activeTab);
 
     console.log('=============>', employees);
-    const filteredEmployees = employees.filter(employee => employee.name);
+    // const filteredEmployees = employees.filter(employee => employee.name);
+    const filteredEmployees = employees.filter(employee => employee.name && employee.userType !== "owner");
+
     console.log('=##########=>', filteredEmployees);
 
     return (
