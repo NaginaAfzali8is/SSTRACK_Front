@@ -607,41 +607,60 @@ const OwnerTeam = () => {
 
     const [selectedUser, setSelectedUser] = useState(null);
 
+    // Combine and group requests by userName
+    const groupedLeaves = {};
+    [...requestedLeaves, ...approvedLeaves].forEach((leave) => {
+        if (!groupedLeaves[leave.userName]) {
+            groupedLeaves[leave.userName] = {
+                leave,
+                count: 0,
+            };
+        }
+        groupedLeaves[leave.userName].count += 1;
+    });
+
+    const uniqueLeaves = Object.values(groupedLeaves);
+
     return (
         <div className="container">
             <div className="userHeader">
                 <h5>Team</h5>
             </div>
             <div className="mainwrapper ownerTeamContainer" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-
                 {/* Left Section */}
                 <div style={{ width: "350px", marginRight: "20px" }}>
                     <div className="companyFont">
-                        <p style={{
-                            margin: 0,
-                            padding: 0,
-                            fontSize: "20px",
-                            color: "#0E4772",
-                            fontWeight: "600",
-                        }}>Total</p>
-                        <div style={{
-                            backgroundColor: "#28659C",
-                            color: "white",
-                            fontSize: "600",
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}>
-                            {(requestedLeaves?.length || 0) + (approvedLeaves?.length || 0)}
+                        <p
+                            style={{
+                                margin: 0,
+                                padding: 0,
+                                fontSize: "20px",
+                                color: "#0E4772",
+                                fontWeight: "600",
+                            }}
+                        >
+                            Total
+                        </p>
+                        <div
+                            style={{
+                                backgroundColor: "#28659C",
+                                color: "white",
+                                fontSize: "600",
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            {requestedLeaves.length + approvedLeaves.length}
                         </div>
                     </div>
 
                     {/* Requested and Approved Leaves */}
                     <div>
-                        {[...(requestedLeaves || []), ...(approvedLeaves || [])]?.map((leave, index) => (
+                        {uniqueLeaves.map(({ leave, count }, index) => (
                             <div
                                 key={index}
                                 className="requested-leave-item"
@@ -664,13 +683,16 @@ const OwnerTeam = () => {
                                         display: "flex",
                                         justifyContent: "center",
                                         alignItems: "center",
-                                        fontWeight: "bold"
+                                        fontWeight: "bold",
                                     }}
                                 >
                                     {index + 1}
                                 </div>
                                 <div style={{ flexGrow: 1 }}>
                                     <strong>{leave.userName}</strong>
+                                    <span style={{ marginLeft: "10px", color: "#888" }}>
+                                        ({count} request{count > 1 ? "s" : ""})
+                                    </span>
                                 </div>
                                 <div
                                     style={{
@@ -678,9 +700,9 @@ const OwnerTeam = () => {
                                             leave.status === "Pending"
                                                 ? "orange"
                                                 : leave.status === "Approved"
-                                                    ? "green"
-                                                    : "red",
-                                        fontWeight: "bold"
+                                                ? "green"
+                                                : "red",
+                                        fontWeight: "bold",
                                     }}
                                 >
                                     {leave.status}
@@ -692,7 +714,7 @@ const OwnerTeam = () => {
 
                 {/* Center Line */}
                 <div>
-                    <img src={line} style={{ height: "100%" }} />
+                    <img src={line} style={{ height: "100%" }} alt="divider" />
                 </div>
 
                 {/* Right Section */}
@@ -727,11 +749,10 @@ const OwnerTeam = () => {
                         </p>
                     )}
                 </div>
-
             </div>
         </div>
-
     );
 };
 
 export default OwnerTeam;
+

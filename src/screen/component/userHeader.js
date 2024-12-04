@@ -466,7 +466,7 @@ function UserHeader() {
 
     function takeToSettings() {
         setShowContent(false)
-        navigate("/effective-settings")
+        navigate("/user-setting")
     }
 
     // function leaveManagement() {
@@ -604,6 +604,16 @@ function UserHeader() {
                                             </div>
                                             <p>My Account</p>
                                         </div>
+
+                                        {user?.userType === "user" && (
+                                            <div onClick={takeToSettings}>
+                                                <div>
+                                                    <img src={account} />
+                                                </div>
+                                                <p>Settings</p>
+                                            </div>
+                                        )}
+
                                         {user?.userType === "user" ? null : (
                                             <div onClick={takeToSettings}>
                                                 <div>

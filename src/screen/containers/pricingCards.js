@@ -1,17 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import olivia from "../../images/olivia.webp";
-import banner from '../../images/ss-track-banner.svg';
-import pheonix from "../../images/pheonix.webp";
-import lana from "../../images/lana.webp";
-import candice from "../../images/candice.webp";
-import natali from "../../images/natali.webp";
-import drew from "../../images/drew.webp";
-import leftArrow from "../../images/Leftarrow.webp";
-import rightArrow from "../../images/Rightarrow.webp";
-import dean from "../../images/manage.svg";
-import { Modal, Form } from 'react-bootstrap';
+import axios from "axios";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import React, { useEffect, useRef, useState } from "react";
+import { Form, Modal } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -19,17 +10,19 @@ const Pricing = () => {
     const section1Ref = useRef(null);
     const [showModal, setShowModal] = useState(false);
     const token = localStorage.getItem('token');
-    const [fetchError, setFetchError] = useState(null);
+
+
     const [selectedPackage, setSelectedPackage] = useState();
     const navigate = useNavigate()
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState();
     const [userCount, setUserCount] = useState('');
+    const [ssstoredFor, setssstoredFor] = useState('');
+    const [PaymentPlan, setPaymentPlan] = useState('');
     const [joinTiming, setJoinTiming] = useState(''); // New state for join timing
     const [phoneNo, setPhone] = useState('')
     const [companyName, setCompanyName] = useState('')
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
-
 
     const plans = [
         { id: 1, name: 'Free' },
@@ -39,7 +32,6 @@ const Pricing = () => {
 
     const handleApply = () => {
         // Here you can handle the API call to apply for the plan
-        // For example: await api.applyForPlan({ email, phoneNo, companyName, userCount, joinTiming });
 
         if (!email || !phoneNo || !companyName || !userCount || !joinTiming) {
             enqueueSnackbar("Please fill in all required fields.", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
@@ -61,9 +53,82 @@ const Pricing = () => {
         handleCloseModal(); // Close the modal after applying
     };
 
-    // const storedPlanId = JSON.parse(localStorage.getItem('planId'));
+
+    const handleApply2 = async () => {
+        if (!email || !phoneNo || !companyName || !userCount || !joinTiming) {
+            enqueueSnackbar("Please fill in all required fields.", { variant: "error", anchorOrigin: { vertical: "top", horizontal: "right" } });
+            return;
+        }
+
+        const formData = {
+            userCounts: userCount,
+            paymentPlan: PaymentPlan, // Static value as per the context
+            contactNumber: phoneNo,
+            ssStoredFor: ssstoredFor,
+            Discount: 0, // Assuming a default value for Discount
+            totalAmount: 1000, // Replace with calculated or default value
+            approved: 'pending', // Setting approved status as false by default
+        };
+
+        try {
+            // Make API call with headers
+            const response = await axios.post(
+                "https://ss-track-xi.vercel.app/api/v1/owner/requestEnterprise",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            // Handle success
+            if (response.status === 200 || response.status === 201) {
+                enqueueSnackbar("Your application has been successfully submitted", {
+                    variant: "success",
+                    anchorOrigin: { vertical: "top", horizontal: "right" },
+                });
+
+                console.log("API Response:", response.data);
+
+                // Reset form fields
+                // setEmail('');
+                setssstoredFor('');
+                setPhone('');
+                setPaymentPlan('');
+                setUserCount('');
+                setJoinTiming('');
+                handleCloseModal();
+            }
+        } catch (error) {
+            // Handle errors
+            enqueueSnackbar("Failed to submit application. Please try again later.", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+
+            console.error("API Error:", error.response ? error.response.data : error.message);
+        }
+    };
+
     // Retrieve the stored plan from localStorage and set the selected package
     useEffect(() => {
+        const items = localStorage.getItem('items');
+        if (items) {
+            try {
+                const parsedItems = JSON.parse(items); // Parse the JSON string
+                if (parsedItems.email) {
+                    setEmail(parsedItems.email); // Set email state
+                }
+                if (parsedItems.company) {
+                    setCompanyName(parsedItems.company); // Set company name state
+                }
+            } catch (error) {
+                console.error('Failed to parse localStorage item "items":', error);
+            }
+
+        }
         const storedPlanId = JSON.parse(localStorage.getItem('planIdforHome'));
         console.log('=====>>>>>>>', selectedPackage)
         // Check the stored plan type to set the selected package
@@ -276,106 +341,182 @@ const Pricing = () => {
                             <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
                         </div>
                     </div>
-                    {/* Modal for applying */}
 
-                    <Modal show={showModal} onHide={handleCloseModal} centered>
+                    {/* Modal for applying */}
+                    <Modal
+                        show={showModal}
+                        onHide={handleCloseModal}
+                        centered
+                        dialogClassName="modal-lg"
+                    >
                         <Modal.Header closeButton>
                             <Modal.Title>Apply for Enterprise Plan</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>Are you sure you want to apply for the Enterprise Plan?</p>
+                            <p className="text-muted">Fill out the details below to apply for the Enterprise Plan.</p>
                             <Form>
-                                <Form.Group controlId="formName">
+                                <Form.Group controlId="formEmail">
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control
                                         required
                                         type="email"
-                                        placeholder="Enter your Email"
+                                        placeholder="Enter your email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
+                                        className="w-100"
+                                        readOnly
                                     />
                                 </Form.Group>
-                                <Form.Group controlId="formName" className="mt-3">
+                                <Form.Group controlId="formPhone" className="mt-3">
                                     <Form.Label>Phone Number</Form.Label>
                                     <Form.Control
                                         required
-                                        type="number"
-                                        placeholder="Enter your Phone No"
+                                        type="tel"
+                                        placeholder="Enter your phone number"
                                         value={phoneNo}
                                         onChange={(e) => setPhone(e.target.value)}
+                                        className="w-100"
                                     />
                                 </Form.Group>
-                                <Form.Group controlId="formEmail" className="mt-3">
+                                <Form.Group controlId="formCompanyName" className="mt-3">
                                     <Form.Label>Company Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Enter your Company Name"
+                                        placeholder="Enter your company name"
                                         value={companyName}
                                         onChange={(e) => setCompanyName(e.target.value)}
+                                        className="w-100"
+                                        readOnly
                                     />
                                 </Form.Group>
-                                <Form.Group controlId="formUser Count" className="mt-3">
-                                    <Form.Label>Number of Employees</Form.Label>
+                                <Form.Group controlId="formCompanyName" className="mt-3">
+                                    <Form.Label>Sreen Shot Stored For</Form.Label>
+                                    <div className="position-relative">
                                     <Form.Control
                                         as="select"
-                                        value={userCount}
-                                        onChange={(e) => setUserCount(e.target.value)}
+                                        value={ssstoredFor}
+                                        onChange={(e) => setssstoredFor(e.target.value)}
+                                        className="w-100 pe-4"
+                                        style={{ paddingRight: '2.5rem' }}
                                     >
-                                        <option value="">Select number of employees</option>
-                                        <option value="100">50 - 100</option>
-                                        <option value="200">100 - 200</option>
-                                        <option value="300">250 - 300</option>
-
+                                        <option value="">select Payment Plan duration</option>
+                                        <option value="6 months">6 months</option>
+                                        <option value="1 year">1 year</option>
+                                        <option value="2 year">2 year</option>
                                     </Form.Control>
+                                    <span
+                                            className="position-absolute"
+                                            style={{
+                                                top: '50%',
+                                                right: '1rem',
+                                                transform: 'translateY(-50%)',
+                                                pointerEvents: 'none',
+                                            }}
+                                        >
+                                            <i className="bi bi-chevron-down"></i>
+                                        </span>
+                                    </div>
+                                </Form.Group>
+                                <Form.Group controlId="formCompanyName" className="mt-3">
+                                    <Form.Label>Payment Plan</Form.Label>
+                                    <div className="position-relative">
+                                    <Form.Control
+                                        as="select"
+                                        value={PaymentPlan}
+                                        onChange={(e) => setPaymentPlan(e.target.value)}
+                                        className="w-100 pe-4"
+                                        style={{ paddingRight: '2.5rem' }}
+                                    >
+                                        <option value="">select Payment Plan duration</option>
+                                        <option value="6 months">6 months</option>
+                                        <option value="1 year">1 year</option>
+                                        <option value="2 year">2 year</option>
+                                    </Form.Control>
+                                    <span
+                                            className="position-absolute"
+                                            style={{
+                                                top: '50%',
+                                                right: '1rem',
+                                                transform: 'translateY(-50%)',
+                                                pointerEvents: 'none',
+                                            }}
+                                        >
+                                            <i className="bi bi-chevron-down"></i>
+                                        </span>
+                                    </div>
+                                </Form.Group>
+                                <Form.Group controlId="formUserCount" className="mt-3">
+                                    <Form.Label>Number of Employees</Form.Label>
+                                    <div className="position-relative">
+                                        <Form.Control
+                                            as="select"
+                                            value={userCount}
+                                            onChange={(e) => setUserCount(e.target.value)}
+                                            className="w-100 pe-4"
+                                            style={{ paddingRight: '2.5rem' }}
+                                        >
+                                            <option value="">Select number of employees</option>
+                                            <option value="50-100">50 - 100</option>
+                                            <option value="100-200">100 - 200</option>
+                                            <option value="250-300">250 - 300</option>
+                                        </Form.Control>
+                                        <span
+                                            className="position-absolute"
+                                            style={{
+                                                top: '50%',
+                                                right: '1rem',
+                                                transform: 'translateY(-50%)',
+                                                pointerEvents: 'none',
+                                            }}
+                                        >
+                                            <i className="bi bi-chevron-down"></i>
+                                        </span>
+                                    </div>
                                 </Form.Group>
                                 <Form.Group controlId="formJoinTiming" className="mt-3">
                                     <Form.Label>When would you like to join?</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={joinTiming}
-                                        onChange={(e) => setJoinTiming(e.target.value)}
-                                    >
-                                        <option value="">Select joining time</option>
-                                        <option value="immediately">Immediately</option>
-                                        <option value="1 month">In 1 month</option>
-                                        <option value="2 months">In 2 months</option>
-                                    </Form.Control>
+                                    <div className="position-relative">
+                                        <Form.Control
+                                            as="select"
+                                            value={joinTiming}
+                                            onChange={(e) => setJoinTiming(e.target.value)}
+                                            className="w-100 pe-4"
+                                            style={{ paddingRight: '2.5rem' }}
+                                        >
+                                            <option value="">Select joining time</option>
+                                            <option value="immediately">Immediately</option>
+                                            <option value="1 month">In 1 month</option>
+                                            <option value="2 months">In 2 months</option>
+                                        </Form.Control>
+                                        <span
+                                            className="position-absolute"
+                                            style={{
+                                                top: '50%',
+                                                right: '1rem',
+                                                transform: 'translateY(-50%)',
+                                                pointerEvents: 'none',
+                                            }}
+                                        >
+                                            <i className="bi bi-chevron-down"></i>
+                                        </span>
+                                    </div>
                                 </Form.Group>
                             </Form>
                         </Modal.Body>
-                        <Modal.Footer>
-                            <button style={{
-                                alignSelf: "center",
-                                marginLeft: '10px',
-                                padding: '5px 10px',  // Adjusting padding for a smaller size
-                                // backgroundColor: 'green',  // Green background
-                                color: 'green',  // White text
-                                border: 'none',  // Removing default border
-                                borderRadius: '5px',  // Rounded corners
-                                cursor: 'pointer',  // Pointer on hover
-                                fontSize: '0.875rem'
-                            }} onClick={handleCloseModal}>
-                                Cancel
-                            </button>
-                            <button style={{
-                                alignSelf: "center",
-                                marginLeft: '10px',
-                                padding: '5px 10px',  // Adjusting padding for a smaller size
-                                backgroundColor: 'green',  // Green background
-                                color: 'white',  // White text
-                                border: 'none',  // Removing default border
-                                borderRadius: '5px',  // Rounded corners
-                                cursor: 'pointer',  // Pointer on hover
-                                fontSize: '0.875rem'
-                            }} onClick={() => {
-                                // Handle the apply action here
-                                // For example, you could call an API to apply for the plan
-                                handleApply(); // Close the modal after applying
-                            }}>
+                        <Modal.Footer className="d-flex justify-content-center">
+                            <button
+                                className="btn btn-success"
+                                style={{ width: '70%', height: '45px' }}
+                                onClick={handleApply2}
+                            >
                                 Apply
                             </button>
                         </Modal.Footer>
                     </Modal>
+
+
+
+
 
                 </div>
             </div>

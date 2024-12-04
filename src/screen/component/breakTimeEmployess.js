@@ -796,6 +796,7 @@ const CompanyEmployess = (props) => {
     //     }
     // };
     const handleSave = async (employeeId) => {
+
         try {
             const { startTime, endTime } = timeFields[employeeId];
 
@@ -1356,6 +1357,7 @@ const CompanyEmployess = (props) => {
                 }
             }
             setTimeFields((prev) => ({ ...prev, ...updatedFields }));
+
         };
 
         fetchEmployeeData();
@@ -1503,7 +1505,7 @@ const CompanyEmployess = (props) => {
                                             </label>
                                             <label>
                                                 Break End Time:
-
+                                                
                                                 <input
                                                     type="time"
                                                     value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null

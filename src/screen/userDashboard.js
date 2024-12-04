@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import line from "../images/line.webp";
 import check from "../images/online.webp";
-import screenshot from "../images/white.svg";
+import screenshot from "../images/whiteImages.PNG";
 import setting from "../images/setting.webp";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
