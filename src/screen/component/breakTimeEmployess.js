@@ -72,6 +72,16 @@ const CompanyEmployess = (props) => {
     }, [employees]);
 
     const handleToggleChange = async (employee, isSelected) => {
+
+        // Update UI immediately for real-time feedback
+        setTimeFields((prev) => ({
+            ...prev,
+            [employee._id]: {
+                ...prev[employee._id],
+                showFields: isSelected,
+            },
+        }));
+
         try {
             // Fetch current settings for the employee to avoid overwriting other fields
             const response = await axios.get(
@@ -82,13 +92,13 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (response.status !== 200) {
                 throw new Error("Failed to fetch current settings.");
             }
-    
+
             const currentSettings = response.data.employeeSettings;
-    
+
             // Prepare the API request payload with preserved settings
             const requestData = {
                 userId: employee._id,
@@ -97,7 +107,7 @@ const CompanyEmployess = (props) => {
                     individualbreakTime: isSelected, // Update only the individualbreakTime field
                 },
             };
-    
+
             // Call API to update the settings
             const updateResponse = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
@@ -109,7 +119,7 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (updateResponse.status === 200) {
                 enqueueSnackbar("Punctuality setting updated successfully!", {
                     variant: "success",
@@ -118,7 +128,7 @@ const CompanyEmployess = (props) => {
                         horizontal: "right",
                     },
                 });
-    
+
                 // Update local state for real-time UI synchronization
                 setTimeFields((prev) => ({
                     ...prev,
@@ -147,7 +157,7 @@ const CompanyEmployess = (props) => {
             });
         }
     };
-    
+
     // const handleToggleChange = async (employee, isSelected) => {
     //     try {
     //         // API payload to update individualbreakTime
@@ -1241,7 +1251,7 @@ const CompanyEmployess = (props) => {
                         const { employeeSettings } = response.data;
                         const latestBreak = employeeSettings.breakTime?.[0] || {};
                         updatedFields[employee._id] = {
-                            showFields: employeeSettings.individualbreakTime || false,
+                            showFields: employeeSettings.individualbreakTime || false, // Reflect backend state
                             startTime: latestBreak.breakStartTime?.substring(11, 16) || "00:00",
                             endTime: latestBreak.breakEndTime?.substring(11, 16) || "00:00",
                         };

@@ -37,6 +37,16 @@ function Screenshot() {
     const [puncStartTime, setPuncStartTime] = useState("");
     const [puncEndTime, setPuncEndTime] = useState("");
 
+    useEffect(() => {
+        if (employees?.length > 0) {
+            const firstEmployee = employees[0];
+            const punctualityData = firstEmployee?.punctualityData || {};
+            setPuncStartTime(punctualityData.puncStartTime || "");
+            setPuncEndTime(punctualityData.puncEndTime || "");
+        }
+    }, [employees]);
+
+
     const handleApplySettings = async (employee, type, setting) => {
         const settings = {
             ...employee.effectiveSettings,
@@ -598,6 +608,7 @@ function Screenshot() {
                 settings: {
                     puncStartTime: puncStartTime, // Send as HH:MM
                     puncEndTime: puncEndTime, // Send as HH:MM
+                    individualPuncStart: true, // Ensure toggle is ON
                 },
             }));
 
@@ -622,6 +633,11 @@ function Screenshot() {
                         horizontal: "right",
                     },
                 });
+
+                // Preserve fields after saving
+                setPuncStartTime(puncStartTime);
+                setPuncEndTime(puncEndTime);
+
             } else {
                 enqueueSnackbar("Failed to submit punctuality rule.", {
                     variant: "error",
@@ -931,7 +947,7 @@ function Screenshot() {
                         <Skeleton count={1} height="107px" style={{ margin: "0 0 10px 0" }} />
                     </>
                 ) : ( */}
-                <CompanyEmployess Setting={Setting}  />
+                <CompanyEmployess Setting={Setting} />
                 {/* )} */}
             </div>
         </div>

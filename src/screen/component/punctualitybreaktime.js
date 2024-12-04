@@ -63,7 +63,21 @@ const CompanyEmployess = (props) => {
         fetchEmployeeData();
     }, [employees]);
 
-
+    useEffect(() => {
+        const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
+        const updatedTimeFields = employees.reduce((fields, employee) => {
+            fields[employee._id] = {
+                ...persistedTimeFields[employee._id], // Load from localStorage if available
+                // showFields: persistedTimeFields[employee._id]?.showFields ?? employee?.punctualityData?.individualPuncStart || false,
+                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
+                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
+            };
+            return fields;
+        }, {});
+    
+        setTimeFields(updatedTimeFields);
+    }, [employees]);
+    
     // useEffect(() => {
     //     localStorage.setItem("timeField", JSON.stringify(timeField));
     // }, [timeField]);
@@ -203,6 +217,16 @@ const CompanyEmployess = (props) => {
     //     }));
     // };
     const handleToggleChange = async (employee, isSelected) => {
+
+        // Revert UI state if API call fails
+        setTimeFields((prev) => ({
+            ...prev,
+            [employee._id]: {
+                ...prev[employee._id],
+                showFields: !isSelected, // Revert to the previous state
+            },
+        }));
+
         try {
 
             // Fetch current settings for the employee to avoid overwriting other fields
@@ -220,7 +244,7 @@ const CompanyEmployess = (props) => {
             }
 
             const currentSettings = response.data.employeeSettings;
-            
+
             // Prepare the API request payload
             const requestData = {
                 userId: employee._id,
@@ -252,14 +276,23 @@ const CompanyEmployess = (props) => {
                     },
                 });
 
-                // Update local state for real-time UI synchronization
+                // // Update local state for real-time UI synchronization
+                // setTimeFields((prev) => ({
+                //     ...prev,
+                //     [employee._id]: {
+                //         ...prev[employee._id],
+                //         individualPuncStart: isSelected, // Reflect the updated state in the UI
+                //     },
+                // }));
+                // Update the local state for real-time UI synchronization
                 setTimeFields((prev) => ({
                     ...prev,
                     [employee._id]: {
                         ...prev[employee._id],
-                        individualPuncStart: isSelected, // Reflect the updated state in the UI
+                        showFields: isSelected,
                     },
                 }));
+                
             } else {
                 enqueueSnackbar("Failed to update punctuality setting.", {
                     variant: "error",
@@ -366,49 +399,45 @@ const CompanyEmployess = (props) => {
     // };
     const handleSave = async (employeeId) => {
         try {
-            const { startTime, endTime, puncStartTime, puncEndTime } = timeFields[employeeId];
+            const { puncStartTime, puncEndTime } = timeFields[employeeId];
 
             // Validate if both times are provided
-            // if (!startTime || !endTime) {
-            //     throw new Error("Both Break Start Time and Break End Time are required.");
-            // }
+            if (!puncStartTime || !puncEndTime) {
+                throw new Error("Both Punctuality Start Time and Punctuality End Time are required.");
+            }
 
-            // Calculate Total Hours
-            const calculateTotalHours = (startTime, endTime) => {
-                const start = new Date(`1970-01-01T${startTime}:00`);
-                const end = new Date(`1970-01-01T${endTime}:00`);
-                const totalMinutes = (end - start) / (1000 * 60);
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
-                return `${hours}h:${minutes}m`;
-            };
+            // Fetch current settings to preserve unrelated fields
+            const currentSettingsResponse = await axios.get(
+                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
 
-            const totalHours = calculateTotalHours(startTime, endTime);
+            if (currentSettingsResponse.status !== 200) {
+                throw new Error("Failed to fetch current settings.");
+            }
+
+            const currentSettings = currentSettingsResponse.data?.employeeSettings || {};
+
+            // Prepare the API request payload
             const currentDate = new Date().toISOString().split("T")[0];
-            const fullBreakStartTime = `${currentDate}T${startTime}:00`;
-            const fullBreakEndTime = `${currentDate}T${endTime}:00`;
-
-            // API Request Data
-            const requestData = {
-                userId: employeeId,
-                settings: {
-                    // breakTime: [
-                    //     {
-                    //         TotalHours: totalHours,
-                    //         breakStartTime: fullBreakStartTime,
-                    //         breakEndTime: fullBreakEndTime,
-                    //     },
-                    // ],
-                    puncStartTime: `${currentDate}T${puncStartTime}:00`,
-                    puncEndTime: `${currentDate}T${puncEndTime}:00`,
-                    individualPuncStart: true, // Ensure the toggle is saved as ON
-                },
+            const updatedSettings = {
+                ...currentSettings, // Preserve existing settings
+                puncStartTime: `${currentDate}T${puncStartTime}:00`,
+                puncEndTime: `${currentDate}T${puncEndTime}:00`,
+                individualPuncStart: true, // Ensure toggle remains ON
             };
 
-            // Call API to save data
+            // Call API to save updated settings
             const response = await axios.post(
                 "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
-                requestData,
+                {
+                    userId: employeeId,
+                    settings: updatedSettings,
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -418,47 +447,33 @@ const CompanyEmployess = (props) => {
             );
 
             if (response.status === 200) {
-                enqueueSnackbar("Break Time successfully submitted!", {
+                enqueueSnackbar("Punctuality times successfully submitted!", {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
 
-                // Fetch updated data to ensure correct toggle state
-                // const updatedEmployee = await axios.get(
-                //     `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
-                //     {
-                //         headers: {
-                //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-                //         },
-                //     }
-                // );
-
-                // if (updatedEmployee.status === 200) {
-                //     const updatedData = updatedEmployee.data?.employeeSettings;
-
-                //     // Update the local state with the fetched data
+                // Update local state to reflect changes
                 setTimeFields((prev) => ({
                     ...prev,
                     [employeeId]: {
-                        showFields: updatedData.individualPuncStart || false, // Reflect the backend state
-                        // startTime: updatedData.breakTime?.[0]?.breakStartTime?.substring(11, 16) || startTime,
-                        // endTime: updatedData.breakTime?.[0]?.breakEndTime?.substring(11, 16) || endTime,
-                        puncStartTime: updatedData.puncStartTime?.substring(11, 16) || startTime, // Add puncStartTime
-                        puncEndTime: updatedData.puncEndTime?.substring(11, 16) || endTime,     // Add puncEndTime
+                        ...prev[employeeId],
+                        puncStartTime,
+                        puncEndTime,
                     },
                 }));
-
             } else {
-                enqueueSnackbar("Failed to submit Break Time.", { variant: "error" });
+                enqueueSnackbar("Failed to submit Punctuality times.", { variant: "error" });
             }
         } catch (error) {
-            enqueueSnackbar(error.message || "Error submitting Break Time rule.", {
+            enqueueSnackbar(error.message || "Error submitting Punctuality times.", {
                 variant: "error",
                 anchorOrigin: { vertical: "top", horizontal: "right" },
             });
-            console.error("Error submitting Break Time rule:", error);
+            console.error("Error submitting Punctuality times:", error);
         }
     };
+
+
     useEffect(() => {
         // Set allowBlur based on the Redux store
         const employeeWithBlur = employees.find(employee => employee.effectiveSettings?.screenshots?.allowBlur);
