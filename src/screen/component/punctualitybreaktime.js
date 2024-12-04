@@ -74,10 +74,10 @@ const CompanyEmployess = (props) => {
             };
             return fields;
         }, {});
-    
+
         setTimeFields(updatedTimeFields);
     }, [employees]);
-    
+
     // useEffect(() => {
     //     localStorage.setItem("timeField", JSON.stringify(timeField));
     // }, [timeField]);
@@ -292,7 +292,7 @@ const CompanyEmployess = (props) => {
                         showFields: isSelected,
                     },
                 }));
-                
+
             } else {
                 enqueueSnackbar("Failed to update punctuality setting.", {
                     variant: "error",
@@ -421,6 +421,7 @@ const CompanyEmployess = (props) => {
             }
 
             const currentSettings = currentSettingsResponse.data?.employeeSettings || {};
+            // const currentSettings = updatedEmployee.data.employeeSettings;
 
             // Prepare the API request payload
             const currentDate = new Date().toISOString().split("T")[0];
