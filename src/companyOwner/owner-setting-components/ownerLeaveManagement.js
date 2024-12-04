@@ -576,6 +576,7 @@ const OwnerTeam = () => {
     const [requestedLeaves, setRequestedLeaves] = useState([]);
     const [approvedLeaves, setApprovedLeaves] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedLeave, setSelectedLeave] = useState(null);
 
     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem("token");
@@ -700,8 +701,8 @@ const OwnerTeam = () => {
                                             leave.status === "Pending"
                                                 ? "orange"
                                                 : leave.status === "Approved"
-                                                ? "green"
-                                                : "red",
+                                                    ? "green"
+                                                    : "red",
                                         fontWeight: "bold",
                                     }}
                                 >
@@ -731,12 +732,80 @@ const OwnerTeam = () => {
                             >
                                 Selected User Details
                             </p>
-                            <p>
-                                <strong>Name:</strong> {selectedUser.userName}
-                            </p>
-                            <p>
-                                <strong>Status:</strong> {selectedUser.status}
-                            </p>
+                            <table
+                                style={{
+                                    width: "100%",
+                                    borderCollapse: "collapse",
+                                    textAlign: "left",
+                                }}
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            style={{
+                                                borderBottom: "2px solid #ddd",
+                                                padding: "10px",
+                                                color: "#0E4772",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            Field
+                                        </th>
+                                        <th
+                                            style={{
+                                                borderBottom: "2px solid #ddd",
+                                                padding: "10px",
+                                                color: "#0E4772",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            <strong>Name</strong>
+                                        </td>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            {selectedUser.userName}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            <strong>Status</strong>
+                                        </td>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            {selectedUser.status}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            <strong>Start Date</strong>
+                                        </td>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            {selectedUser.startDate}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            <strong>End Date</strong>
+                                        </td>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            {selectedUser.endDate}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            <strong>Reason</strong>
+                                        </td>
+                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+                                            {selectedUser.reason}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     ) : (
                         <p
@@ -749,6 +818,7 @@ const OwnerTeam = () => {
                         </p>
                     )}
                 </div>
+
             </div>
         </div>
     );

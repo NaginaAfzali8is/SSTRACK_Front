@@ -466,9 +466,12 @@ function UserHeader() {
 
     function takeToSettings() {
         setShowContent(false)
+        navigate("/effective-settings")
+    }
+    function userSettings() {
+        setShowContent(false)
         navigate("/user-setting")
     }
-
     // function leaveManagement() {
     //     setShowContent(false)
     //     navigate("/leave-management")
@@ -606,7 +609,7 @@ function UserHeader() {
                                         </div>
 
                                         {user?.userType === "user" && (
-                                            <div onClick={takeToSettings}>
+                                            <div onClick={userSettings}>
                                                 <div>
                                                     <img src={account} />
                                                 </div>
@@ -700,6 +703,17 @@ function UserHeader() {
                                                 <p>Settings</p>
                                             </div>
                                         )}
+
+                                        {/* Display this only for userType === "user" */}
+                                        {/* {user?.userType === "user" && (
+                                            <div onClick={userSettings}>
+                                                <div>
+                                                    <img src={account} alt="Account Icon" />
+                                                </div>
+                                                <p>Settings</p>
+                                            </div>
+                                        )} */}
+
                                         <div onClick={logOut}>
                                             <div>
                                                 <img src={logout} />
