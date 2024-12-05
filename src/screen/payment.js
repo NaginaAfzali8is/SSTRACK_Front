@@ -1946,7 +1946,7 @@ const Payment = ({ updatePaymentStatus }) => {
                             >
                                 Upgrade to Paid Plan
                             </button> */}
-            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && (
+            {!(items?.userType === 'user' || items?.userType === 'manager' || items?.userType === 'admin') && paycard && (
                 <div className="row d-flex mt-3">
                     <div className="col-md-6">
                         <div

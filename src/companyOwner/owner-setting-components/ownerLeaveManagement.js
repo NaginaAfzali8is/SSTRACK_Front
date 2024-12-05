@@ -777,27 +777,24 @@
 
 
 
-
 import React, { useEffect, useState } from "react";
-// import React, { useEffect, useState } from "react";
 import axios from "axios";
-import line from '../../images/Line 3.webp'
+import line from "../../images/Line 3.webp";
 
 const OwnerTeam = () => {
     const [requestedLeaves, setRequestedLeaves] = useState([]);
     const [approvedLeaves, setApprovedLeaves] = useState([]);
+    const [filteredLeaves, setFilteredLeaves] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const items = JSON.parse(localStorage.getItem("items")); // Logged-in user details
-
+    const currentUser = JSON.parse(localStorage.getItem("items")); // Logged-in user details
     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem("token");
     const headers = {
         Authorization: `Bearer ${token}`,
     };
 
-    // Fetch the leave requests data
     const fetchLeaveRequests = async () => {
         try {
             const response = await axios.get(`${apiUrl}/superAdmin/getAllLeaveRequests`, { headers });
@@ -805,9 +802,6 @@ const OwnerTeam = () => {
 
             setRequestedLeaves(requestedLeaves);
             setApprovedLeaves(approvedLeaves);
-
-            console.log("Requested Leaves:", requestedLeaves);
-            console.log("Approved Leaves:", approvedLeaves);
         } catch (error) {
             console.error("Error fetching leave requests:", error);
         } finally {
@@ -819,9 +813,28 @@ const OwnerTeam = () => {
         fetchLeaveRequests();
     }, []);
 
-    // Combine and group requests by userName
+    useEffect(() => {
+        if (requestedLeaves.length > 0 || approvedLeaves.length > 0) {
+            let leavesToShow = [];
+
+            if (currentUser?.userType === "manager") {
+                // Filter leaves for the manager's assigned team members
+                const managerTeamIds = currentUser?.teamMemberIds || [];
+                leavesToShow = [...requestedLeaves, ...approvedLeaves].filter((leave) =>
+                    managerTeamIds.includes(leave.userId)
+                );
+            } else if (currentUser?.userType === "owner") {
+                // Owners see all data
+                leavesToShow = [...requestedLeaves, ...approvedLeaves];
+            }
+
+            setFilteredLeaves(leavesToShow);
+        }
+    }, [requestedLeaves, approvedLeaves, currentUser]);
+    
+    // Group requests by userName
     const groupedLeaves = {};
-    [...requestedLeaves, ...approvedLeaves].forEach((leave) => {
+    filteredLeaves.forEach((leave) => {
         if (!groupedLeaves[leave.userName]) {
             groupedLeaves[leave.userName] = {
                 leaves: [],
@@ -833,7 +846,6 @@ const OwnerTeam = () => {
     const uniqueLeaves = Object.entries(groupedLeaves);
 
     return (
-        
         <div className="container">
             <div className="userHeader">
                 <h5>Team</h5>
@@ -843,82 +855,82 @@ const OwnerTeam = () => {
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
             >
                 {/* Left Section */}
-                {items?.userType !== "owner" && (
-                    <div style={{ width: "350px", marginRight: "20px" }}>
-                        <div className="companyFont">
-                            <p
-                                style={{
-                                    margin: 0,
-                                    padding: 0,
-                                    fontSize: "20px",
-                                    color: "#0E4772",
-                                    fontWeight: "600",
-                                }}
-                            >
-                                Total
-                            </p>
-                            <div
-                                style={{
-                                    backgroundColor: "#28659C",
-                                    color: "white",
-                                    fontSize: "600",
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
-                                {requestedLeaves.length + approvedLeaves.length}
-                            </div>
-                        </div>
-
-                        {/* Requested and Approved Leaves */}
-                        <div>
-                            {uniqueLeaves.map(([userName, { leaves }], index) => (
-                                <div
-                                    key={index}
-                                    className="requested-leave-item"
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "10px",
-                                        borderBottom: "1px solid #ccc",
-                                        padding: "10px 0",
-                                        cursor: "pointer",
-                                    }}
-                                    onClick={() => setSelectedUser(leaves)} // Update selected user on click
-                                >
-                                    <div
-                                        style={{
-                                            backgroundColor: "#e7e7e7",
-                                            borderRadius: "50%",
-                                            width: "30px",
-                                            height: "30px",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            fontWeight: "bold",
-                                        }}
-                                    >
-                                        {index + 1}
-                                    </div>
-                                    <div style={{ flexGrow: 1 }}>
-                                        <strong>{userName}</strong>
-                                        <span style={{ marginLeft: "10px", color: "#888" }}>
-                                            ({leaves.length} request{leaves.length > 1 ? "s" : ""})
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                <div style={{ width: "350px", marginRight: "20px" }}>
+                    <div className="companyFont">
+                        <p
+                            style={{
+                                margin: 0,
+                                padding: 0,
+                                fontSize: "20px",
+                                color: "#0E4772",
+                                fontWeight: "600",
+                            }}
+                        >
+                            Total
+                        </p>
+                        <div
+                            style={{
+                                backgroundColor: "#28659C",
+                                color: "white",
+                                fontSize: "600",
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            {filteredLeaves.length}
                         </div>
                     </div>
-                )}
+
+                    {/* Requested and Approved Leaves */}
+                    <div>
+                        {uniqueLeaves.map(([userName, { leaves }], index) => (
+                            <div
+                                key={index}
+                                className="requested-leave-item"
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    borderBottom: "1px solid #ccc",
+                                    padding: "10px 0",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() => setSelectedUser(leaves)} // Update selected user on click
+                            >
+                                <div
+                                    style={{
+                                        backgroundColor: "#e7e7e7",
+                                        borderRadius: "50%",
+                                        width: "30px",
+                                        height: "30px",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {index + 1}
+                                </div>
+                                <div style={{ flexGrow: 1 }}>
+                                    <strong>{userName}</strong>
+                                    <span style={{ marginLeft: "10px", color: "#888" }}>
+                                        ({leaves.length} request{leaves.length > 1 ? "s" : ""})
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Center Line */}
                 <div>
                     <img src={line} style={{ height: "100%" }} alt="divider" />
                 </div>
+
                 {/* Right Section */}
                 <div className="container mt-4">
                     <div>

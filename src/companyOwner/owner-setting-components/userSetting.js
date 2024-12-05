@@ -22,6 +22,15 @@ const OwnerTeam = () => {
         Authorization: `Bearer ${token}`,
     };
 
+    // Predefined reasons for leave
+    const leaveReasons = [
+        "Personal Reason",
+        "Health Issues",
+        "Family Emergency",
+        "Vacation",
+        "Other",
+    ];
+    
     // Fetch all leave requests for the current user
     const fetchLeaveRequests = async () => {
         try {
@@ -229,7 +238,7 @@ const OwnerTeam = () => {
                                     >
                                         Reason:
                                     </label>
-                                    <textarea
+                                    <select
                                         name="reason"
                                         value={leaveRequest.reason}
                                         onChange={handleInputChange}
@@ -239,9 +248,15 @@ const OwnerTeam = () => {
                                             border: "1px solid #ccc",
                                             borderRadius: "5px",
                                         }}
-                                        rows="4"
                                         required
-                                    />
+                                    >
+                                        <option value="">Select a Reason</option>
+                                        {leaveReasons.map((reason, index) => (
+                                            <option key={index} value={reason}>
+                                                {reason}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <button
                                     type="submit"
@@ -310,51 +325,6 @@ const OwnerTeam = () => {
 };
 
 export default OwnerTeam;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useEffect, useState } from "react";
 // import axios from "axios";

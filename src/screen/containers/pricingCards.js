@@ -24,6 +24,7 @@ const Pricing = () => {
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
+
     const plans = [
         { id: 1, name: 'Free' },
         { id: 2, name: 'Standard' },

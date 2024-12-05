@@ -235,7 +235,7 @@ const CardSelection = ({ cards, selectedCard, onSelect, onActionComplete, onSetD
 // Function to determine card icon based on card type
 const getCardIcon = (cardType) => {
     switch (cardType) {
-        case "Mastercard":
+        case "mastercard":
             return "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg";
         case "American Express":
             return "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
@@ -245,7 +245,6 @@ const getCardIcon = (cardType) => {
             return "";
     }
 };
-
 
 // Inline styles
 const styles = {

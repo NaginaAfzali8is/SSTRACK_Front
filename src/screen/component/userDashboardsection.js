@@ -160,7 +160,7 @@ function UserDashboardSection() {
                             </div>
                         </>
                     )}
-                    {(items?.userType === "user" || items?.userType === "owner") && (
+                    {(items?.userType === "owner" || items?.userType === "manager") && (
                         <>
                             <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave</p>
