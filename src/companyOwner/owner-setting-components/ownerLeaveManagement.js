@@ -777,31 +777,279 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import axios from "axios";
+// import line from "../../images/Line 3.webp";
+
+// const OwnerTeam = () => {
+//     const [requestedLeaves, setRequestedLeaves] = useState([]);
+//     const [approvedLeaves, setApprovedLeaves] = useState([]);
+//     const [filteredLeaves, setFilteredLeaves] = useState([]);
+//     const [loading, setLoading] = useState(true);
+//     const [selectedUser, setSelectedUser] = useState(null);
+
+//     const currentUser = JSON.parse(localStorage.getItem("items")); // Logged-in user details
+//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const token = localStorage.getItem("token");
+//     const headers = {
+//         Authorization: `Bearer ${token}`,
+//     };
+
+//     const fetchLeaveRequests = async () => {
+//         try {
+//             const response = await axios.get(`${apiUrl}/superAdmin/getAllLeaveRequests`, { headers });
+//             const { requestedLeaves, approvedLeaves } = response.data;
+
+//             setRequestedLeaves(requestedLeaves);
+//             setApprovedLeaves(approvedLeaves);
+//         } catch (error) {
+//             console.error("Error fetching leave requests:", error);
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchLeaveRequests();
+//     }, []);
+
+//     useEffect(() => {
+//         if (requestedLeaves.length > 0 || approvedLeaves.length > 0) {
+//             let leavesToShow = [];
+
+//             if (currentUser?.userType === "manager") {
+//                 // Filter leaves for the manager's assigned team members
+//                 const managerTeamIds = currentUser?.teamMemberIds || [];
+//                 leavesToShow = [...requestedLeaves, ...approvedLeaves].filter((leave) =>
+//                     managerTeamIds.includes(leave.userId)
+//                 );
+//             } else if (currentUser?.userType === "owner") {
+//                 // Owners see all data except their own requests
+//                 leavesToShow = [...requestedLeaves, ...approvedLeaves].filter(
+//                     (leave) => leave.userName !== currentUser.name
+//                 );
+//             }
+
+//             setFilteredLeaves(leavesToShow);
+//         }
+//     }, [requestedLeaves, approvedLeaves, currentUser]);
+
+//     // Group requests by userName
+//     const groupedLeaves = {};
+//     filteredLeaves.forEach((leave) => {
+//         if (!groupedLeaves[leave.userName]) {
+//             groupedLeaves[leave.userName] = {
+//                 leaves: [],
+//             };
+//         }
+//         groupedLeaves[leave.userName].leaves.push(leave);
+//     });
+
+//     // Create uniqueLeaves excluding the owner for display
+//     const uniqueLeaves = Object.entries(groupedLeaves);
+
+//     return (
+//         <div className="container">
+//             <div className="userHeader">
+//                 <h5>Team</h5>
+//             </div>
+//             <div
+//                 className="mainwrapper ownerTeamContainer"
+//                 style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
+//             >
+//                 {/* Left Section */}
+//                 <div style={{ width: "350px", marginRight: "20px" }}>
+//                     <div className="companyFont">
+//                         <p
+//                             style={{
+//                                 margin: 0,
+//                                 padding: 0,
+//                                 fontSize: "20px",
+//                                 color: "#0E4772",
+//                                 fontWeight: "600",
+//                             }}
+//                         >
+//                             Total
+//                         </p>
+//                         <div
+//                             style={{
+//                                 backgroundColor: "#28659C",
+//                                 color: "white",
+//                                 fontSize: "600",
+//                                 width: "30px",
+//                                 height: "30px",
+//                                 borderRadius: "100%",
+//                                 display: "flex",
+//                                 justifyContent: "center",
+//                                 alignItems: "center",
+//                             }}
+//                         >
+//                             {filteredLeaves.length}
+//                         </div>
+//                     </div>
+
+//                     {/* Requested and Approved Leaves */}
+//                     <div>
+//                         {uniqueLeaves.map(([userName, { leaves }], index) => (
+//                             <div
+//                                 key={index}
+//                                 className="requested-leave-item"
+//                                 style={{
+//                                     display: "flex",
+//                                     alignItems: "center",
+//                                     gap: "10px",
+//                                     borderBottom: "1px solid #ccc",
+//                                     padding: "10px 0",
+//                                     cursor: "pointer",
+//                                 }}
+//                                 onClick={() => setSelectedUser(leaves)} // Update selected user on click
+//                             >
+//                                 <div
+//                                     style={{
+//                                         backgroundColor: "#e7e7e7",
+//                                         borderRadius: "50%",
+//                                         width: "30px",
+//                                         height: "30px",
+//                                         display: "flex",
+//                                         justifyContent: "center",
+//                                         alignItems: "center",
+//                                         fontWeight: "bold",
+//                                     }}
+//                                 >
+//                                     {index + 1}
+//                                 </div>
+//                                 <div style={{ flexGrow: 1 }}>
+//                                     <strong>{userName}</strong>
+//                                     <span style={{ marginLeft: "10px", color: "#888" }}>
+//                                         ({leaves.length} request{leaves.length > 1 ? "s" : ""})
+//                                     </span>
+//                                 </div>
+//                             </div>
+//                         ))}
+//                     </div>
+//                 </div>
+
+//                 {/* Center Line */}
+//                 <div>
+//                     <img src={line} style={{ height: "100%" }} alt="divider" />
+//                 </div>
+
+//                 {/* Right Section */}
+//                 <div className="container mt-4">
+//                     <div>
+//                         <h4 className="mb-3 text-green">Leave Request Details</h4>
+//                         {selectedUser ? (
+//                             <table className="table table-bordered table-striped">
+//                                 <thead className="thead-light">
+//                                     <tr>
+//                                         <th>Name</th>
+//                                         <th>Status</th>
+//                                         <th>Start Date</th>
+//                                         <th>End Date</th>
+//                                         <th>Reason</th>
+//                                     </tr>
+//                                 </thead>
+//                                 <tbody>
+//                                     {selectedUser.map((leave, index) => {
+//                                         const startDate = new Date(leave.startDate).toLocaleDateString("en-US", {
+//                                             day: "numeric",
+//                                             month: "long",
+//                                             year: "numeric",
+//                                         });
+//                                         const endDate = new Date(leave.endDate).toLocaleDateString("en-US", {
+//                                             day: "numeric",
+//                                             month: "long",
+//                                             year: "numeric",
+//                                         });
+
+//                                         return (
+//                                             <tr key={index}>
+//                                                 <td>{leave.userName}</td>
+//                                                 <td>{leave.status}</td>
+//                                                 <td>{startDate}</td>
+//                                                 <td>{endDate}</td>
+//                                                 <td>{leave.reason}</td>
+//                                             </tr>
+//                                         );
+//                                     })}
+//                                 </tbody>
+//                             </table>
+//                         ) : (
+//                             <p className="text-muted">Click on a user to view their details here.</p>
+//                         )}
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default OwnerTeam;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import line from "../../images/Line 3.webp";
 
 const OwnerTeam = () => {
-    const [requestedLeaves, setRequestedLeaves] = useState([]);
-    const [approvedLeaves, setApprovedLeaves] = useState([]);
-    const [filteredLeaves, setFilteredLeaves] = useState([]);
+    const [leaveData, setLeaveData] = useState({
+        requestedLeaves: [],
+        approvedLeaves: [],
+        rejectedLeaves: [],
+    });
     const [loading, setLoading] = useState(true);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [activeTab, setActiveTab] = useState("requestedLeaves");
 
-    const currentUser = JSON.parse(localStorage.getItem("items")); // Logged-in user details
     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem("token");
     const headers = {
         Authorization: `Bearer ${token}`,
     };
 
+    // Fetch leave requests data
     const fetchLeaveRequests = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/superAdmin/getAllLeaveRequests`, { headers });
-            const { requestedLeaves, approvedLeaves } = response.data;
+            const response = await axios.get(
+                `${apiUrl}/superAdmin/getAllLeaveRequests`,
+                { headers }
+            );
+            console.log("API Response:", response.data);
+            const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
+                response.data || {};
 
-            setRequestedLeaves(requestedLeaves);
-            setApprovedLeaves(approvedLeaves);
+            console.log("Requested Leaves:", requestedLeaves);
+            console.log("Approved Leaves:", approvedLeaves);
+            console.log("Rejected Leaves:", rejectedLeaves);
+
+            setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
         } catch (error) {
             console.error("Error fetching leave requests:", error);
         } finally {
@@ -813,168 +1061,254 @@ const OwnerTeam = () => {
         fetchLeaveRequests();
     }, []);
 
-    useEffect(() => {
-        if (requestedLeaves.length > 0 || approvedLeaves.length > 0) {
-            let leavesToShow = [];
-
-            if (currentUser?.userType === "manager") {
-                // Filter leaves for the manager's assigned team members
-                const managerTeamIds = currentUser?.teamMemberIds || [];
-                leavesToShow = [...requestedLeaves, ...approvedLeaves].filter((leave) =>
-                    managerTeamIds.includes(leave.userId)
-                );
-            } else if (currentUser?.userType === "owner") {
-                // Owners see all data
-                leavesToShow = [...requestedLeaves, ...approvedLeaves];
-            }
-
-            setFilteredLeaves(leavesToShow);
+    // Updated renderLeaves function
+    const renderLeaves = (leaves) => {
+        if (loading) {
+            return (
+                <tbody>
+                    <tr>
+                        <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
+                            Loading...
+                        </td>
+                    </tr>
+                </tbody>
+            );
         }
-    }, [requestedLeaves, approvedLeaves, currentUser]);
-    
-    // Group requests by userName
-    const groupedLeaves = {};
-    filteredLeaves.forEach((leave) => {
-        if (!groupedLeaves[leave.userName]) {
-            groupedLeaves[leave.userName] = {
-                leaves: [],
-            };
+        if (!leaves || leaves.length === 0) {
+            return (
+                <tbody>
+                    <tr>
+                        <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
+                            No leaves found for this category.
+                        </td>
+                    </tr>
+                </tbody>
+            );
         }
-        groupedLeaves[leave.userName].leaves.push(leave);
-    });
-
-    const uniqueLeaves = Object.entries(groupedLeaves);
+        return (
+            <tbody style={{ border: "1px solid #E0E0E0", marginTop: "10px" }}>
+                {leaves.map((leave, index) => (
+                    <tr
+                        key={index}
+                        style={{
+                            borderBottom: "1px solid #E0E0E0",
+                            backgroundColor: "#FFF",
+                        }}
+                    >
+                        <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    backgroundColor: "#E8F4FC",
+                                    borderRadius: "50%",
+                                    width: "30px",
+                                    height: "30px",
+                                    color: "#0E4772",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                👤
+                            </span>
+                            {leave.userName}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {new Date(leave.startDate).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            })}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {new Date(leave.endDate).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            })}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {new Date(leave.appliedAt).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            })}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {leave.leaveType}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {leave.approvalDate}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {leave.reason}
+                        </td>
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {leave.approvedBy}
+                        </td>
+                        <td
+                            style={{
+                                padding: "10px",
+                                color: "#4F4F4F",
+                                textAlign: "center",
+                            }}
+                        >
+                            <span
+                                style={{
+                                    padding: "5px 10px",
+                                    borderRadius: "12px",
+                                    color:
+                                        leave.status === "Approved"
+                                            ? "green"
+                                            : leave.status === "Pending"
+                                                ? "orange"
+                                                : "red",
+                                    border:
+                                        leave.status === "Approved"
+                                            ? "1px solid green"
+                                            : leave.status === "Pending"
+                                                ? "1px solid orange"
+                                                : "1px solid red",
+                                    fontWeight: "bold",
+                                    display: "inline-block",
+                                }}
+                            >
+                                {leave.status.toUpperCase()}
+                            </span>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        );
+    };
 
     return (
         <div className="container">
-            <div className="userHeader">
-                <h5>Team</h5>
+            {/* Page Title */}
+
+            <div
+                className="userHeader"
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    backgroundColor: "#28659C",
+                    padding: "10px 20px",
+                    color: "white",
+                    borderRadius: "5px 5px 0 0",
+                }}
+            >
+                {/* Header Title */}
+                <h5 style={{ margin: 0, fontSize: "18px", fontWeight: "600" }}>
+                    Employee Leave Management
+                </h5>
+
+                {/* Buttons */}
+                <div style={{ display: "flex" }}>
+                    <button
+                        style={{
+                            padding: "10px 20px",
+                            border: "none",
+                            borderRadius: "5px 0 0 5px",
+                            backgroundColor:
+                                activeTab === "approvedLeaves" ? "#7FC45B" : "#E8F4FC",
+                            color:
+                                activeTab === "approvedLeaves" ? "#fff" : "#7094B0",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                        }}
+                        onClick={() => setActiveTab("approvedLeaves")}
+                    >
+                        Approved
+                    </button>
+                    <button
+                        style={{
+                            padding: "10px 20px",
+                            border: "none",
+                            backgroundColor:
+                                activeTab === "requestedLeaves" ? "#7FC45B" : "#E8F4FC",
+                            color:
+                                activeTab === "requestedLeaves" ? "#fff" : "#7094B0",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            position: "relative",
+                        }}
+                        onClick={() => setActiveTab("requestedLeaves")}
+                    >
+                        Pending
+                    </button>
+                    <button
+                        style={{
+                            padding: "10px 20px",
+                            border: "none",
+                            borderRadius: "0 5px 5px 0",
+                            backgroundColor:
+                                activeTab === "rejectedLeaves" ? "#7FC45B" : "#E8F4FC",
+                            color:
+                                activeTab === "rejectedLeaves" ? "#fff" : "#7094B0",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                        }}
+                        onClick={() => setActiveTab("rejectedLeaves")}
+                    >
+                        Rejected
+                    </button>
+                </div>
             </div>
+
             <div
                 className="mainwrapper ownerTeamContainer"
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                }}
             >
-                {/* Left Section */}
-                <div style={{ width: "350px", marginRight: "20px" }}>
-                    <div className="companyFont">
-                        <p
-                            style={{
-                                margin: 0,
-                                padding: 0,
-                                fontSize: "20px",
-                                color: "#0E4772",
-                                fontWeight: "600",
-                            }}
-                        >
-                            Total
-                        </p>
-                        <div
-                            style={{
-                                backgroundColor: "#28659C",
-                                color: "white",
-                                fontSize: "600",
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "100%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            {filteredLeaves.length}
-                        </div>
-                    </div>
+                <div style={{ width: "100%" }}>
+                    <h3 style={{ textAlign: "left", color: "#0E4772", }}>
+                        Total Leaves Requests
+                    </h3>
+                    {/* Table */}
+                    <table
+                        style={{
+                            width: "100%",
+                            borderCollapse: "collapse",
+                            marginTop: "20px",
+                        }}
+                    >
+                        {/* Header */}
+                        <thead>
+                            <tr style={{ backgroundColor: "#F5F7FA", borderRadius: "10%", marginBottom: "10px", border: "1px solid #E0E0E0", }}>
+                                {[
+                                    "Name ↕",
+                                    "Start Date",
+                                    "End Date",
+                                    "Request Date",
+                                    "Leave Type ↕",
+                                    "Approval Date",
+                                    "Reason",
+                                    "Approved By",
+                                    "Status",
+                                ].map((header, index) => (
+                                    <th
+                                        key={index}
+                                        style={{
+                                            padding: "10px",
+                                            textAlign: "left",
+                                            color: "#4F4F4F",
+                                            fontWeight: "500",
 
-                    {/* Requested and Approved Leaves */}
-                    <div>
-                        {uniqueLeaves.map(([userName, { leaves }], index) => (
-                            <div
-                                key={index}
-                                className="requested-leave-item"
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "10px",
-                                    borderBottom: "1px solid #ccc",
-                                    padding: "10px 0",
-                                    cursor: "pointer",
-                                }}
-                                onClick={() => setSelectedUser(leaves)} // Update selected user on click
-                            >
-                                <div
-                                    style={{
-                                        backgroundColor: "#e7e7e7",
-                                        borderRadius: "50%",
-                                        width: "30px",
-                                        height: "30px",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {index + 1}
-                                </div>
-                                <div style={{ flexGrow: 1 }}>
-                                    <strong>{userName}</strong>
-                                    <span style={{ marginLeft: "10px", color: "#888" }}>
-                                        ({leaves.length} request{leaves.length > 1 ? "s" : ""})
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                                        }}
+                                    >
+                                        {header}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
 
-                {/* Center Line */}
-                <div>
-                    <img src={line} style={{ height: "100%" }} alt="divider" />
-                </div>
-
-                {/* Right Section */}
-                <div className="container mt-4">
-                    <div>
-                        <h4 className="mb-3 text-green">Leave Request Details</h4>
-                        {selectedUser ? (
-                            <table className="table table-bordered table-striped">
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Reason</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedUser.map((leave, index) => {
-                                        const startDate = new Date(leave.startDate).toLocaleDateString("en-US", {
-                                            day: "numeric",
-                                            month: "long",
-                                            year: "numeric",
-                                        });
-                                        const endDate = new Date(leave.endDate).toLocaleDateString("en-US", {
-                                            day: "numeric",
-                                            month: "long",
-                                            year: "numeric",
-                                        });
-
-                                        return (
-                                            <tr key={index}>
-                                                <td>{leave.userName}</td>
-                                                <td>{leave.status}</td>
-                                                <td>{startDate}</td>
-                                                <td>{endDate}</td>
-                                                <td>{leave.reason}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p className="text-muted">Click on a user to view their details here.</p>
-                        )}
-                    </div>
+                        {/* Body */}
+                        {renderLeaves(leaveData[activeTab])}
+                    </table>
                 </div>
             </div>
         </div>
@@ -982,4 +1316,3 @@ const OwnerTeam = () => {
 };
 
 export default OwnerTeam;
-
