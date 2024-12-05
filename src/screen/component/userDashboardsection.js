@@ -69,7 +69,7 @@ function UserDashboardSection() {
 
     useEffect(() => {
         const fetchRemainingBreakTime = async () => {
-            if (items?.userType === "user" && items?._id) {
+            if (items?.userType === "user" || items?.userType === 'manager' && items?._id) {
                 try {
                     const userId = items._id; // Extract userId dynamically
                     const apiUrl = `https://ss-track-xi.vercel.app/api/v1/timetrack/remainingBreak/${userId}`;
@@ -160,7 +160,7 @@ function UserDashboardSection() {
                             </div>
                         </>
                     )}
-                    {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
+                    {(items?.userType === "user" || items?.userType === "owner") && (
                         <>
                             <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave</p>

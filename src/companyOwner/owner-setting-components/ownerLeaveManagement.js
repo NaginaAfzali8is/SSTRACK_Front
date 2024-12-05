@@ -6,7 +6,7 @@
 // import groupCompany from '../../images/Group.webp'
 // import search from "../../images/searchIcon.webp";
 // // import line from "../images/Line 3.webp";
-import line from '../../images/Line 3.webp'
+// import line from '../../images/Line 3.webp'
 // // import OwnerTeamComponent from "./ownerTeamComponent";
 // import axios from "axios";
 // import { enqueueSnackbar, SnackbarProvider } from 'notistack'
@@ -569,14 +569,227 @@ import line from '../../images/Line 3.webp'
 // }
 
 // export default OwnerTeam;
+// import React, { useEffect, useState } from "react";
+// import axios from "axios";
+
+// const OwnerTeam = () => {
+//     const [requestedLeaves, setRequestedLeaves] = useState([]);
+//     const [approvedLeaves, setApprovedLeaves] = useState([]);
+//     const [loading, setLoading] = useState(true);
+//     // const [selectedUser, setSelectedUser] = useState(null);
+
+//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const token = localStorage.getItem("token");
+//     const headers = {
+//         Authorization: `Bearer ${token}`,
+//     };
+
+//     // Fetch the leave requests data
+//     const fetchLeaveRequests = async () => {
+//         try {
+//             const response = await axios.get(`${apiUrl}/superAdmin/getAllLeaveRequests`, { headers });
+//             const { requestedLeaves, approvedLeaves } = response.data;
+
+//             setRequestedLeaves(requestedLeaves);
+//             setApprovedLeaves(approvedLeaves);
+
+//             console.log("Requested Leaves:", requestedLeaves);
+//             console.log("Approved Leaves:", approvedLeaves);
+//         } catch (error) {
+//             console.error("Error fetching leave requests:", error);
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchLeaveRequests();
+//     }, []);
+
+//     const [selectedUser, setSelectedUser] = useState(null);
+
+//     // Combine and group requests by userName
+//     const groupedLeaves = {};
+//     [...requestedLeaves, ...approvedLeaves].forEach((leave) => {
+//         if (!groupedLeaves[leave.userName]) {
+//             groupedLeaves[leave.userName] = {
+//                 leave,
+//                 count: 0,
+//             };
+//         }
+//         groupedLeaves[leave.userName].leaves.push(leave);
+//         // groupedLeaves[leave.userName].count += 1;
+//     });
+
+//     const uniqueLeaves = Object.values(groupedLeaves);
+
+//     return (
+//         <div className="container">
+//             <div className="userHeader">
+//                 <h5>Team</h5>
+//             </div>
+//             <div className="mainwrapper ownerTeamContainer" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+//                 {/* Left Section */}
+//                 <div style={{ width: "350px", marginRight: "20px" }}>
+//                     <div className="companyFont">
+//                         <p
+//                             style={{
+//                                 margin: 0,
+//                                 padding: 0,
+//                                 fontSize: "20px",
+//                                 color: "#0E4772",
+//                                 fontWeight: "600",
+//                             }}
+//                         >
+//                             Total
+//                         </p>
+//                         <div
+//                             style={{
+//                                 backgroundColor: "#28659C",
+//                                 color: "white",
+//                                 fontSize: "600",
+//                                 width: "30px",
+//                                 height: "30px",
+//                                 borderRadius: "100%",
+//                                 display: "flex",
+//                                 justifyContent: "center",
+//                                 alignItems: "center",
+//                             }}
+//                         >
+//                             {requestedLeaves.length + approvedLeaves.length}
+//                         </div>
+//                     </div>
+
+//                     {/* Requested and Approved Leaves */}
+//                     <div>
+//                         {uniqueLeaves.map(([userName, { leaves }], index) => (
+//                             <div
+//                                 key={index}
+//                                 className="requested-leave-item"
+//                                 style={{
+//                                     display: "flex",
+//                                     alignItems: "center",
+//                                     gap: "10px",
+//                                     borderBottom: "1px solid #ccc",
+//                                     padding: "10px 0",
+//                                     cursor: "pointer", // Added this line
+//                                 }}
+//                                 onClick={() => setSelectedUser(leave)} // Update selected user on click
+//                             >
+//                                 <div
+//                                     style={{
+//                                         backgroundColor: "#e7e7e7",
+//                                         borderRadius: "50%",
+//                                         width: "30px",
+//                                         height: "30px",
+//                                         display: "flex",
+//                                         justifyContent: "center",
+//                                         alignItems: "center",
+//                                         fontWeight: "bold",
+//                                     }}
+//                                 >
+//                                     {index + 1}
+//                                 </div>
+//                                 <div style={{ flexGrow: 1 }}>
+//                                     <strong>{leave.userName}</strong>
+//                                     <span style={{ marginLeft: "10px", color: "#888" }}>
+//                                         ({count} request{count > 1 ? "s" : ""})
+//                                     </span>
+//                                 </div>
+//                                 <div
+//                                     style={{
+//                                         color:
+//                                             leave.status === "Pending"
+//                                                 ? "orange"
+//                                                 : leave.status === "Approved"
+//                                                     ? "green"
+//                                                     : "red",
+//                                         fontWeight: "bold",
+//                                     }}
+//                                 >
+//                                     {leave.status}
+//                                 </div>
+//                             </div>
+//                         ))}
+//                     </div>
+//                 </div>
+
+//                 {/* Center Line */}
+// <div>
+//     <img src={line} style={{ height: "100%" }} alt="divider" />
+// </div>
+
+//                 {/* Right Section */}
+
+//                 <div class="container mt-4">
+//                     <div>
+//                         <h4 class="mb-3 text-green">Selected User Details</h4>
+//                         {selectedUser ? (
+//                             <table className="table table-bordered table-striped">
+//                                 <thead className="thead-light">
+//                                     <tr>
+//                                         <th>Name</th>
+//                                         <th>Status</th>
+//                                         <th>Start Date</th>
+//                                         <th>End Date</th>
+//                                         <th>Reason</th>
+//                                     </tr>
+//                                 </thead>
+//                                 <tbody>
+//                                     {selectedUser.map((leave, index) => (
+//                                         <tr key={index}>
+//                                             <td>{leave.userName}</td>
+//                                             <td>{leave.status}</td>
+//                                             <td>{leave.startDate}</td>
+//                                             <td>{leave.endDate}</td>
+//                                             <td>{leave.reason}</td>
+//                                         </tr>
+//                                     ))}
+//                                 </tbody>
+//                             </table>
+//                         ) : (
+//                             <p className="text-muted">Click on a user to view their details here.</p>
+//                         )}
+
+//                     </div>
+//                     <div v-if="!selectedUser" class="mt-3">
+//                         <p class="text-muted">Click on a user to view their details here.</p>
+//                     </div>
+//                 </div>
+
+
+
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default OwnerTeam;
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import axios from "axios";
+import line from '../../images/Line 3.webp'
 
 const OwnerTeam = () => {
     const [requestedLeaves, setRequestedLeaves] = useState([]);
     const [approvedLeaves, setApprovedLeaves] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedLeave, setSelectedLeave] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
+
+    const items = JSON.parse(localStorage.getItem("items")); // Logged-in user details
 
     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
     const token = localStorage.getItem("token");
@@ -606,219 +819,151 @@ const OwnerTeam = () => {
         fetchLeaveRequests();
     }, []);
 
-    const [selectedUser, setSelectedUser] = useState(null);
-
     // Combine and group requests by userName
     const groupedLeaves = {};
     [...requestedLeaves, ...approvedLeaves].forEach((leave) => {
         if (!groupedLeaves[leave.userName]) {
             groupedLeaves[leave.userName] = {
-                leave,
-                count: 0,
+                leaves: [],
             };
         }
-        groupedLeaves[leave.userName].count += 1;
+        groupedLeaves[leave.userName].leaves.push(leave);
     });
 
-    const uniqueLeaves = Object.values(groupedLeaves);
+    const uniqueLeaves = Object.entries(groupedLeaves);
 
     return (
+        
         <div className="container">
             <div className="userHeader">
                 <h5>Team</h5>
             </div>
-            <div className="mainwrapper ownerTeamContainer" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div
+                className="mainwrapper ownerTeamContainer"
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
+            >
                 {/* Left Section */}
-                <div style={{ width: "350px", marginRight: "20px" }}>
-                    <div className="companyFont">
-                        <p
-                            style={{
-                                margin: 0,
-                                padding: 0,
-                                fontSize: "20px",
-                                color: "#0E4772",
-                                fontWeight: "600",
-                            }}
-                        >
-                            Total
-                        </p>
-                        <div
-                            style={{
-                                backgroundColor: "#28659C",
-                                color: "white",
-                                fontSize: "600",
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "100%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            {requestedLeaves.length + approvedLeaves.length}
+                {items?.userType !== "owner" && (
+                    <div style={{ width: "350px", marginRight: "20px" }}>
+                        <div className="companyFont">
+                            <p
+                                style={{
+                                    margin: 0,
+                                    padding: 0,
+                                    fontSize: "20px",
+                                    color: "#0E4772",
+                                    fontWeight: "600",
+                                }}
+                            >
+                                Total
+                            </p>
+                            <div
+                                style={{
+                                    backgroundColor: "#28659C",
+                                    color: "white",
+                                    fontSize: "600",
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                {requestedLeaves.length + approvedLeaves.length}
+                            </div>
+                        </div>
+
+                        {/* Requested and Approved Leaves */}
+                        <div>
+                            {uniqueLeaves.map(([userName, { leaves }], index) => (
+                                <div
+                                    key={index}
+                                    className="requested-leave-item"
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "10px",
+                                        borderBottom: "1px solid #ccc",
+                                        padding: "10px 0",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => setSelectedUser(leaves)} // Update selected user on click
+                                >
+                                    <div
+                                        style={{
+                                            backgroundColor: "#e7e7e7",
+                                            borderRadius: "50%",
+                                            width: "30px",
+                                            height: "30px",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            fontWeight: "bold",
+                                        }}
+                                    >
+                                        {index + 1}
+                                    </div>
+                                    <div style={{ flexGrow: 1 }}>
+                                        <strong>{userName}</strong>
+                                        <span style={{ marginLeft: "10px", color: "#888" }}>
+                                            ({leaves.length} request{leaves.length > 1 ? "s" : ""})
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-
-                    {/* Requested and Approved Leaves */}
-                    <div>
-                        {uniqueLeaves.map(({ leave, count }, index) => (
-                            <div
-                                key={index}
-                                className="requested-leave-item"
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "10px",
-                                    borderBottom: "1px solid #ccc",
-                                    padding: "10px 0",
-                                    cursor: "pointer", // Added this line
-                                }}
-                                onClick={() => setSelectedUser(leave)} // Update selected user on click
-                            >
-                                <div
-                                    style={{
-                                        backgroundColor: "#e7e7e7",
-                                        borderRadius: "50%",
-                                        width: "30px",
-                                        height: "30px",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {index + 1}
-                                </div>
-                                <div style={{ flexGrow: 1 }}>
-                                    <strong>{leave.userName}</strong>
-                                    <span style={{ marginLeft: "10px", color: "#888" }}>
-                                        ({count} request{count > 1 ? "s" : ""})
-                                    </span>
-                                </div>
-                                <div
-                                    style={{
-                                        color:
-                                            leave.status === "Pending"
-                                                ? "orange"
-                                                : leave.status === "Approved"
-                                                    ? "green"
-                                                    : "red",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {leave.status}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
+                )}
                 {/* Center Line */}
                 <div>
                     <img src={line} style={{ height: "100%" }} alt="divider" />
                 </div>
-
                 {/* Right Section */}
-                <div style={{ flexGrow: 1, paddingLeft: "20px" }}>
-                    {selectedUser ? (
-                        <div>
-                            <p
-                                style={{
-                                    fontSize: "18px",
-                                    color: "#0E4772",
-                                    fontWeight: "600",
-                                    marginBottom: "10px",
-                                }}
-                            >
-                                Selected User Details
-                            </p>
-                            <table
-                                style={{
-                                    width: "100%",
-                                    borderCollapse: "collapse",
-                                    textAlign: "left",
-                                }}
-                            >
-                                <thead>
+                <div className="container mt-4">
+                    <div>
+                        <h4 className="mb-3 text-green">Leave Request Details</h4>
+                        {selectedUser ? (
+                            <table className="table table-bordered table-striped">
+                                <thead className="thead-light">
                                     <tr>
-                                        <th
-                                            style={{
-                                                borderBottom: "2px solid #ddd",
-                                                padding: "10px",
-                                                color: "#0E4772",
-                                                fontWeight: "600",
-                                            }}
-                                        >
-                                            Field
-                                        </th>
-                                        <th
-                                            style={{
-                                                borderBottom: "2px solid #ddd",
-                                                padding: "10px",
-                                                color: "#0E4772",
-                                                fontWeight: "600",
-                                            }}
-                                        >
-                                            Value
-                                        </th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Reason</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            <strong>Name</strong>
-                                        </td>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            {selectedUser.userName}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            <strong>Status</strong>
-                                        </td>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            {selectedUser.status}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            <strong>Start Date</strong>
-                                        </td>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            {selectedUser.startDate}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            <strong>End Date</strong>
-                                        </td>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            {selectedUser.endDate}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            <strong>Reason</strong>
-                                        </td>
-                                        <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                                            {selectedUser.reason}
-                                        </td>
-                                    </tr>
+                                    {selectedUser.map((leave, index) => {
+                                        const startDate = new Date(leave.startDate).toLocaleDateString("en-US", {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        });
+                                        const endDate = new Date(leave.endDate).toLocaleDateString("en-US", {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        });
+
+                                        return (
+                                            <tr key={index}>
+                                                <td>{leave.userName}</td>
+                                                <td>{leave.status}</td>
+                                                <td>{startDate}</td>
+                                                <td>{endDate}</td>
+                                                <td>{leave.reason}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
-                        </div>
-                    ) : (
-                        <p
-                            style={{
-                                fontSize: "16px",
-                                color: "#666",
-                            }}
-                        >
-                            Click on a user to view their details here.
-                        </p>
-                    )}
+                        ) : (
+                            <p className="text-muted">Click on a user to view their details here.</p>
+                        )}
+                    </div>
                 </div>
-
             </div>
         </div>
     );
