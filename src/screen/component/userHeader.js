@@ -383,6 +383,38 @@ function UserHeader() {
 
     const [items, setItem] = useState(JSON.parse(localStorage.getItem('items')));
 
+    const [leaveCount, setLeaveCount] = useState(0); // State to store leave request count
+
+    // Fetch leave requests and calculate count
+    const fetchLeaveRequests = async () => {
+        try {
+            const userId = items._id; // Current user ID
+            const apiUrl = `https://ss-track-xi.vercel.app/api/v1/superAdmin/getAllLeaveRequests`;
+
+            const response = await axios.get(apiUrl, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token in headers
+                },
+            });
+
+            if (response.status === 200) {
+                const { requestedLeaves = [] } = response.data; // Extract requested leaves
+                const userRequestedLeaves = requestedLeaves.filter((leave) => leave.userId === userId);
+                setLeaveCount(userRequestedLeaves.length); // Update count for the current user
+            } else {
+                console.error("Failed to fetch leave requests:", response.data?.message || response.statusText);
+            }
+        } catch (error) {
+            console.error("Error fetching leave requests:", error.response || error.message || error);
+        }
+    };
+
+    // Call fetchLeaveRequests on component mount
+    useEffect(() => {
+        if (items?.userType === "user" || items?.userType === "manager") {
+            fetchLeaveRequests();
+        }
+    }, [items]);
 
     useEffect(() => {
         if (!socket) {

@@ -1018,6 +1018,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { FaUserCircle } from "react-icons/fa"; // Import Font Awesome user icon
 
 const OwnerTeam = () => {
     const [leaveData, setLeaveData] = useState({
@@ -1109,7 +1110,7 @@ const OwnerTeam = () => {
                                     fontWeight: "bold",
                                 }}
                             >
-                                👤
+                                <FaUserCircle />
                             </span>
                             {leave.userName}
                         </td>
