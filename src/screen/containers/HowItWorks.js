@@ -164,8 +164,8 @@ const workCards = () => {
               </div>
             </div>
 
-            <div className="row justify-content-center">
-              {/* <div className="col-md-5 col-sm-12 col-lg-4 mb-3">
+            {/* <div className="row justify-content-center">
+              <div className="col-md-5 col-sm-12 col-lg-4 mb-3">
           <div style={{ width: "18rem", textAlign: 'center' }}>
               <p className="text-end" style={{ fontSize: "35px", color: "#0E4772", fontWeight: 700, marginTop: '4%' }}>
                 1st
@@ -174,7 +174,7 @@ const workCards = () => {
                 Setting Up SSTrack
               </p>
             </div>
-          </div> */}
+          </div> 
               <div className="col-md-5 col-sm-12 col-lg-6" style={{ borderRight: '2px solid #bfb4b4' }}>
                 <div className=" mx-auto" style={{ width: "18rem", width: '100%', marginRight: '2px solid #bfb4b4' }}>
                   <p className="text-end" style={{ fontSize: "35px", color: "#0E4772", fontWeight: 700, marginTop: '4%' }}>
@@ -192,7 +192,7 @@ const workCards = () => {
                   className="card-img-top flex-start"
                   alt=""
                   style={{ width: '80px', height: '70px', marginLeft: '7%', display: 'block' }}
-                /> */}
+                /> 
                   <div className="card-body">
                     <img
                       src={card1}
@@ -229,7 +229,7 @@ const workCards = () => {
                   className="card-img-top"
                   alt=""
                   style={{ width: '80px', height: '70px', marginLeft: 'auto', display: 'block' }}
-                /> */}
+                /> 
                   <div className="card-body">
                     <img
                       src={card2}
@@ -284,7 +284,7 @@ const workCards = () => {
                 Setting Up SSTrack
               </p>
             </div>
-          </div> */}
+          </div> 
               <div className="col-md-5 col-sm-12 col-lg-6" style={{ borderRight: '2px solid #bfb4b4' }}>
                 <div className=" mx-auto" style={{ width: "18rem", width: '100%', marginRight: '2px solid #bfb4b4' }}>
 
@@ -325,7 +325,7 @@ const workCards = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         </>
