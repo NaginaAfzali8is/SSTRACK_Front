@@ -179,9 +179,8 @@ const Pricing = () => {
             <SnackbarProvider />
 
             <div className='container' id="section3">
-                <p className="how-it-works-title text-center">Company Plans & Pricing</p>
-                <p className="text-center">These monthly plans are for Companies to track their employees or for freelancers to track their own time.
-                    If you track your own time for other companies — you do not need a plan and do not have to pay — your company pays for you. Just ask your manager to send you an invitation email to their SSTrack team to start tracking your time and screenshots for them.</p>
+                <p className="how-it-works-title text-center">Powerful Features at Every Price Point.</p>
+                <p className="text-center">When you choose ssTrack.io, you’re not just buying software—you’re investing in precision, control, and growth.</p>
 
                 <div className="row justify-content-center align-items-center">
 
@@ -239,14 +238,14 @@ const Pricing = () => {
                             <div class="price-container new-price">
                                 {/* <span class="old-price align-items-center">$50.00</span> */}
                                 <span class="old-price align-items-center" style={{ color: "grey", fontSize: '3.5rem' }}>
-                                    <small class="small-dollar">$</small>10
+                                    <small class="small-dollar">$</small>20
                                 </span>
                             </div>
                             <p className="text-center"> per user per month</p>
                             <div class="price-container new-price">
                                 {/* <span class="new-price">$35.00</span> */}
                                 <span style={{ fontSize: "3rem" }}>
-                                    <small class="small-dollar">$</small>4<sup class="small-number">99</sup>
+                                    <small class="small-dollar">$</small>9<sup class="small-number">99</sup>
                                 </span>
                             </div>
                             <p className="text-center text-red">
@@ -266,7 +265,23 @@ const Pricing = () => {
                                 App & URL Tracking
                             </p>
                             <p className="activtiyUrl text-center">
-                                Mobile Application
+                            Split, trim, and blur activity data
+                            </p>
+                            <p className="activtiyUrl text-center">
+                            Automated email notifications for leave and activity updates
+
+                            </p>
+                            <p className="activtiyUrl text-center">
+                            Invoice management: auto-generated and downloadable
+                            </p>
+                            <p className="activtiyUrl text-center">
+                            Payment flexibility: PayPal, Visa, MasterCard, and other cards
+
+                            </p>
+                            <p className="activtiyUrl text-center">
+                            Team size: Up to 20 users
+
+
                             </p>
                             <p className="activtiyUrl text-center">
                             </p>
