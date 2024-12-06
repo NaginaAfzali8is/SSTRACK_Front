@@ -34,6 +34,10 @@ import OwnerLeaveManagement from '../companyOwner/owner-setting-components/owner
 import SaLogin from '../SuperAdmin/SuperAdmin/saLogin'
 import SaMain from '../SuperAdmin/SuperAdmin/saMain'
 import UserSettings from '../companyOwner/owner-setting-components/userSetting'
+import ApplyForLeave from '../companyOwner/owner-setting-components/ApplyForLeave'
+
+
+
 export default function AppRouter() {
   const [suspended, setSuspended] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -141,6 +145,8 @@ export default function AppRouter() {
             <Route path="/activity/:id" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerUserTimeline />) : <Navigate to="/" />} />
             <Route path="/profile" element={token ? (suspended ? <Navigate to="/account" /> : <Profile />) : <Navigate to="/" />} />
             <Route path="/leave-management" element={token ? (suspended ? <Navigate to="/account" /> : <OwnerLeaveManagement />) : <Navigate to="/" />} />
+            <Route path="/applyForLeave" element={token ? (suspended ? <Navigate to="/account" /> : <ApplyForLeave />) : <Navigate to="/" />} />
+
             
             {/* <Route
               path="/profile"
