@@ -267,17 +267,7 @@ const Pricing = () => {
                             <p className="activtiyUrl text-center">
                             Split, trim, and blur activity data
                             </p>
-                            <p className="activtiyUrl text-center">
-                            Automated email notifications for leave and activity updates
-
-                            </p>
-                            <p className="activtiyUrl text-center">
-                            Invoice management: auto-generated and downloadable
-                            </p>
-                            <p className="activtiyUrl text-center">
-                            Payment flexibility: PayPal, Visa, MasterCard, and other cards
-
-                            </p>
+                          
                             <p className="activtiyUrl text-center">
                             Team size: Up to 20 users
 
