@@ -33,11 +33,11 @@ const workCards = () => {
                     <span className="text-end">
                       <p className="card-text fw-bold text-end" style={{ textAlign: 'left', fontSize: "20px", color: "#0E4772" }}>
                         <span style={{ color: "#7ACB59" }}>sstrack.io</span>
-                        - Connecting & Setup
+                        - Sign Up
                       </p>
                     </span>
                     <p className="text-end" style={{ fontSize: "20px", color: "#0E4772", fontWeight: 500, marginTop: '4%' }}>
-                      After selecting a plan, a company manager invites employees to the SS Track team. When employees accept the invitation, they can start tracking time and submitting their screenshots for that company.
+                    Get started in minutes—email verification is all it takes.
                     </p>
                     <img
                       src={screenShot1}
@@ -99,12 +99,12 @@ const workCards = () => {
                   <div className="card-body">
                     <span className="text-start">
                       <p className="card-text fw-bold text-start" style={{ textAlign: 'left', fontSize: "20px", color: "#0E4772" }}>
-                        Real-Time Tracking & Monitoring -
+                      Precision Tools -
                         <span style={{ color: "#7ACB59" }}>sstrack.io</span>
                       </p>
                     </span>
                     <p className="text-start" style={{ fontSize: "20px", color: "#0E4772", fontWeight: 500, marginTop: '4%' }}>
-                      Employees install the SS Track desktop application, log in, select a project, and press the Start button to begin tracking time and taking screenshots. The application functions offline, and data is uploaded to the web once the internet connection is restored.
+                     From real-time tracking to screenshot management, ssTrack.io delivers unmatched control.
                     </p>
                     <img
                       src={screenShot}
@@ -130,11 +130,11 @@ const workCards = () => {
                     <span className="text-end">
                       <p className="card-text fw-bold text-end" style={{ textAlign: 'left', fontSize: "20px", color: "#0E4772" }}>
                         <span style={{ color: "#7ACB59" }}>sstrack.io</span>
-                        - Connecting & Setup
+                        - Analyze & Optimize
                       </p>
                     </span>
                     <p className="text-end" style={{ fontSize: "20px", color: "#0E4772", fontWeight: 500, marginTop: '4%' }}>
-                      The SS Track application tracks employee time and takes screenshots at random intervals until the Stop button is pressed. With the Autostart option, the program starts with computer use and stops if inactive, ideal for in-office tracking. Employees are always aware SS Track is running, as it cannot operate in stealth mode.
+                    Use powerful analytics and insights to drive productivity improvements.
                     </p>
                     <img
                       src={screenShot3}
@@ -158,7 +158,7 @@ const workCards = () => {
                     3rd
                   </p>
                   <p className="text-start" style={{ fontSize: "12px", color: "#7ACB59", fontWeight: 500, marginTop: '-8%', marginLeft: '3px' }}>
-                    Setting Up SSTrack
+                  Analyze & Optimize
                   </p>
                 </div>
               </div>
