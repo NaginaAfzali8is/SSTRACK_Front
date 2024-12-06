@@ -366,9 +366,9 @@ function Home() {
           <div className="col-md-6 mb-3">
             <div className="text-white" style={{ backgroundColor: '#0E4772', borderRadius: '1rem', height: '100%' }}>
               <div className="card-body">
-                <h5 className="card-title fw-bold fs-1">Track time, screenshots & productivity</h5>
+                <h5 className="card-title fw-bold fs-1">Precision Tracking. Seamless Management. Smarter Teams</h5>
                 <br />
-                <p className="card-text fs-4">Screenshot tracking system designed for governments and corporations to monitor their remote, office, and freelance teams.</p>
+                <p className="card-text fs-4">Only ssTrack.io offers unmatched screenshot control, advanced time tracking, and mobile-powered insights—all in one platform.</p>
                 <button className="downloadButton" onClick={() => navigate("/download")} > Download</button>
               </div>
             </div>

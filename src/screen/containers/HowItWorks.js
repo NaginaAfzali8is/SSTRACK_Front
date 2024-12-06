@@ -17,7 +17,7 @@ const workCards = () => {
           <div className='how-it-works-container' id='section4' style={{ marginTop: '4%' }}>
           <div className='container jusitfy-content-center'>
             <p className="how-it-works-title text-center">How It Works ?</p>
-            <p className="text-center">Follow These 3 Sample Steps</p>
+            <p className="text-center">Follow These 3 Simple Steps</p>
 
 
             <div className="row justify-content-center">
