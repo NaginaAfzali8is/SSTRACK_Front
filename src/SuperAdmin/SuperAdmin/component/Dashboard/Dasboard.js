@@ -25,7 +25,7 @@ function Dashboard({ onNavigate }) {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getTotalCompaniesUsers', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getTotalCompaniesUsers', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -50,7 +50,7 @@ function Dashboard({ onNavigate }) {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getnewCompaniesUsers', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getnewCompaniesUsers', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -77,7 +77,7 @@ function Dashboard({ onNavigate }) {
   //   }
 
   //   try {
-  //     const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllInvoices', {
+  //     const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllInvoices', {
   //       headers: { Authorization: `Bearer ${token}` },
   //     });
 

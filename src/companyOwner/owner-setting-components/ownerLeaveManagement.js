@@ -12,8 +12,9 @@ const OwnerTeam = () => {
     const [activeTab, setActiveTab] = useState("requestedLeaves");
     const [selectedLeave, setSelectedLeave] = useState(null); // To store the clicked leave
     const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
+    const data = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const token = localStorage.getItem("token");
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -28,6 +29,7 @@ const OwnerTeam = () => {
             );
             const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
                 response.data || {};
+
             setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
         } catch (error) {
             console.error("Error fetching leave requests:", error);
@@ -66,10 +68,20 @@ const OwnerTeam = () => {
 
             );
             console.log("Leave request accepted:", response.data);
-            enqueueSnackbar('Leave request accepted successfully', { variant: 'success' });
+            enqueueSnackbar('Leave request accepted successfully', {
+                variant: 'success', anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
             fetchLeaveRequests(); // Refresh the leave requests data
         } catch (error) {
-            enqueueSnackbar('Error accepting leave request', { variant: 'error' });
+            enqueueSnackbar('Error accepting leave request', {
+                variant: 'error', anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
             console.error("Error accepting leave request:", error);
         }
     }
@@ -87,10 +99,20 @@ const OwnerTeam = () => {
 
             );
             console.log("Leave request accepted:", response.data);
-            enqueueSnackbar('Leave request accepted successfully', { variant: 'success' });
+            enqueueSnackbar('Leave request accepted successfully', {
+                variant: 'success', anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
             fetchLeaveRequests(); // Refresh the leave requests data
         } catch (error) {
-            enqueueSnackbar('Error accepting leave request', { variant: 'error' });
+            enqueueSnackbar('Error accepting leave request', {
+                variant: 'error', anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right"
+                }
+            });
             console.error("Error accepting leave request:", error);
         }
     }
@@ -194,14 +216,47 @@ const OwnerTeam = () => {
                             <strong>Leave Type:</strong> {selectedLeave.leaveType}
                         </p>
                         <p>
-                            <strong>Approval Date:</strong> {selectedLeave.approvalDate || "N/A"}
+                            <strong>Approval Date:</strong>
+                            {selectedLeave.approvedAt
+                                ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                })
+                                : "-"}
                         </p>
                         <p>
                             <strong>Reason:</strong> {selectedLeave.reason}
                         </p>
                         <p>
-                            <strong>Approved By:</strong> {selectedLeave.approvedBy}
+                            <strong>Approved By:</strong> {selectedLeave.approvedBy ? (
+                                <>
+                                    {selectedLeave.approvedBy.name}
+                                    <span style={{ marginLeft: "10px", fontStyle: "italic", color: "#888" }}>
+                                        ({selectedLeave.approvedBy.userType})
+                                    </span>
+                                </>
+                            ) : "-"}
                         </p>
+                        {activeTab === "requestedLeaves" && (
+                            <>
+                                <p>
+                                    <strong>Enter Reason for Rejection:</strong>
+                                </p>
+                                <textarea
+                                    placeholder="Enter rejection reason..."
+                                    style={{
+                                        width: "100%",
+                                        height: "100px",
+                                        padding: "10px",
+                                        border: "1px solid #E0E0E0",
+                                        borderRadius: "5px",
+                                        resize: "none",
+                                        marginBottom: "20px",
+                                    }}
+                                ></textarea>
+                            </>
+                        )}
                     </div>
 
                     {/* Conditional Buttons and Inputs */}
@@ -226,7 +281,7 @@ const OwnerTeam = () => {
 
                     {selectedLeave.status.toLowerCase() === "rejected" && (
                         <div style={{ marginTop: "20px" }}>
-                            <textarea
+                            {/* <textarea
                                 placeholder="Enter rejection reason..."
                                 style={{
                                     width: "100%",
@@ -237,12 +292,12 @@ const OwnerTeam = () => {
                                     resize: "none",
                                     marginBottom: "20px",
                                 }}
-                            ></textarea>
+                            ></textarea> */}
                             <div style={{ textAlign: "center" }}>
                                 <button
                                     style={{
                                         padding: "10px 20px",
-                                        backgroundColor: "#FF6F6F",
+                                        backgroundColor: "#7FC45B",
                                         color: "white",
                                         border: "none",
                                         borderRadius: "5px",
@@ -324,6 +379,9 @@ const OwnerTeam = () => {
         );
     };
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
 
     //leave rowss
@@ -339,6 +397,10 @@ const OwnerTeam = () => {
                 </tbody>
             );
         }
+
+        // Filter out owner users before rendering
+        const filteredLeaves = leaves.filter((leave) => leave.userRole !== "Owner"); // Assuming 'userRole' is a field
+
         if (!leaves || leaves.length === 0) {
             return (
                 <tbody>
@@ -350,36 +412,185 @@ const OwnerTeam = () => {
                 </tbody>
             );
         }
+
+        // Calculate the index range for current page
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        const currentItems = leaves.slice(indexOfFirstItem, indexOfLastItem);
+
         return (
+            // <tbody>
+            //     {leaves.map((leave, index) => (
+            //         <tr
+            //             key={index}
+            //             style={{
+            //                 borderBottom: "1px solid #E0E0E0",
+            //                 backgroundColor: "#FFF",
+            //                 cursor: "pointer", // Indicate row is clickable
+            //             }}
+            //             onClick={() => handleRowClick(leave)} // Handle row click
+            //         >
+            // <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400", display: "flex", alignItems: "center", gap: "10px" }}>
+            //     <span
+            //         style={{
+            //             display: "flex",
+            //             justifyContent: "center",
+            //             alignItems: "center",
+            //             backgroundColor: "#E8F4FC",
+            //             borderRadius: "50%",
+            //             width: "30px",
+            //             height: "30px",
+            //             color: "#0E4772",
+            //             fontWeight: "bold",
+            //         }}
+            //     >
+            //         👤
+            //     </span>
+            //     {leave.userName}
+            // </td>
+            //             <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                 {new Date(leave.startDate).toLocaleDateString("en-GB", {
+            //                     day: "2-digit",
+            //                     month: "2-digit",
+            //                     year: "numeric",
+            //                 })}
+            //             </td>
+            //             <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                 {new Date(leave.endDate).toLocaleDateString("en-GB", {
+            //                     day: "2-digit",
+            //                     month: "2-digit",
+            //                     year: "numeric",
+            //                 })}
+            //             </td>
+            //             <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                 {new Date(leave.appliedAt).toLocaleDateString("en-GB", {
+            //                     day: "2-digit",
+            //                     month: "2-digit",
+            //                     year: "numeric",
+            //                 })}
+            //             </td>
+            //             <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                 {leave.leaveType}
+            //             </td>
+            //             <td style={{ padding: "10px", color: "#4F4F4F" }}>  {new Date(leave.approvedAt).toLocaleDateString("en-GB", {
+            //                 day: "2-digit",
+            //                 month: "2-digit",
+            //                 year: "numeric",
+            //             })}</td>
+
+
+            //    <tbody>
+            //         {currentItems.map((leave, index) => (
+            //             <tr
+            //                 key={index}
+            //                 style={{
+            //                     borderBottom: "1px solid #E0E0E0",
+            //                     backgroundColor: "#FFF",
+            //                     cursor: "pointer",
+            //                 }}
+            //                 onClick={() => handleRowClick(leave)}
+            //             >
+            //                 <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400", display: "flex", alignItems: "center", gap: "10px" }}>
+            //                     <span
+            //                         style={{
+            //                             display: "flex",
+            //                             justifyContent: "center",
+            //                             alignItems: "center",
+            //                             backgroundColor: "#E8F4FC",
+            //                             borderRadius: "50%",
+            //                             width: "30px",
+            //                             height: "30px",
+            //                             color: "#0E4772",
+            //                             fontWeight: "bold",
+            //                         }}
+            //                     >
+            //                         👤
+            //                     </span>
+            //                     {leave.userName}
+            //                 </td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                     {new Date(leave.startDate).toLocaleDateString("en-GB")}
+            //                 </td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                     {new Date(leave.endDate).toLocaleDateString("en-GB")}
+            //                 </td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                     {new Date(leave.appliedAt).toLocaleDateString("en-GB")}
+            //                 </td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.leaveType}</td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>
+            //                     {new Date(leave.approvedAt).toLocaleDateString("en-GB")}
+            //                 </td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.reason}</td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.approvedBy}</td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.reason}</td>
+            //                 <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.approvedBy}</td>
+            //                 <td style={{
+            //                     padding: "10px",
+            //                     color: "#4F4F4F",
+            //                     textAlign: "center",
+            //                 }}>
+            //                     <span
+            //                         style={{
+            //                             padding: "5px 10px",
+            //                             borderRadius: "12px",
+            //                             color:
+            //                                 leave.status === "Approved"
+            //                                     ? "green"
+            //                                     : leave.status === "Pending"
+            //                                         ? "orange"
+            //                                         : "red",
+            //                             border:
+            //                                 leave.status === "Approved"
+            //                                     ? "1px solid green"
+            //                                     : leave.status === "Pending"
+            //                                         ? "1px solid orange"
+            //                                         : "1px solid red",
+            //                             fontWeight: "bold",
+            //                             display: "inline-block",
+            //                         }}
+            //                     >
+            //                         {leave.status.toUpperCase()}
+            //                     </span>
+            //                 </td>
+            //             </tr>
+            //         ))}
+            //     </tbody>
+
             <tbody>
-                {leaves.map((leave, index) => (
+                {currentItems.map((leave, index) => (
                     <tr
                         key={index}
                         style={{
                             borderBottom: "1px solid #E0E0E0",
                             backgroundColor: "#FFF",
                             cursor: "pointer", // Indicate row is clickable
+                            // alignItems: 'center',
+                            // textAlign: 'center'
                         }}
                         onClick={() => handleRowClick(leave)} // Handle row click
                     >
-                        <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400", display: "flex", alignItems: "center", gap: "10px" }}>
-                            <span
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    backgroundColor: "#E8F4FC",
-                                    borderRadius: "50%",
-                                    width: "30px",
-                                    height: "30px",
-                                    color: "#0E4772",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                👤
-                            </span>
-                            {leave.userName}
+                        <td style={{ padding: "10px", color: "#4F4F4F", fontWeight: "400" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <span
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        backgroundColor: "#E8F4FC",
+                                        borderRadius: "50%",
+                                        width: "30px",
+                                        height: "30px",
+                                        color: "#0E4772",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    👤
+                                </span>
+                                <span style={{ flexGrow: 1, textAlign: "left" }}>{leave.userName}</span>
+                            </div>
                         </td>
+
                         <td style={{ padding: "10px", color: "#4F4F4F" }}>
                             {new Date(leave.startDate).toLocaleDateString("en-GB", {
                                 day: "2-digit",
@@ -404,18 +615,42 @@ const OwnerTeam = () => {
                         <td style={{ padding: "10px", color: "#4F4F4F" }}>
                             {leave.leaveType}
                         </td>
-                        <td style={{ padding: "10px", color: "#4F4F4F" }}>  {new Date(leave.approvedAt).toLocaleDateString("en-GB", {
+                        <td style={{ padding: "10px", color: "#4F4F4F" }}>
+                            {leave.approvedAt
+                                ? new Date(leave.approvedAt).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                })
+                                : "-"}
+
+                        </td>
+                        {/* <td style={{ padding: "10px", color: "#4F4F4F" }}>  {new Date(leave.approvedAt).toLocaleDateString("en-GB", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",
-                        })}</td>
+                        })}</td> */}
                         <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.reason}</td>
-                        <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.approvedBy}</td>
+
+                        {/* <td style={{ padding: "10px", color: "#4F4F4F" }}>{leave.approvedBy}</td> */}
+                        {/* <td>{leave.approvedBy ? leave.approvedBy.name : "-"}</td> */}
+                        <td>
+                            {leave.approvedBy ? (
+                                <>
+                                    {leave.approvedBy.name}
+                                    <span style={{ marginLeft: "10px", fontStyle: "italic", color: "#888" }}>
+                                        ({leave.approvedBy.userType})
+                                    </span>
+                                </>
+                            ) : "-"}
+                        </td>
+
+
                         <td
                             style={{
                                 padding: "10px",
                                 color: "#4F4F4F",
-                                textAlign: "center",
+                                // textAlign: "center",
                             }}
                         >
                             <span
@@ -444,9 +679,23 @@ const OwnerTeam = () => {
                     </tr>
                 ))}
             </tbody>
+
         );
     };
 
+    const totalPages = Math.ceil(leaveData[activeTab].length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
     // main component
     return (
@@ -481,7 +730,10 @@ const OwnerTeam = () => {
                                 fontWeight: "600",
                                 cursor: "pointer",
                             }}
-                            onClick={() => setActiveTab("approvedLeaves")}
+                            onClick={() => {
+                                setActiveTab("approvedLeaves");
+                                setCurrentPage(1); // Reset to first page
+                            }}
                         >
                             Approved
                         </button>
@@ -496,7 +748,10 @@ const OwnerTeam = () => {
                                 fontWeight: "600",
                                 cursor: "pointer",
                             }}
-                            onClick={() => setActiveTab("requestedLeaves")}
+                            onClick={() => {
+                                setActiveTab("requestedLeaves");
+                                setCurrentPage(1); // Reset to first page
+                            }}
                         >
                             Pending
                         </button>
@@ -512,7 +767,10 @@ const OwnerTeam = () => {
                                 fontWeight: "600",
                                 cursor: "pointer",
                             }}
-                            onClick={() => setActiveTab("rejectedLeaves")}
+                            onClick={() => {
+                                setActiveTab("rejectedLeaves");
+                                setCurrentPage(1); // Reset to first page
+                            }}
                         >
                             Rejected
                         </button>
@@ -524,10 +782,17 @@ const OwnerTeam = () => {
                             style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
+                                alignItems: 'center',
+                                textAlign: 'center'
                             }}
                         >
-                            <thead>
-                                <tr style={{ backgroundColor: "#F5F7FA" }}>
+                            <thead style={{
+                                alignItems: 'center',
+                                textAlign: 'center'
+                            }}>
+                                <tr style={{
+                                    backgroundColor: "#F5F7FA"
+                                }}>
                                     {[
                                         "Name ↕",
                                         "Start Date",
@@ -543,7 +808,7 @@ const OwnerTeam = () => {
                                             key={index}
                                             style={{
                                                 padding: "10px",
-                                                textAlign: "left",
+                                                textAlign: "center",
                                                 color: "#4F4F4F",
                                                 fontWeight: "500",
                                                 borderBottom: "1px solid #E0E0E0",
@@ -556,14 +821,45 @@ const OwnerTeam = () => {
                             </thead>
                             {renderLeaves(leaveData[activeTab])}
                         </table>
-                    </div>
-                </div>
+                        <div style={{ display: "end", alignItems: "center", justifyContent: 'flex-start', gap: '10px', marginTop: "20px" }}>
+                            <button
+                                onClick={handlePreviousPage}
+                                disabled={currentPage === 1}
+                                style={{ fontSize: '15px', padding: '5px 10px', borderRadius: '35%' }}
+                            >
+                                <i className="fas fa-arrow-left"></i> {/* Left arrow */}
+                            </button>
 
+                            <span style={{ flex: 1, textAlign: "center" }}>
+                                {currentPage} of {totalPages}
+                            </span>
+
+                            <button
+                                onClick={handleNextPage}
+                                disabled={currentPage === totalPages}
+                                style={{ fontSize: '15px', padding: '5px 10px', borderRadius: '35%' }}
+                            >
+                                <i className="fas fa-arrow-right"></i> {/* Right arrow */}
+                            </button>
+                        </div>
+                    </div>
+                    {/* Pagination Controls */}
+                </div>
                 {/* Render Modal */}
                 {isModalOpen && renderModal()}
-            </div>
+            </div >
         </>
     );
 };
 
 export default OwnerTeam;
+
+
+
+
+
+
+
+
+
+

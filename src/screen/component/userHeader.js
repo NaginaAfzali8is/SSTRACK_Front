@@ -27,7 +27,7 @@
 //         'Content-Type': 'application/json'
 //     }
 
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 //     const logoutDivRef = useRef(null);
 
@@ -217,7 +217,7 @@
 //     'Content-Type': 'application/json'
 // }
 
-//     const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+//     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
 // const logoutDivRef = useRef(null);
 
@@ -350,7 +350,7 @@ function UserHeader() {
         'Content-Type': 'application/json'
     }
 
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
     const logoutDivRef = useRef(null);
 
@@ -389,7 +389,7 @@ function UserHeader() {
     const fetchLeaveRequests = async () => {
         try {
             const userId = items._id; // Current user ID
-            const apiUrl = `https://ss-track-xi.vercel.app/api/v1/superAdmin/getAllLeaveRequests`;
+            const apiUrl = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllLeaveRequests`;
 
             const response = await axios.get(apiUrl, {
                 headers: {

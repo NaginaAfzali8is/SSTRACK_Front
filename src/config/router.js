@@ -52,7 +52,7 @@ export default function AppRouter() {
           const headers = {
             Authorization: `Bearer ${token}`,
           };
-          const apiUrl = 'https://ss-track-xi.vercel.app/api/v1';
+          const apiUrl = 'https://myuniversallanguages.com:9093/api/v1';
           const response = await axios.get(`${apiUrl}/owner/getCompanyInfo`, { headers });
           // For objects or arrays:
           const planindex = response?.data.data[0].planId.length - 1;
@@ -123,7 +123,7 @@ export default function AppRouter() {
             <Route path="/privacy-policy1" element={<PrivacyPolicy1 />} />
             <Route path="/privacy-policy2" element={<PrivacyPolicy2 />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
+            {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
 
             {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
             {/* <Route path="/pricing" element={<Pricing />} /> */}

@@ -28,7 +28,7 @@ function UserDashboardSection() {
     const fetchLeaveRequests = async () => {
         try {
             const userId = items._id; // Current user ID
-            const apiUrl = `https://ss-track-xi.vercel.app/api/v1/superAdmin/getAllLeaveRequests`;
+            const apiUrl = `https://myuniversallanguages.com:9093/api/v1/superAdmin/getAllLeaveRequests`;
 
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -107,7 +107,7 @@ function UserDashboardSection() {
             if (items?.userType === "user" || items?.userType === 'manager' && items?._id) {
                 try {
                     const userId = items._id; // Extract userId dynamically
-                    const apiUrl = `https://ss-track-xi.vercel.app/api/v1/timetrack/remainingBreak/${userId}`;
+                    const apiUrl = `https://myuniversallanguages.com:9093/api/v1/timetrack/remainingBreak/${userId}`;
 
                     console.log("Fetching Remaining Break Time for User ID:", userId);
                     console.log("API URL:", apiUrl);

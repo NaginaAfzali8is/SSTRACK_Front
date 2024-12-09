@@ -41,7 +41,7 @@ function RequestsContent() {
 
     try {
       const response = await axios.get(
-        'https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getEnterpriseRequests',
+        'https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getEnterpriseRequests',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -176,7 +176,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -215,7 +215,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -261,7 +261,7 @@ function RequestsContent() {
     console.log('formdata===>', formData)
     try {
       const token = localStorage.getItem('token_for_sa');
-      const response = await axios.post('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
+      const response = await axios.post('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateEnterpriseRequest', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

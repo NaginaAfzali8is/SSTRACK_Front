@@ -25,7 +25,7 @@ function FinancialsContent() {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllPayments', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllPayments', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ function FinancialsContent() {
     }
 
     try {
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/getAllInvoices', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/getAllInvoices', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

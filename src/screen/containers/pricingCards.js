@@ -52,7 +52,7 @@ const Pricing = () => {
         try {
             // Make API call with headers
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/owner/requestEnterprise",
+                "https://myuniversallanguages.com:9093/api/v1/owner/requestEnterprise",
                 formData,
                 {
                     headers: {
@@ -204,13 +204,13 @@ const Pricing = () => {
                             <p className="text-center text-red">
                                 Limited Time Offer
                             </p>
-                            <p className="card-text text-center" style={{ marginTop: "37%" }}>
+                            <p className="card-text text-center" style={{ marginTop: "48%" }}>
                                 Time Tracking
                                 SSTrack
                                 up to <b>10</b> screenshots per hour
                                 screenshots stored for <b>15 days</b>
                             </p>
-                            <p className="activtiyUrl text-center" style={{ marginTop: '18%' }} >Individual settings
+                            <p className="activtiyUrl text-center" style={{ marginTop: '9%' }} >Individual settings
                             </p>
                             <p className="activtiyUrl text-center" > Activity Level Tracking</p>
                             <p className="activtiyUrl text-center" >
@@ -218,7 +218,7 @@ const Pricing = () => {
                             </p>
                             <br />
                             <div className="mt-auto">
-                                <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'white', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '20px' }}
+                                <button type="button" className="pricingButton2" style={{ width: '150px', alignItems: 'center', color: 'white', backgroundColor: getButtonDisabled(1) ? "#ccc" : "#e4eced", marginTop: '17px' }}
                                     onClick={() => handleUpgradeClicks(1)} disabled={isButtonDisabled(1)}
                                 > {getButtonText(1)}</button>
                             </div>
@@ -256,34 +256,34 @@ const Pricing = () => {
                                 Time Tracking
                                 SSTrack
                                 up to <b>30</b> screenshots per hour
-                                screenshots stored for <b>6 <br /> months</b>
+                                screenshots stored for <b>6 months</b>
                             </p>
-                            <p className="activtiyUrl text-center">    Individual settings
+                            <p className="activtiyUrl text-center"> Individual settings
                             </p>
                             <p className="text-center"> Activity Level Tracking</p>
-                            <p className="activtiyUrl text-center">
+                            <p className="text-center">
                                 App & URL Tracking
                             </p>
+                            {/* <p className="text-center" >
+                                Split, trim, and blur activity
+                            </p> */}
+
                             <p className="activtiyUrl text-center">
-                            Split, trim, and blur activity data
-                            </p>
-                          
-                            <p className="activtiyUrl text-center">
-                            Team size: Up to 20 users
+                                Team size: Up to 20 users
 
 
                             </p>
                             <p className="activtiyUrl text-center">
                             </p>
                             <div className="mt-auto">
-                                <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: getButtonDisabled(3) ? "#ccc" : "#0E4772", marginTop: '20px' }} disabled={getButtonDisabled(3)}
+                                <button type="button" className="pricingButton1" style={{ color: 'white', width: '150px', backgroundColor: getButtonDisabled(3) ? "#ccc" : "#0E4772", marginTop: '22px' }} disabled={getButtonDisabled(3)}
                                     onClick={() => handleUpgradeClicks(3)}>{getButtonText(3)}</button>
                             </div>
                             <p className="text-center fw-bold" style={{ fontSize: "15px", color: '#7a8f91' }}>Switch to Free Plan any time</p>
                         </div>
                     </div>
 
-                    {/* ------------------------------ pricing card 2 ------------------------- */}
+                    {/* ------------------------------ pricing card 3 ------------------------- */}
                     <div className="card m-3" style={{ width: "18rem", height: '44.5rem', border: "8px solid #7ACB59", backgroundColor: "#f2faf6", borderRadius: "1rem" }}>
                         <div className="card-body px-3">
                             <h5 className="card-title text-center fw-bold fs-2" style={{ color: " #7ACB59" }}>Enterprise</h5>

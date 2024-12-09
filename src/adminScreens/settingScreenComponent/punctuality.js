@@ -70,7 +70,7 @@ function Screenshot() {
             }
         }
         try {
-            const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/owner/settingsE/${employee._id}`,
+            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/owner/settingsE/${employee._id}`,
                 {
                     userId: employee._id,
                     effectiveSettings: type === "setting1" ? settings : type === "setting2" ? settings2 : settings3
@@ -198,7 +198,7 @@ function Screenshot() {
 
     async function handleApply(type) {
         try {
-            const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+            const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                 employees?.filter(f => f.effectiveSettings?.individualss === false).map((prevEmployess) => {
                     return {
                         userId: prevEmployess._id,
@@ -249,7 +249,7 @@ function Screenshot() {
     // async function getData() {
     //     try {
     //         const response = await fetch(
-    //             `https://ss-track-xi.vercel.app/api/v1/superAdmin/employees`,
+    //             `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
     //             { headers }
     //         );
     //         const json = await response.json();
@@ -333,7 +333,7 @@ function Screenshot() {
     async function getData() {
         try {
             const response = await fetch(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/employees`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/employees`,
                 { headers }
             );
             const json = await response.json();
@@ -485,7 +485,7 @@ function Screenshot() {
 
     //     try {
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityzRule",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityzRule",
     //             requestData,
     //             {
     //                 headers: {
@@ -552,7 +552,7 @@ function Screenshot() {
 
     //         // Make the API call
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
     //             requestData,
     //             {
     //                 headers: {
@@ -615,7 +615,7 @@ function Screenshot() {
 
             // Make the API call
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
                 requestData,
                 {
                     headers: {
@@ -691,7 +691,7 @@ function Screenshot() {
 
     //         // Make the API call
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addPunctualityRule",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addPunctualityRule",
     //             requestData,
     //             {
     //                 headers: {
@@ -813,7 +813,7 @@ function Screenshot() {
                             dispatch(setAllUserSetting2({ value: e.target.value }))
                             const value = e.target.value;
                             try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,
@@ -883,7 +883,7 @@ function Screenshot() {
                             console.log(e.target.value);
                             dispatch(setAllUserSetting3({ value: e.target.value === "Allow Blur" ? true : false }))
                             try {
-                                const res = await axios.patch(`https://ss-track-xi.vercel.app/api/v1/superAdmin/settingsE`,
+                                const res = await axios.patch(`https://myuniversallanguages.com:9093/api/v1/superAdmin/settingsE`,
                                     employees?.filter(f => f.effectiveSettings?.individualss === false)?.map((prevEmployess) => {
                                         return {
                                             userId: prevEmployess._id,

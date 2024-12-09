@@ -24,7 +24,7 @@ function TotalCompanies() {
         return;
       }
 
-      const response = await axios.get('https://ss-track-xi.vercel.app/api/v1/SystemAdmin/companies', {
+      const response = await axios.get('https://myuniversallanguages.com:9093/api/v1/SystemAdmin/companies', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -92,7 +92,7 @@ function TotalCompanies() {
 
     try {
       const response = await axios.post(
-        `https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: true,
           suspended: false,
@@ -143,7 +143,7 @@ function TotalCompanies() {
       // Toggle the accessBlock value
       const updatedAccessBlock = !selectedCompany?.accessBlock;
       const response = await axios.post(
-        `https://ss-track-xi.vercel.app/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
+        `https://myuniversallanguages.com:9093/api/v1/SystemAdmin/updateCompany/${selectedCompanyId}`,
         {
           isArchived: false,
           suspended: false,

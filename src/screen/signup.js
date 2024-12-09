@@ -26,14 +26,14 @@ function Signup() {
         name: "",
         company: "",
         email: "",
-        password: "",
+        // password: "",
         timezone: "",
         timezoneOffset: "",
         userType: "owner"
     });
     const [err, setErr] = useState("");
     const [error, setError] = useState("");
-    const apiUrl = "https://ss-track-xi.vercel.app/api/v1";
+    const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     const [timezone, setSelectedTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [currentTimezone, setCurrentTimeZone] = useState('')
 
@@ -66,7 +66,7 @@ function Signup() {
                     company: model?.company,
                     email: model?.email,
                     name: model?.name,
-                    password: model?.password,
+                    // password: model?.password,
                     timezone: model?.timezone,
                     timezoneOffset: model?.timezoneOffset,
                     userType: model?.userType,

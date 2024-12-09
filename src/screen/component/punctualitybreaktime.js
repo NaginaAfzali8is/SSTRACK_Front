@@ -35,7 +35,7 @@ const CompanyEmployess = (props) => {
             for (const employee of employees) {
                 try {
                     const response = await axios.get(
-                        `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -130,7 +130,7 @@ const CompanyEmployess = (props) => {
 
     //         // Call API to update the value
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -231,7 +231,7 @@ const CompanyEmployess = (props) => {
 
             // Fetch current settings for the employee to avoid overwriting other fields
             const response = await axios.get(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employee._id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -257,7 +257,7 @@ const CompanyEmployess = (props) => {
 
             // Call API to update the settings
             const updateResponse = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 requestData,
                 {
                     headers: {
@@ -371,7 +371,7 @@ const CompanyEmployess = (props) => {
 
     //         // Call API to save data
     //         const response = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             {
     //                 headers: {
@@ -408,7 +408,7 @@ const CompanyEmployess = (props) => {
 
             // Fetch current settings to preserve unrelated fields
             const currentSettingsResponse = await axios.get(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -434,7 +434,7 @@ const CompanyEmployess = (props) => {
 
             // Call API to save updated settings
             const response = await axios.post(
-                "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
                 {
                     userId: employeeId,
                     settings: updatedSettings,
@@ -535,7 +535,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -601,7 +601,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -687,7 +687,7 @@ const CompanyEmployess = (props) => {
 
         try {
             const res = await axios.post(
-                `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`,
+                `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`,
                 {
                     userId: ssId,
                     settings: settingsToUpdate,
@@ -789,7 +789,7 @@ const CompanyEmployess = (props) => {
     //     try {
     //         // Send the API request
     //         const res = await axios.post(
-    //             "https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality",
+    //             "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
     //             requestData,
     //             { headers }
     //         );
@@ -841,7 +841,7 @@ const CompanyEmployess = (props) => {
     //     console.log('SSID', ssId)
     //     try {
     //         const res = await axios.patch(
-    //             `https://ss-track-xi.vercel.app/api/v1/superAdmin/addIndividualPunctuality`
+    //             `https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality`
     //             {
     //                 userId: data.employee._id,
     //                 effectiveSettings: {
