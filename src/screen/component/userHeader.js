@@ -335,6 +335,8 @@ import { enqueueSnackbar } from "notistack";
 import circle from "../../images/circle.webp"
 import Header from './header'
 import HeaderOption from './HeaderOption'
+import SettingsIcon from '@mui/icons-material/Settings';
+
 
 function UserHeader() {
 
@@ -642,8 +644,8 @@ function UserHeader() {
 
                                         {user?.userType === "user" && (
                                             <div onClick={userSettings}>
-                                                <div>
-                                                    <img src={account} />
+                                                <div style={{ marginLeft: '-5px' }}>
+                                                    <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
                                                 </div>
                                                 <p>Settings</p>
                                             </div>
@@ -729,8 +731,8 @@ function UserHeader() {
                                         </div>
                                         {user?.userType === "user" ? null : (
                                             <div onClick={takeToSettings}>
-                                                <div>
-                                                    <img src={account} />
+                                                <div style={{ marginLeft: '-5px' }}>
+                                                    <SettingsIcon style={{ fontSize: '24px', color: '#fff' }} />
                                                 </div>
                                                 <p>Settings</p>
                                             </div>
