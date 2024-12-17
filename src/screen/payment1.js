@@ -8,7 +8,11 @@ import CardSelection from './component/CardSelection';
 import CustomModal from './component/CustomModal';
 // import './Payment.css'; // Import the CSS file for styling
 import Account from './account';
-const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
+
+
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
+
+// const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
 
 
 
@@ -81,7 +85,7 @@ const Payment = () => {
                     cardNumber: paymentMethod.card.last4,
 
                 });
-                // const planUpgradeApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+                // const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
                     const response = await axios.post(`${planUpgradeApiUrl}/addNewCard`, {
@@ -232,7 +236,7 @@ const Payment = () => {
     };
 
     const handlePayWithThisCard = async () => {
-        // const DirectPayApiUrl = "https://ss-track-xi.vercel.app/api/v1";
+        // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
         const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
 
         if (paycard) {

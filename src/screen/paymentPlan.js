@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -13,8 +13,8 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
 // const stripePromise = loadStripe('pk_test_51PcoPgRrrKRJyPcXmQ4mWHBaIEBqhR8lWBt3emhk5sBzbPuQDpGfGazHa9SU5RP7XHH2Xlpp4arUsGWcDdk1qQhe00zIasVFrZ');
-const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
-
+// const stripePromise = loadStripe('pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw');
+const stripePromise = loadStripe(process.env.REACT_AP_KEY);
 // publishable_key= pk_test_51PvKZy04DfRmMVhLfSwskHpqnq7CRiBA28dvixlIB65W0DnpIZ9QViPT2qgAbNyaf0t0zV3MLCUy9tlJHF1KyQpr00BqjmUrQw
 // secret_key= sk_test_51PvKZy04DfRmMVhLpUwgsNqAG7DjWlohkftPfj49gTzGMIBiZKaXh0DHYgdrKPElaAw71X94yF20MvWYyOKWOSHj00P3ayGG2K
 
@@ -39,6 +39,8 @@ const Payment = ({ updatePaymentStatus }) => {
     const [invoice, setInvoice] = useState({ status: 'unpaid' }); // or retrieve it from your API or storage
     const [paymentStatus, setPaymentStatus] = useState('');
     const [hasUnpaidInvoices, setHasUnpaidInvoices] = useState(false);
+    const items = JSON.parse(localStorage.getItem('items'));
+
 
     const navigate = useNavigate();
     const handleUpdatePaymentStatus = (status) => {
@@ -202,7 +204,6 @@ const Payment = ({ updatePaymentStatus }) => {
                     expMonth: paymentMethod.card.exp_month,
                     expYear: paymentMethod.card.exp_year,
                     cardNumber: paymentMethod.card.last4,
-
                 });
                 const planUpgradeApiUrl = "https://myuniversallanguages.com:9093/api/v1";
                 try {
@@ -521,7 +522,6 @@ const Payment = ({ updatePaymentStatus }) => {
         }
     };
 
-
     const handleShowNewModal = () => {
         setshowNewCardModal(true);
 
@@ -549,16 +549,14 @@ const Payment = ({ updatePaymentStatus }) => {
         setShowModalwithoutcard(false);
     };
 
-
     const Withoutcardpayment = ({ showModalwithoutcard, handleCloseModal2, selectedPlan }) => {
-
         return (
             <Modal show={showModalwithoutcard} onHide={handleCloseModal2} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Change Your Plan</Modal.Title>
+                    {/* <Modal.Title>Change Your Plan</Modal.Title> */}
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="text-left mb-4">
+                    <div className="text-left mb-4" >
                         {/* Optional elements can be placed here */}
                         {selectedPlan ? (
                             <div>
@@ -566,7 +564,7 @@ const Payment = ({ updatePaymentStatus }) => {
                                 <div className='container d-flex'>
                                     <div className="row d-flex" style={{ width: '60rem' }}>
                                         <div className="col-md-12">
-                                            <div className='card'>
+                                            <div className='card mt-2' style={{ marginLeft: '-12px' }}>
                                                 <div className="card-body" style={{ height: '12rem' }}>
                                                     <div className='d-flex justify-content-between align-items-center'>
                                                         {paycard ? paycard.cardType : "Visa"}
@@ -598,31 +596,13 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <button style={{
-                        alignSelf: "center",
-                        marginLeft: '10px',
-                        padding: '5px 10px',  // Adjusting padding for a smaller size
-                        backgroundColor: 'green',  // Green background
-                        color: 'white',  // White text
-                        border: 'none',  // Removing default border
-                        borderRadius: '5px',  // Rounded corners
-                        cursor: 'pointer',  // Pointer on hover
-                        fontSize: '0.875rem'
-                    }}
-                        onClick={() => {
-                            handleDirectChangePlan();
-                            setPlanData(selectedPlan);
-                            localStorage.setItem('planIdforHome', JSON.stringify(selectedPlan));
-                            handleCloseModal2()
-                        }}
-                    // onClick={handleDirectChangePlan}
-                    >Pay Now</button>
+                   
+                    
                 </Modal.Footer>
             </Modal >
         );
     };
-
-
+    
     // const handleDirectChangePlan = async () => {
     // const DirectPayApiUrl = "https://myuniversallanguages.com:9093/api/v1";
     // if (paycard) {
@@ -714,7 +694,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     })
                     // window.open(receiptUrl, '_blank'); // Open receiptUrl in a new tab
                 }
-                
+
                 else {
                     if (res.status === 403) {
                         alert("Access denied. Please check your permissions.")
@@ -750,7 +730,6 @@ const Payment = ({ updatePaymentStatus }) => {
         if (paycard) {
             setShowModalwithoutcard(true);  // For when the paycard is not available
             console.log('card is available', showModalwithoutcard);
-
         } else {
             console.log('card is not available');
             handleShowModal();
@@ -781,6 +760,7 @@ const Payment = ({ updatePaymentStatus }) => {
     return (
         <>
             <SnackbarProvider />
+            
             <div className='container mt-4'>
                 <div className="row">
                     {loading ? (
@@ -938,7 +918,7 @@ const Payment = ({ updatePaymentStatus }) => {
             <div className='container'>
                 <div className='card'>
                     <div className='card-body'>
-                        <h3 className="card-title mt-4">Estimated payments</h3>
+                        <h3 className="card-title mt-4">Estimated</h3>
                         <div className="mt-2" style={{ maxWidth: "70%", color: 'grey' }}>Pay only for what you use. There is no minimum fee. If you add a worker for a single day, you'll pay for this day only. Not month. You are free to add or remove workers anytime as you see fit. Your credit card will not be charged today, only at the end of your billing period.</div>
                         <div className="container mt-4">
                             <div className="row">
@@ -959,6 +939,7 @@ const Payment = ({ updatePaymentStatus }) => {
                     </div>
                 </div>
             </div>
+            
             {/* {responseMessage && (
                             <div style={{
                                 marginTop: '50px',
@@ -984,7 +965,10 @@ const Payment = ({ updatePaymentStatus }) => {
                 handleCloseModal2={handleCloseModal2}
                 selectedPlan={selectedPlan}
             />
+
+
         </>
+
     );
 };
 

@@ -212,26 +212,33 @@ function OwnerReport() {
 
 
   const getData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
+      const url = employeeId 
+        ? `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`
+        : `${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}`;
+
+      const response = await axios.get(url, { headers });
+
+      console.log('API Request URL:', url);
       if (response.status === 200) {
         console.log('New Api response', response);
-        setLoading(false)
-        setReportData(response.data?.data)
+        setReportData(response.data?.data);
       }
-    }
-    catch (error) {
-      setLoading(false)
+    } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+
 
   useEffect(() => {
     if (startDate && endDate) {
       getData();
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate,employeeId]);
 
   const animatedComponents = makeAnimated();
 
@@ -363,7 +370,7 @@ function OwnerReport() {
       let response;
       if (userType === 'admin' || userType === 'owner') {
         // Fetch reports for all users
-        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${employeeId}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       } else if (user === 'manager') {
         // If user is a manager, filter managers based on the logged-in manager's ID
         const loggedInManager = response.data.employees.find(employee => employee.email === items.email);
@@ -374,7 +381,7 @@ function OwnerReport() {
         }
       } else {
         // Fetch reports for a single user
-        response = await axios.get(`${apiUrl}/owner/day?startDate=${new Date().toLocaleDateString()}&endDate=${new Date().toLocaleDateString()}&userId=${items._id}`, { headers });
+        response = await axios.get(`${apiUrl}/owner/day?startDate=${startDate.toLocaleDateString()}&endDate=${endDate.toLocaleDateString()}&userId=${employeeId}`, { headers });
       }
       if (response.status === 200) {
         console.log(response);
@@ -451,6 +458,7 @@ function OwnerReport() {
       throw new Error('Failed to fetch reports');
     }
   };
+  
   const getWeeklyReports = async (type) => {
 
     let response;
@@ -963,7 +971,7 @@ function OwnerReport() {
               // isClearable={true} // Allow the user to clear the selection
               // value={selectedUsers.length > 0 ? selectedUsers[0] : null} // Set the value to the first selected user
               />
-              {console.log("User  detials", user)}
+              {console.log("User Detials", user)}
             </div>
             <div>
               {/* <img className="reportButton" src={reportButton} /> */}
@@ -1019,19 +1027,123 @@ function OwnerReport() {
             {console.log("reportData:", reportData)}
             {console.log("reportData.allUsers:", reportData && reportData.allUsers)}
 
-            {reportData?.allUsers?.map((data, index) => {
-              return (
+            {(userType === "admin" || userType === "owner" || userType === 'user' || userType === 'manager') && reportData && reportData.allUsers ? (
+              reportData.allUsers.map((data, index) => (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div className="asadMehmoodDiv" key={index}>
+                    <div onClick={() => handleExpand(data?.employee)}>
+                      <p>
+                        {/* <FaPlus /> Add */}
+                        <p>{expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />}
+                          {/* <img src={expandedEmployee === data?.employee ? <FaMinus /> : <FaPlus />} alt="Toggle" /> */}
+                          {/* <img src={expandedEmployee === data?.employee ? crossButton : addButton} alt="Toggle" /> */}
+                          <span>{data?.employee}</span>
+                        </p>
+                      </p>
+                    </div>
+                    {console.log('Report Data selectUsers', reportData)}
+                    <div className="durationDiv">
+                      <p>{data?.Duration}</p>
+                      <p>{Math.floor(data?.Activity)} %</p>
+                    </div>
+                  </div>
+                  {expandedEmployee === data?.employee && (
+                    <div className="expandedDetails">
+                      {data?.projects
+                        ?.filter((project, index, projectsArray) => {
+
+                          if (projectsArray.length > 1) {
+                            return project.projectname !== null;
+                          }
+                          return true;
+                        })
+                        ?.map((project, projectIndex) => (
+                          <div key={projectIndex} className="asadMehmoodkabhaiDiv">
+
+                            <p >{project?.projectname || 'No project name'}</p>
+                            <div className="durationDiv">
+                              <p>{project.hours || 'No duration'}</p>
+                              <p>{project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              userType === "owner" && reportData ? (
                 <div className="asadMehmoodDiv">
-                  <div>
-                    <p><img src={addButton} /><span>{data?.employee}</span></p>
+                  <div onClick={() => handleExpand(reportData?.employee)}>
+                    <p>
+                      <img
+                        src={expandedEmployee === reportData?.employee ? crossButton : ""}
+                        alt="Toggle"
+                      />
+                      <span>{reportData?.employee}</span></p>
                   </div>
                   <div className="durationDiv">
-                    <p>{data?.Duration}</p>
-                    <p>{Math.floor(data?.Activity)} %</p>
+                    <p>{reportData?.Duration}</p>
+                    <p>{Math.floor(reportData?.Activity)} %</p>
                   </div>
+                  {expandedEmployee === reportData?.employee && (
+                    <div className="expandedDetails">
+                      {reportData?.projects?.map((project, projectIndex) => (
+                        <div key={projectIndex} className="projectDetails">
+                          <p>Project Name: {project.projectname || 'No project name'}</p>
+                          <p>Duration: {project.hours || 'No duration'}</p>
+                          {console.log("Report Total Hours", project.hours)}
+                          <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                userType === 'manager' && reportData ? (
+                  <>
+                    {reportData ? (
+                      reportData.allUsers.map((data, index) => (
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div className="asadMehmoodDiv" key={index}>
+                            <div onClick={() => handleExpand(data?.employee)}>
+                              <p><img src={expandedEmployee === reportData?.employee ? crossButton : ""} alt="Toggle" /><span>{data?.employee}</span></p>
+                            </div>
+                            <div className="durationDiv">
+                              <p>{data?.Duration}</p>
+                              <p>{Math.floor(data?.Activity)} %</p>
+                            </div>
+                          </div>
+                          {expandedEmployee === data?.employee && (
+                            <div className="expandedDetails">
+                              {data?.projects?.map((project, projectIndex) => (
+                                <div key={projectIndex} className="projectDetails">
+                                  <p>Project Name: {project.projectname || 'No project name'}</p>
+                                  <p>Duration: {project.hours || 'No duration'}</p>
+                                  <p>Activity: {project.activity !== undefined ? Math.floor(project.activity) : 'No activity'} %</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div>No data available for the manager</div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* <div className="container">
+                        {reportData && reportData.allUsers ? (
+                          reportData.allUsers.map(renderEmployeeData)
+                        ) : (
+                          <div>No data available</div>
+                        )}
+                      </div> */}
+                  </>
+                )
               )
-            })}
+            )}
             {/* {reportData?.allUsers?.map((data, index) => {
               return (
                 <div className="asadMehmoodDiv">

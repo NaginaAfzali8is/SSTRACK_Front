@@ -6308,3 +6308,58 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 
 }
+/* @media (max-width: 1000px) and (min-width: 300px) {
+
+
+  .mobhayat {
+
+    inline-size: fit-content;
+
+  }
+
+  body {
+
+    width: fit-content;
+
+  }
+
+} */
+
+
+/* Remove arrows in Chrome, Safari, Edge, and Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove arrows in Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+
+.custom-modal-width .modal-dialog {
+  max-width: 700px; /* Adjust the width as needed */
+  width: 100%;
+}
+
+/* Hide the dotted line on smaller screens */
+@media (max-width: 768px) {
+  .dotted-line {
+    display: none;
+  }
+}
+/* Hide the dotted line on medium and smaller screens */
+@media (max-width: 992px) {
+  .dotted-line {
+    display: none;
+  }
+}
+
+/* Hide the dotted line on medium and smaller screens */
+@media (max-width: 1383px) {
+  .dotted-line {
+    display: none;
+  }
+}

@@ -74,6 +74,8 @@ function UserSettings() {
         { id: 7, showSetting: <Notify loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Notify when screeshot is taken", isActive: false, icon: "Yes" },
         { id: 8, showSetting: <WeekStart loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Week starts on", isActive: false, icon: "Sun" },
         { id: 9, showSetting: <CurrencySymbol loading={loading} loading2={loading2} employees={employess} setEmployess={setEmployess} />, name: "Currency symbol", isActive: false, icon: "$" },
+       
+
     ]);
 
     return (
