@@ -44,31 +44,31 @@ const CompanyEmployess = (props) => {
                     );
                     if (response.status === 200) {
                         const { breakConvertedData, puncStartTime, puncEndTime } = response.data.data;
-    
+
                         // Convert to UTC format or extract HH:MM for puncStartTime and puncEndTime
                         const formattedPuncStartTime = puncStartTime
-                            ? new Date(puncStartTime).toISOString().substring(11, 16)
+                            ? new Date(puncStartTime).toISOString().substring(11, 16) // UTC time in HH:MM format
                             : "";
-    
+
                         const formattedPuncEndTime = puncEndTime
-                            ? new Date(puncEndTime).toISOString().substring(11, 16)
+                            ? new Date(puncEndTime).toISOString().substring(11, 16) // UTC time in HH:MM format
                             : "";
-    
+
                         // Extract break times
                         const utcBreakStartTime = breakConvertedData?.[0]?.breakStartTime
-                            ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16)
+                            ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16) // UTC format
                             : "";
-    
+
                         const utcBreakEndTime = breakConvertedData?.[0]?.breakEndTime
-                            ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16)
+                            ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16) // UTC format
                             : "";
-    
+
                         updatedFields[employee._id] = {
-                            showFields: employee.punctualityData?.individualbreakTime || false, // Toggle state
-                            startTime: utcBreakStartTime, // Break start time
-                            endTime: utcBreakEndTime,     // Break end time
-                            puncStartTime: formattedPuncStartTime, // Punctuality start time
-                            puncEndTime: formattedPuncEndTime,     // Punctuality end time
+                            showFields: employee.punctualityData?.individualPuncStart || false, // Toggle state
+                            startTime: utcBreakStartTime, // Break start time in UTC
+                            endTime: utcBreakEndTime,     // Break end time in UTC
+                            puncStartTime: formattedPuncStartTime, // Punctuality start time in UTC
+                            puncEndTime: formattedPuncEndTime,     // Punctuality end time in UTC
                         };
                     }
                 }
@@ -77,11 +77,12 @@ const CompanyEmployess = (props) => {
                 console.error("Error fetching employee data:", error);
             }
         };
-    
+
+
         fetchAllEmployeeData(); // Fetch the data on mount
     }, [employees]); // This ensures it runs when employees change
-    
-    
+
+
 
     useEffect(() => {
         const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
@@ -245,7 +246,7 @@ const CompanyEmployess = (props) => {
                 showFields: isSelected,
             },
         }));
-    
+
         try {
             // Fetch current settings for the employee
             const response = await axios.get(
@@ -256,13 +257,13 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (response.status !== 200) {
                 throw new Error("Failed to fetch current settings.");
             }
-    
+
             const currentSettings = response.data.employeeSettings;
-    
+
             // Prepare the payload with updated settings
             const requestData = {
                 userId: employee._id,
@@ -271,7 +272,7 @@ const CompanyEmployess = (props) => {
                     individualPuncStart: isSelected, // Update the toggle value
                 },
             };
-    
+
             // Update backend with new settings
             const updateResponse = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
@@ -283,7 +284,7 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (updateResponse.status === 200) {
                 enqueueSnackbar("Punctuality setting updated successfully!", {
                     variant: "success",
@@ -292,7 +293,7 @@ const CompanyEmployess = (props) => {
                         horizontal: "right",
                     },
                 });
-    
+
                 // Sync the local state and update `localStorage` for cross-tab visibility
                 const updatedState = {
                     ...timeFields,
@@ -308,7 +309,7 @@ const CompanyEmployess = (props) => {
             }
         } catch (error) {
             console.error("Error updating punctuality setting:", error);
-    
+
             // Revert the UI state if the API call fails
             setTimeFields((prev) => ({
                 ...prev,
@@ -326,21 +327,78 @@ const CompanyEmployess = (props) => {
             });
         }
     };
-    
+    // Convert 24-hour format to 12-hour format with AM/PM
+    const convertTo12HourFormat = (time) => {
+        const [hours, minutes] = time.split(":").map(Number);
+        const suffix = hours >= 12 ? "PM" : "AM";
+        const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour clock
+        return `${adjustedHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")} ${suffix}`;
+    };
+
+    // Convert 12-hour format with AM/PM to 24-hour format
+    const convertTo24HourFormat = (time) => {
+        const [timePart, suffix] = time.split(" ");
+        const [hours, minutes] = timePart.split(":").map(Number);
+        const adjustedHours = suffix === "PM" && hours !== 12 ? hours + 12 : suffix === "AM" && hours === 12 ? 0 : hours;
+        return `${adjustedHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+    };
+
+    // const handleTimeChange = (employeeId, field, value) => {
+    //     setTimeFields((prev) => {
+    //         const updatedFields = {
+    //             ...prev,
+    //             [employeeId]: {
+    //                 ...prev[employeeId],
+    //                 [field]: value,
+    //             },
+    //         };
+    //         // Save to localStorage whenever the timeFields change
+    //         localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+    //         return updatedFields;
+    //     });
+    // };
+    // const handleTimeChange = (employeeId, field, value) => {
+    //     const formattedValue = convertTo24HourFormat(value); // Convert from AM/PM to 24-hour for storage
+    //     setTimeFields((prev) => {
+    //         const updatedFields = {
+    //             ...prev,
+    //             [employeeId]: {
+    //                 ...prev[employeeId],
+    //                 [field]: formattedValue,
+    //             },
+    //         };
+    //         // Save to localStorage whenever the timeFields change
+    //         localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+    //         return updatedFields;
+    //     });
+    // };
+    useEffect(() => {
+        const persistedTimeFields = JSON.parse(localStorage.getItem("timeFields")) || {};
+        const updatedTimeFields = employees.reduce((fields, employee) => {
+            fields[employee._id] = {
+                ...persistedTimeFields[employee._id], // Load from localStorage if available
+                puncStartTime: persistedTimeFields[employee._id]?.puncStartTime || "00:00",
+                puncEndTime: persistedTimeFields[employee._id]?.puncEndTime || "00:00",
+            };
+            return fields;
+        }, {});
+        setTimeFields(updatedTimeFields);
+    }, [employees]);
+
     const handleTimeChange = (employeeId, field, value) => {
         setTimeFields((prev) => {
             const updatedFields = {
                 ...prev,
                 [employeeId]: {
                     ...prev[employeeId],
-                    [field]: value,
+                    [field]: value, // Store the selected time directly in HH:mm format
                 },
             };
-            // Save to localStorage whenever the timeFields change
-            localStorage.setItem("timeFields", JSON.stringify(updatedFields));
+            localStorage.setItem("timeFields", JSON.stringify(updatedFields)); // Save to localStorage
             return updatedFields;
         });
     };
+    
 
     // const handleSave = async (employeeId) => {
     //     console.log("Time Fields for Employee:", timeFields[employeeId]); // Debugging
@@ -413,7 +471,7 @@ const CompanyEmployess = (props) => {
     const handleSave = async (employeeId) => {
         try {
             const { puncStartTime, puncEndTime } = timeFields[employeeId];
-    
+
             // Validation for start and end times
             if (!puncStartTime || !puncEndTime) {
                 enqueueSnackbar("Both Punctuality Start Time and End Time are required.", {
@@ -422,9 +480,33 @@ const CompanyEmployess = (props) => {
                 });
                 return;
             }
-    
+
+            // Calculate the total duration in 24-hour format
+            const calculateTimeDifference = (start, end) => {
+                const [startHours, startMinutes] = start.split(":").map(Number);
+                const [endHours, endMinutes] = end.split(":").map(Number);
+
+                // Convert times to minutes
+                const startInMinutes = startHours * 60 + startMinutes;
+                const endInMinutes = endHours * 60 + endMinutes;
+
+                // Handle case where end time is on the next day
+                const totalMinutes =
+                    endInMinutes >= startInMinutes
+                        ? endInMinutes - startInMinutes
+                        : 1440 - (startInMinutes - endInMinutes); // 1440 minutes in 24 hours
+
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                return `${hours}h:${minutes}m`;
+            };
+
+            const totalDuration = calculateTimeDifference(puncStartTime, puncEndTime);
+
+            console.log("Total Duration:", totalDuration);
+
             const currentDate = new Date().toISOString().split("T")[0];
-    
+
             // Prepare API payload
             const requestData = {
                 userId: employeeId,
@@ -432,9 +514,10 @@ const CompanyEmployess = (props) => {
                     puncStartTime: `${currentDate}T${puncStartTime}:00`,
                     puncEndTime: `${currentDate}T${puncEndTime}:00`,
                     individualPuncStart: true, // Keep toggle ON
+                    totalDuration, // Send total duration to the backend if needed
                 },
             };
-    
+
             // Call API to save data
             const response = await axios.post(
                 "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
@@ -446,13 +529,13 @@ const CompanyEmployess = (props) => {
                     },
                 }
             );
-    
+
             if (response.status === 200) {
                 enqueueSnackbar("Punctuality successfully saved!", {
                     variant: "success",
                     anchorOrigin: { vertical: "top", horizontal: "right" },
                 });
-    
+
                 // Fetch updated data from backend
                 const updatedResponse = await axios.get(
                     `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${employeeId}`,
@@ -462,10 +545,10 @@ const CompanyEmployess = (props) => {
                         },
                     }
                 );
-    
+
                 if (updatedResponse.status === 200) {
                     const updatedData = updatedResponse.data?.data;
-    
+
                     // Extract updated values
                     const updatedPuncStartTime = updatedData?.puncStartTime
                         ? updatedData.puncStartTime.substring(11, 16)
@@ -473,7 +556,7 @@ const CompanyEmployess = (props) => {
                     const updatedPuncEndTime = updatedData?.puncEndTime
                         ? updatedData.puncEndTime.substring(11, 16)
                         : "";
-    
+
                     // Update local state with fetched data
                     setTimeFields((prev) => ({
                         ...prev,
@@ -493,7 +576,7 @@ const CompanyEmployess = (props) => {
             enqueueSnackbar("Error saving Punctuality data.", { variant: "error" });
         }
     };
-    
+
 
 
     useEffect(() => {
@@ -1083,6 +1166,7 @@ const CompanyEmployess = (props) => {
                                                     <input
                                                         type="time"
                                                         value={timeFields[employee._id]?.puncStartTime === "00:00" ? "" : timeFields[employee._id]?.puncStartTime}
+
                                                         onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                         onChange={(e) => handleTimeChange(employee._id, "puncStartTime", e.target.value)}
                                                         style={{ marginLeft: 10 }}
