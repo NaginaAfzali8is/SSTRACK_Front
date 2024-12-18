@@ -75,62 +75,62 @@ const CompanyEmployess = (props) => {
 
     const handleToggleChange = async (employee, isSelected) => {
         const userId = employee._id;
-    
+
         // Optimistic Update
         setTimeFields((prev) => ({
-          ...prev,
-          [userId]: { ...prev[userId], showFields: isSelected },
-        }));
-    
-        try {
-          // Update toggle state via API
-          const payload = { userId, settings: { individualbreakTime: isSelected } };
-          const response = await axios.post(
-            "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
-            payload,
-            { headers }
-          );
-    
-          if (response.status === 200) {
-            enqueueSnackbar("Toggle updated successfully!", { variant: "success" });
-    
-            // Fetch updated Break Time data if toggle is ON
-            if (isSelected) {
-              const updatedResponse = await axios.get(
-                `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${userId}`,
-                { headers }
-              );
-    
-              if (updatedResponse.status === 200) {
-                const breakData =
-                  updatedResponse.data.data.breakConvertedData?.[0] || {};
-    
-                setTimeFields((prev) => ({
-                  ...prev,
-                  [userId]: {
-                    showFields: true,
-                    startTime: breakData.breakStartTime?.substring(11, 16) || "",
-                    endTime: breakData.breakEndTime?.substring(11, 16) || "",
-                  },
-                }));
-              }
-            }
-          } else {
-            throw new Error("Failed to update toggle");
-          }
-        } catch (error) {
-          console.error("Error updating toggle:", error);
-          enqueueSnackbar("Error updating toggle. Please try again.", {
-            variant: "error",
-          });
-    
-          // Revert state on failure
-          setTimeFields((prev) => ({
             ...prev,
-            [userId]: { ...prev[userId], showFields: !isSelected },
-          }));
+            [userId]: { ...prev[userId], showFields: isSelected },
+        }));
+
+        try {
+            // Update toggle state via API
+            const payload = { userId, settings: { individualbreakTime: isSelected } };
+            const response = await axios.post(
+                "https://myuniversallanguages.com:9093/api/v1/superAdmin/addIndividualPunctuality",
+                payload,
+                { headers }
+            );
+
+            if (response.status === 200) {
+                enqueueSnackbar("Toggle updated successfully!", { variant: "success" });
+
+                // Fetch updated Break Time data if toggle is ON
+                if (isSelected) {
+                    const updatedResponse = await axios.get(
+                        `https://myuniversallanguages.com:9093/api/v1/superAdmin/getPunctualityDataEachUser/${userId}`,
+                        { headers }
+                    );
+
+                    if (updatedResponse.status === 200) {
+                        const breakData =
+                            updatedResponse.data.data.breakConvertedData?.[0] || {};
+
+                        setTimeFields((prev) => ({
+                            ...prev,
+                            [userId]: {
+                                showFields: true,
+                                startTime: breakData.breakStartTime?.substring(11, 16) || "",
+                                endTime: breakData.breakEndTime?.substring(11, 16) || "",
+                            },
+                        }));
+                    }
+                }
+            } else {
+                throw new Error("Failed to update toggle");
+            }
+        } catch (error) {
+            console.error("Error updating toggle:", error);
+            enqueueSnackbar("Error updating toggle. Please try again.", {
+                variant: "error",
+            });
+
+            // Revert state on failure
+            setTimeFields((prev) => ({
+                ...prev,
+                [userId]: { ...prev[userId], showFields: !isSelected },
+            }));
         }
-      };    
+    };
 
     // const handleToggleChange = async (employee, isSelected) => {
     //     try {
@@ -779,7 +779,7 @@ const CompanyEmployess = (props) => {
                 });
                 return;
             }
-  
+
             const totalHours = calculateTotalHours(startTime, endTime);
             const currentDate = new Date().toISOString().split("T")[0];
             const breakStartUTC = new Date(`${currentDate}T${startTime}`).toISOString();
@@ -1376,16 +1376,16 @@ const CompanyEmployess = (props) => {
                     );
                     if (response.status === 200) {
                         const { breakConvertedData } = response.data.data;
-        
+
                         // Convert to UTC format using toISOString()
                         const utcBreakStartTime = breakConvertedData?.[0]?.breakStartTime
                             ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16)
                             : "";
-        
+
                         const utcBreakEndTime = breakConvertedData?.[0]?.breakEndTime
                             ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16)
                             : "";
-        
+
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualbreakTime || false, // Toggle state
                             startTime: utcBreakStartTime, // Converted to UTC
@@ -1398,12 +1398,12 @@ const CompanyEmployess = (props) => {
                 console.error("Error fetching employee data:", error);
             }
         };
-        
+
         // if (employees.length > 0) {
-            fetchAllEmployeeData(); // Fetch the data on mount
+        fetchAllEmployeeData(); // Fetch the data on mount
         // }
     }, [employees]); // This ensures it runs when employees change
-    
+
 
     return (
         <>
@@ -1539,7 +1539,7 @@ const CompanyEmployess = (props) => {
                                                     value={timeFields[employee._id]?.startTime || ""} // Default to 00:00 if null
                                                     onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                     onChange={(e) =>
-                                                        handleTimeChange(employee._id, "startTime", newValue)
+                                                        handleTimeChange(employee._id, "startTime", e.target.value)
                                                     }
                                                     style={{ marginLeft: 10 }}
                                                 />
@@ -1551,7 +1551,7 @@ const CompanyEmployess = (props) => {
                                                     value={timeFields[employee._id]?.endTime || ""} // Default to 00:00 if null
                                                     onFocus={(e) => e.target.showPicker()} // Automatically open the time picker
                                                     onChange={(e) =>
-                                                        handleTimeChange(employee._id, "endTime", newValue)
+                                                        handleTimeChange(employee._id, "endTime", e.target.value)
                                                     }
                                                     style={{ marginLeft: 10 }}
                                                 />

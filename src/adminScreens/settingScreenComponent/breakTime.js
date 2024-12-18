@@ -33,7 +33,7 @@ function Screenshot() {
 
   const handleApplySettings = async (employee, type, setting) => {
     const settings = {
-      ...employee.effectiveSettings,
+      ...employee.effectiveSettings,  
       screenshots: {
         ...employee.effectiveSettings.screenshots,
         enabled: setting,
