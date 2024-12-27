@@ -207,7 +207,13 @@ function UserDashboardSection() {
                                 cursor: "pointer",
                             }}
                         >
-                            <p style={{ margin: 0 }}>Leave</p>
+                            <p style={{ margin: 0 }}>
+                                Leave
+                                <span style={{ marginLeft: "5px" }}>
+                                    Management
+                                </span>
+                            </p>
+
                             {/* <span
                                 style={{
                                     backgroundColor: "#28659C",
@@ -244,14 +250,14 @@ function UserDashboardSection() {
                         </div>
                     )} */}
 
-                {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
+                    {/* {(items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") && (
                         <>
                             <div className={location.pathname === "/leave-management" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/leave-management')}>
                                 <p style={{ margin: 0 }} onClick={() => navigate('/leave-management')}>Leave Management</p>
                             </div>
                         </>
                     )} */}
-                {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
+                    {/* <div className={location.pathname === "/download" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/download')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/download')}>Download</p>
                     </div>
                     <div className={location.pathname === "/workCards" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/workCards')}>
@@ -260,13 +266,13 @@ function UserDashboardSection() {
                     <div className={location.pathname === "/pricing" ? "active-tab" : "ownerSectionUser"} onClick={() => navigate('/pricing')}>
                         <p style={{ margin: 0 }} onClick={() => navigate('/pricing')}>Pricing</p>
                     </div> */}
-                <div className="d-flex container">
-                    {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
+                    <div className="d-flex container">
+                        {/* <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/download")}>Download</p>
                         <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/pricing")}>Pricing</p>
                         <p style={{ fontSize: '18px', color: '#7ACB59', cursor: 'pointer' }} onClick={() => navigate("/workCards")}>How It Work</p> */}
+                    </div>
                 </div>
-            </div>
-            {/* {items?.userType === "user" && (
+                {/* {items?.userType === "user" && (
                     <div className="flex-end">
                         <p style={{ margin: "0 20px", fontWeight: "bold" }}>
                             Break Time: {remainingBreakTime}
@@ -274,23 +280,23 @@ function UserDashboardSection() {
                     </div>
                 )} */}
 
-            <div className="d-flex">
-                {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
+                <div className="d-flex">
+                    {/* <p className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
                         Break Time: {remainingBreakTime}
                     </p> */}
-                {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
-                    <div className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
-                        <p style={{ margin: "0 20px", fontWeight: "bold" }}>
-                            Break Time: {remainingBreakTime || '0h:0m'}
-                        </p>
+                    {(items?.userType === "user" || items?.userType === "manager" || items?.userType === "admin") && (
+                        <div className="ownerSectionCompany" style={{ margin: "0 20px", fontWeight: "bold" }}>
+                            <p style={{ margin: "0 20px", fontWeight: "bold" }}>
+                                Break Time: {remainingBreakTime || '0h:0m'}
+                            </p>
+                        </div>
+                    )}
+                    <div className="ownerSectionCompany d-flex align-items-center cursor-none">
+                        <div><img src={circle} /></div>
+                        <p className="m-0">{items?.company}</p>
                     </div>
-                )}
-                <div className="ownerSectionCompany d-flex align-items-center cursor-none">
-                    <div><img src={circle} /></div>
-                    <p className="m-0">{items?.company}</p>
                 </div>
             </div>
-        </div>
         </div >
     )
 }

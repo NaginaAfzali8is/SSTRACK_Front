@@ -325,25 +325,23 @@ function Screenshot() {
       const json = await response.json();
       const employeesData = json?.convertedEmployees || [];
   
-      // Transform and set breakTimes
+      // Transform and set breakTimes to show in UTC format
       const transformedBreakTimes =
         employeesData[0]?.punctualityData?.breakTime.map((breakEntry) => {
-          const start = new Date(breakEntry.breakStartTime).toLocaleTimeString(
-            "en-US",
-            { hour: "2-digit", minute: "2-digit", hour12: false }
-          );
-          const end = new Date(breakEntry.breakEndTime).toLocaleTimeString(
-            "en-US",
-            { hour: "2-digit", minute: "2-digit", hour12: false }
-          );
+          const breakStartUTC = new Date(breakEntry.breakStartTime).toISOString(); // Store in UTC
+          const breakEndUTC = new Date(breakEntry.breakEndTime).toISOString(); // Store in UTC
           const duration = breakEntry.TotalHours || "0h:0m";
-          return { start, end, duration };
+  
+          return {
+            start: breakStartUTC.substring(11, 16), // Display as HH:MM in UTC
+            end: breakEndUTC.substring(11, 16), // Display as HH:MM in UTC
+            duration,
+          };
         }) || [];
   
       setBreakTimes(transformedBreakTimes);
-      // console.log("Break Start Time:", transformedBreakTimes);
-      // // console.log("Break End Time:", puncEndTime);
-      // Calculate total duration from all objects
+  
+      // Calculate total duration
       const totalMinutes = transformedBreakTimes.reduce((acc, curr) => {
         const [hours, minutes] = curr.duration
           .split("h:")
@@ -366,6 +364,7 @@ function Screenshot() {
       });
     }
   }
+  
   
 
   //
@@ -1041,57 +1040,47 @@ function Screenshot() {
   const handleBreakTimeChange = (index, field, value) => {
     const updatedBreakTimes = [...breakTimes];
   
-    // Get current date in YYYY-MM-DD format
-    const currentDate = new Date().toISOString().split("T")[0]; // Current date part only
-  
-    // Combine current date with input time and convert to UTC
-    const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString();
+    // Combine current date with input time
+    const currentDate = new Date().toISOString().split("T")[0]; // Current date
+    const utcTime = new Date(`${currentDate}T${value}:00Z`).toISOString(); // Convert to UTC
   
     // Update raw input and UTC equivalent
     updatedBreakTimes[index][field] = value; // Raw input (HH:MM)
-    updatedBreakTimes[index][`${field}UTC`] = utcTime; // UTC time with current date
+    updatedBreakTimes[index][`${field}UTC`] = utcTime; // Store UTC time
   
     const startUTC = updatedBreakTimes[index].startUTC;
     const endUTC = updatedBreakTimes[index].endUTC;
   
-    // Validate only if both times are provided
+    // Validate start and end times
     if (startUTC && endUTC) {
       const startTimeUTC = new Date(startUTC);
       const endTimeUTC = new Date(endUTC);
   
-      // Validate that End Time is after Start Time
       if (endTimeUTC <= startTimeUTC) {
-        enqueueSnackbar("End Time must be after Start Time. Please adjust the times.", {
+        enqueueSnackbar("End Time must be after Start Time.", {
           variant: "error",
           anchorOrigin: { vertical: "top", horizontal: "right" },
         });
-        updatedBreakTimes[index][field] = ""; // Reset invalid input
-        updatedBreakTimes[index][`${field}UTC`] = "";
-        setBreakTimes(updatedBreakTimes);
-        return; // Exit early
+        return;
       }
   
-      // Validate that the duration does not exceed 1 hour
+      // Calculate duration
       const durationMinutes = Math.floor((endTimeUTC - startTimeUTC) / (1000 * 60));
       if (durationMinutes > 60) {
-        enqueueSnackbar("Duration cannot exceed 1 hour. Please adjust the times.", {
+        enqueueSnackbar("Duration cannot exceed 1 hour.", {
           variant: "warning",
           anchorOrigin: { vertical: "top", horizontal: "right" },
         });
-        updatedBreakTimes[index][field] = ""; // Reset invalid input
-        updatedBreakTimes[index][`${field}UTC`] = "";
-        setBreakTimes(updatedBreakTimes);
-        return; // Exit early
+        return;
       }
   
-      // Calculate duration and update it
       updatedBreakTimes[index].duration = `${Math.floor(durationMinutes / 60)}h:${durationMinutes % 60}m`;
     }
   
-    // Update state
     setBreakTimes(updatedBreakTimes);
     calculateTotalDuration();
   };
+  
   
 
   // const [totalDuration, setTotalDuration] = useState("0h:0m");

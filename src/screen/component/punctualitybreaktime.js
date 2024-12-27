@@ -43,7 +43,7 @@ const CompanyEmployess = (props) => {
                         }
                     );
                     if (response.status === 200) {
-                        const { breakConvertedData, puncStartTime, puncEndTime } = response.data.data;
+                        const { puncStartTime, puncEndTime } = response.data.data;
 
                         // Convert to UTC format or extract HH:MM for puncStartTime and puncEndTime
                         const formattedPuncStartTime = puncStartTime
@@ -55,18 +55,18 @@ const CompanyEmployess = (props) => {
                             : "";
 
                         // Extract break times
-                        const utcBreakStartTime = breakConvertedData?.[0]?.breakStartTime
-                            ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16) // UTC format
-                            : "";
+                        // const utcBreakStartTime = breakConvertedData?.[0]?.breakStartTime
+                        //     ? new Date(breakConvertedData[0].breakStartTime).toISOString().substring(11, 16) // UTC format
+                        //     : "";
 
-                        const utcBreakEndTime = breakConvertedData?.[0]?.breakEndTime
-                            ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16) // UTC format
-                            : "";
+                        // const utcBreakEndTime = breakConvertedData?.[0]?.breakEndTime
+                        //     ? new Date(breakConvertedData[0].breakEndTime).toISOString().substring(11, 16) // UTC format
+                        //     : "";
 
                         updatedFields[employee._id] = {
                             showFields: employee.punctualityData?.individualPuncStart || false, // Toggle state
-                            startTime: utcBreakStartTime, // Break start time in UTC
-                            endTime: utcBreakEndTime,     // Break end time in UTC
+                            // startTime: utcBreakStartTime, // Break start time in UTC
+                            // endTime: utcBreakEndTime,     // Break end time in UTC
                             puncStartTime: formattedPuncStartTime, // Punctuality start time in UTC
                             puncEndTime: formattedPuncEndTime,     // Punctuality end time in UTC
                         };

@@ -171,13 +171,13 @@ const OwnerTeam = () => {
                 }
             });
             // Reset the leaveData state to its initial values
-            setLeaveData({
-                ...leaveData, // Preserve the original structure
-                sickLeaves: "",
-                casualLeaves: "",
-                bereavementLeaves: "",
-                annualLeaves: "",
-            });
+            // setLeaveData({
+            //     ...leaveData, // Preserve the original structure
+            //     sickLeaves: "",
+            //     casualLeaves: "",
+            //     bereavementLeaves: "",
+            //     annualLeaves: "",
+            // });
             setModalOpen(false); // Close the modal
         } catch (error) {
             console.error("Error setting leave allowance:", error);
@@ -187,23 +187,35 @@ const OwnerTeam = () => {
         }
     };
 
-    // Fetch leave requests data
-    const fetchLeaveRequests = async () => {
-        try {
-            const response = await axios.get(
-                `${apiUrl}/superAdmin/getAllLeaveRequests`,
-                { headers }
-            );
-            const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
-                response.data || {};
-            setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
-            setPendingCount(requestedLeaves.length);
-        } catch (error) {
-            console.error("Error fetching leave requests:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchLeaveRequests = async () => {
+    try {
+        const response = await axios.get(
+            `${apiUrl}/superAdmin/getAllLeaveRequests`,
+            { headers }
+        );
+
+        const { requestedLeaves = [], approvedLeaves = [], rejectedLeaves = [] } =
+            response.data || {};
+
+        // Extract and log leave details for each object
+        approvedLeaves.forEach((leave) => {
+            console.log("User Name:", leave.userName);
+            console.log("Sick Leaves:", leave.sickLeaves);
+            console.log("Casual Leaves:", leave.casualLeaves);
+            console.log("Annual Leaves:", leave.annualLeaves);
+            console.log("Bereavement Leaves:", leave.bereavementLeaves);
+        });
+
+        // Update state
+        setLeaveData({ requestedLeaves, approvedLeaves, rejectedLeaves });
+        setPendingCount(requestedLeaves.length);
+    } catch (error) {
+        console.error("Error fetching leave requests:", error);
+    } finally {
+        setLoading(false);
+    }
+};
+
 
     useEffect(() => {
         fetchLeaveRequests();
@@ -375,10 +387,15 @@ const OwnerTeam = () => {
         );
     };
 
-
     //  modal
     const renderModal = () => {
         if (!selectedLeave) return null;
+
+        const userLeaveData = leaveData.approvedLeaves.find(
+            (leave) => leave.userId === selectedLeave.userId
+        );
+    
+        console.log("Casual Leaves Count:", userLeaveData);
 
         return (
             <div>
@@ -460,44 +477,118 @@ const OwnerTeam = () => {
                         </strong>
                     </div>
                     <div style={{ marginBottom: "20px" }}>
-                        <p>
-                            <strong>Start Date:</strong>{" "}
-                            {new Date(selectedLeave.startDate).toLocaleDateString("en-GB")}
-                        </p>
-                        <p>
-                            <strong>End Date:</strong>{" "}
-                            {new Date(selectedLeave.endDate).toLocaleDateString("en-GB")}
-                        </p>
-                        <p>
-                            <strong>Request Date:</strong>{" "}
-                            {new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB")}
-                        </p>
-                        <p>
-                            <strong>Leave Type:</strong> {selectedLeave.leaveType}
-                        </p>
-                        <p>
-                            <strong>Approval Date:</strong>
-                            {selectedLeave.approvedAt
-                                ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                })
-                                : "-"}
-                        </p>
-                        <p>
-                            <strong>Reason:</strong> {selectedLeave.reason}
-                        </p>
-                        <p>
-                            <strong>Approved By:</strong> {selectedLeave.approvedBy ? (
-                                <>
-                                    {selectedLeave.approvedBy.name}
-                                    <span style={{ marginLeft: "10px", fontStyle: "italic", color: "#888" }}>
-                                        ({selectedLeave.approvedBy.userType})
-                                    </span>
-                                </>
-                            ) : "-"}
-                        </p>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "flex-start",
+                                gap: "20px", // Adds space between sections
+                                marginBottom: "20px",
+                            }}
+                        >
+                            {/* Left Side: Leave Details */}
+                            <div style={{ flex: 1 }}>
+                                <p>
+                                    <strong>Start Date:</strong>{" "}
+                                    {/* {new Date(selectedLeave.startDate).toLocaleDateString("en-GB")} */}
+                                    {selectedLeave.startDate
+                                        ? new Date(selectedLeave.startDate).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })
+                                        : "-"}
+                                </p>
+                                <p>
+                                    <strong>End Date:</strong>{" "}
+                                    {selectedLeave.endDate
+                                        ? new Date(selectedLeave.endDate).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })
+                                        : "-"}
+                                    {/* {new Date(selectedLeave.endDate).toLocaleDateString("en-GB")} */}
+                                </p>
+                                <p>
+                                    <strong>Request Date:</strong>{" "}
+                                    {selectedLeave.appliedAt
+                                        ? new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })
+                                        : "-"}
+                                    {/* {new Date(selectedLeave.appliedAt).toLocaleDateString("en-GB")} */}
+                                </p>
+                                <p>
+                                    <strong>Leave Type:</strong> {selectedLeave.leaveType}
+                                </p>
+                                <p>
+                                    <strong>Approval Date:</strong>{" "}
+                                    {selectedLeave.approvedAt
+                                        ? new Date(selectedLeave.approvedAt).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })
+                                        : "-"}
+                                </p>
+                                <p>
+                                    <strong>Reason:</strong> {selectedLeave.reason}
+                                </p>
+                                <p>
+                                    <strong>Approved By:</strong>{" "}
+                                    {selectedLeave.approvedBy ? (
+                                        <>
+                                            {selectedLeave.approvedBy.name}
+                                            <span
+                                                style={{
+                                                    marginLeft: "10px",
+                                                    fontStyle: "italic",
+                                                    color: "#888",
+                                                }}
+                                            >
+                                                ({selectedLeave.approvedBy.userType})
+                                            </span>
+                                        </>
+                                    ) : (
+                                        "-"
+                                    )}
+                                </p>
+                            </div>
+
+                            {/* Center Line */}
+                            <div
+                                style={{
+                                    width: "1px", // Thin vertical line
+                                    backgroundColor: "#D9D9D9", // Gray color
+                                    alignSelf: "stretch", // Ensures it stretches to the height of its parent container
+                                }}
+                            ></div>
+
+                            {/* Right Side: Leave Counts */}
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ color: "#0E4772", marginBottom: "10px", fontSize: "20px" }}>
+                                    User Leave Count
+                                </h4>
+                                <p>
+                                {/* {userLeaveData.sickLeaves || 0} */}
+                                    <strong>Annual Leaves:</strong> {userLeaveData.annualLeaves || 0}
+                                </p>
+                                <p>
+
+                                    <strong>Casual Leaves:</strong> {userLeaveData.casualLeaves || 0}
+                                </p>
+                                <p>
+                                    <strong>Sick Leaves:</strong> {userLeaveData.sickLeaves || 0}
+                                </p>
+                                <p>
+                                    <strong>Bereavement Leaves:</strong> {userLeaveData.bereavementLeaves || 0}
+                                </p>
+                            </div>
+                        </div>
+
                         {activeTab === "requestedLeaves" && (
                             <>
                                 <p>
@@ -634,8 +725,10 @@ const OwnerTeam = () => {
                     >
                         {selectedLeave.status.toUpperCase()}
                     </span>
+
                 </div>
-            </div>
+            </div >
+
         );
     };
 
@@ -1212,7 +1305,8 @@ const OwnerTeam = () => {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form >
+                        <Form>
+                            {/* Sick Leaves */}
                             <Form.Group className="mb-3">
                                 <Form.Label style={{ fontWeight: "bold", color: "#1E477A" }}>
                                     SICK LEAVES
@@ -1220,11 +1314,13 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="sickLeaves"
-                                    value={leaveData.sickLeaves}
+                                    value={leaveData.sickLeaves || 0} // Show existing value or 0
                                     onChange={handleInputChange}
-                                    placeholder="Only numbers"
+                                    placeholder="Enter Sick Leaves"
                                 />
                             </Form.Group>
+
+                            {/* Casual Leaves */}
                             <Form.Group className="mb-3">
                                 <Form.Label style={{ fontWeight: "bold", color: "#1E477A" }}>
                                     CASUAL LEAVES
@@ -1232,11 +1328,13 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="casualLeaves"
-                                    value={leaveData.casualLeaves}
+                                    value={leaveData.casualLeaves || 0} // Show existing value or 0
                                     onChange={handleInputChange}
-                                    placeholder="Only numbers"
+                                    placeholder="Enter Casual Leaves"
                                 />
                             </Form.Group>
+
+                            {/* Bereavement Leaves */}
                             <Form.Group className="mb-3">
                                 <Form.Label style={{ fontWeight: "bold", color: "#1E477A" }}>
                                     BEREAVEMENT LEAVE
@@ -1244,21 +1342,23 @@ const OwnerTeam = () => {
                                 <Form.Control
                                     type="number"
                                     name="bereavementLeaves"
-                                    value={leaveData.bereavementLeaves}
+                                    value={leaveData.bereavementLeaves || 0} // Show existing value or 0
                                     onChange={handleInputChange}
-                                    placeholder="Only numbers"
+                                    placeholder="Enter Bereavement Leaves"
                                 />
                             </Form.Group>
+
+                            {/* Annual Leaves */}
                             <Form.Group className="mb-3">
                                 <Form.Label style={{ fontWeight: "bold", color: "#1E477A" }}>
-                                    ANNUAL LEAVES *
+                                    ANNUAL LEAVES
                                 </Form.Label>
                                 <Form.Control
                                     type="number"
                                     name="annualLeaves"
-                                    value={leaveData.annualLeaves}
+                                    value={leaveData.annualLeaves || 0} // Show existing value or 0
                                     onChange={handleInputChange}
-                                    placeholder="Only numbers"
+                                    placeholder="Enter Annual Leaves"
                                 />
                             </Form.Group>
                         </Form>
@@ -1281,6 +1381,7 @@ const OwnerTeam = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
                 {/* {modalOpen && renderOpenModal()} */}
 
             </div >
