@@ -33,6 +33,7 @@ import { useSocket } from '../io'; // Correct import
 import { useSelector, useDispatch } from 'react-redux';
 import { setEmployessSetting } from "../store/adminSlice"; // Adjust the import based on your file structure
 import Payment from "./paymentPlan";
+import jwtDecode from "jwt-decode";
 
 
 function UserDetails() {
@@ -179,13 +180,65 @@ function UserDetails() {
 
     const apiUrl = "https://myuniversallanguages.com:9093/api/v1";
     let token = localStorage.getItem('token');
-    let items = JSON.parse(localStorage.getItem('items'));
+    let items = jwtDecode(token);
     let headers = {
         Authorization: "Bearer " + token,
     }
     const params = useParams()
     const apiUrl2 = "https://ss-track.vercel.app/api/v1/owner";
     const userId = params.id;
+
+    const handleStartTimeChange = (e) => {
+        let value = e.target.value;
+
+        // Allow only valid characters (digits, colon, space, AM/PM)
+        if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
+            // Update state
+            setOfflineTime((prev) => ({
+                ...prev,
+                startTime: value,
+            }));
+        } else {
+            enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+
+        // Validate full input format
+        if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
+            enqueueSnackbar("Invalid start time format. Please use 'HH:mm AM/PM'", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
+
+    const handleEndTimeChange = (e) => {
+        let value = e.target.value;
+
+        // Allow only valid characters (digits, colon, space, AM/PM)
+        if (/^[0-9: ]*(AM|PM)?$/i.test(value) || value === "") {
+            // Update state
+            setOfflineTime((prev) => ({
+                ...prev,
+                endTime: value,
+            }));
+        } else {
+            enqueueSnackbar("Only numeric values and 'AM/PM' are allowed", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+
+        // Validate full input format
+        if (value && !/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)?$/i.test(value)) {
+            enqueueSnackbar("Invalid end time format. Please use 'HH:mm AM/PM'", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "right" },
+            });
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -223,7 +276,7 @@ function UserDetails() {
             setLoading(false);
         }
     };
-    
+
     // const fetchData = async () => {
     //     if (items?.userType === "admin" || items?.userType === "owner" || items?.userType === "manager") {
     //         try {
@@ -469,8 +522,10 @@ function UserDetails() {
             const formattedHour = hour <= 12 ? hour : hour - 12;
 
             intervals.push(
-                <div key={hour} className="time-slot">
-                    <div className="hour-color">
+                <div key={hour} className="time-slot" >
+                    <div className="hour-color"
+                    // style={{width:'12px'}}
+                    >
                         {formattedHour === 0 ? 12 : formattedHour} {isPM ? 'pm' : 'am'}
                         <div className="minute-container">
                             {Array.from({ length: 60 }, (_, minute) => {
@@ -581,6 +636,44 @@ function UserDetails() {
         setShowDeleteModal(true)
         setScreenshotId(elements._id)
     }
+
+    useEffect(() => {
+        if (offlineTime?.startTime && offlineTime?.endTime) {
+            const parseTime = (time) => {
+                const [hours, minutes, meridian] = time.match(/(\d+):(\d+)\s?(AM|PM)/i).slice(1);
+                let hours24 = parseInt(hours, 10);
+                if (meridian.toUpperCase() === "PM" && hours24 !== 12) hours24 += 12;
+                if (meridian.toUpperCase() === "AM" && hours24 === 12) hours24 = 0;
+                return { hours: hours24, minutes: parseInt(minutes, 10) };
+            };
+
+            const start = parseTime(offlineTime.startTime);
+            const end = parseTime(offlineTime.endTime);
+
+            const startMinutes = start.hours * 60 + start.minutes;
+            const endMinutes = end.hours * 60 + end.minutes;
+
+            if (endMinutes > startMinutes) {
+                const totalMinutes = endMinutes - startMinutes;
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                setOfflineTime((prev) => ({
+                    ...prev,
+                    totalHours: `${hours}h ${minutes}m`,
+                }));
+            } else {
+                setOfflineTime((prev) => ({
+                    ...prev,
+                    totalHours: "Invalid range",
+                }));
+            }
+        } else {
+            setOfflineTime((prev) => ({
+                ...prev,
+                totalHours: "0h 0m",
+            }));
+        }
+    }, [offlineTime?.startTime, offlineTime?.endTime]);
 
     const handleDeleteSS = async () => {
         setShowDeleteModal(false)
@@ -1014,19 +1107,23 @@ function UserDetails() {
                                 You will able to edit or delete from there
                             </p>
                             <div className="editboxinputdiv">
-                                <input onChange={(e) => setOfflineTime({ ...offlineTime, startTime: e.target.value })} value={offlineTime?.startTime} />
+                                <input
+                                    onChange={handleStartTimeChange}
+                                    value={offlineTime?.startTime}
+                                    placeholder="Start Time (e.g., 7:00 AM)"
+                                />
                                 -
-                                <input onChange={(e) => setOfflineTime({ ...offlineTime, endTime: e.target.value })} value={offlineTime?.endTime} />
+                                <input
+                                    onChange={handleEndTimeChange}
+                                    value={offlineTime?.endTime}
+                                    placeholder="End Time (e.g., 9:00 PM)"
+                                />
                                 <p>-{offlineTime?.totalHours ? offlineTime?.totalHours : "0h 0m"}</p>
                             </div>
                             <p className="sevenAm">eg 7am to 9:10am or 17:30 to 22:00</p>
                             <div>
                                 <select className="projectOption">
                                     <option>I8IS</option>
-                                    {/* <option>Y8HR</option>
-                                    <option>Peel HR</option>
-                                    <option>Geox HR</option>
-                                    <option>Click HR</option> */}
                                 </select>
                             </div>
                             <textarea placeholder="Note (optional)" rows="5" ></textarea>
